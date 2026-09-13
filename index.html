@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Excelencia | by martin.g</title>
+    
+    <!-- Tipografías de alta gama -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root { 
+            --bg-base: #030305; --bg-card: #0b0b0e; --text-main: #ffffff; 
+            --text-muted: #888890; --available: #00e676; --available-bg: rgba(0, 230, 118, 0.06);
+            --unavailable: #ff1744; --unavailable-bg: rgba(255, 23, 68, 0.05);
+            --border-color: #1f1f26; --accent-gold: #c5a059;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { 
+            background-color: var(--bg-base); color: var(--text-main); font-family: 'Montserrat', sans-serif;
+            display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 12px;
+        }
+
+        /* Marco tricolor en diagonal (/) que recorre todo el contorno */
+        .app-wrapper-frame {
+            width: 100%; max-width: 420px; padding: 5px; border-radius: 8px;
+            background: repeating-linear-gradient(
+                -45deg,
+                #cc0000, #cc0000 15px, 
+                #ffffff 15px, #ffffff 30px, 
+                #0044cc, #0044cc 45px, 
+                #ffffff 45px, #ffffff 60px
+            );
+            background-size: 120px 120px;
+            animation: frame-slide 3s linear infinite;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+        }
+        @keyframes frame-slide { 0% { background-position: 0 0; } 100% { background-position: 120px 120px; } }
+
+        .app-wrapper { width: 100%; background: var(--bg-card); min-height: calc(100vh - 24px); display: flex; flex-direction: column; border-radius: 4px; overflow: hidden; position: relative; }
+        
+        header { padding: 35px 24px 20px; text-align: center; border-bottom: 1px solid var(--border-color); }
+        header h1 { font-family: 'Great Vibes', cursive; font-size: 50px; font-weight: 400; color: #ffffff; margin-bottom: -6px; }
+        header p { font-family: 'Montserrat', sans-serif; color: var(--accent-gold); font-size: 10px; font-weight: 600; letter-spacing: 5px; text-transform: uppercase; }
+        
+        .view-section { display: none; padding: 25px 24px 40px; flex-grow: 1; animation: fadeIn 0.3s ease; }
+        .view-section.active { display: flex; flex-direction: column; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .form-label { display: block; margin: 20px 0 10px; font-size: 10px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
+        
+        /* Botones sociales oficiales con modal institucional */
+        .btn-login { 
+            width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px; 
+            padding: 16px; margin-bottom: 12px; border-radius: 4px; border: none; 
+            font-size: 11px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; transition: 0.2s;
+        }
+        .btn-google { background: #ffffff; color: #1f1f1f; }
+        .btn-google:hover { background: #f1f1f1; }
+        .btn-apple { background: #000000; color: #ffffff; border: 1px solid #333; }
+        .btn-apple:hover { background: #111111; }
+
+        /* Tarjetas de servicios visuales */
+        .services-grid { display: flex; flex-direction: column; gap: 10px; }
+        .service-card { background: #08080a; border: 1px solid var(--border-color); border-radius: 4px; padding: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; transition: 0.2s; }
+        .service-card.selected { border-color: var(--accent-gold); background: #141418; }
+        .service-info h4 { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 3px; }
+        .service-info span { font-size: 11px; color: var(--text-muted); }
+        .service-price { font-size: 15px; font-weight: 700; color: var(--accent-gold); }
+
+        /* Calendario horizontal */
+        .calendar-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+        .calendar-scroll::-webkit-scrollbar { display: none; }
+        .date-card { min-width: 60px; padding: 12px 8px; border-radius: 4px; border: 1px solid var(--border-color); background: #08080a; text-align: center; cursor: pointer; }
+        .date-card.selected { border-color: var(--accent-gold); background: #141418; }
+        .date-day-name { display: block; font-size: 9px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; }
+        .date-day-number { display: block; font-size: 18px; font-weight: 600; color: #fff; }
+
+        /* Grilla de turnos */
+        .time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 5px; }
+        .time-slot { padding: 14px 0; text-align: center; border-radius: 4px; border: 1px solid; font-size: 13px; font-weight: 700; }
+        .time-slot.available { border-color: var(--available); color: var(--available); background: var(--available-bg); cursor: pointer; }
+        .time-slot.selected { background: var(--available); color: #000; }
+        .time-slot.unavailable { border-color: var(--unavailable); color: var(--unavailable); background: var(--unavailable-bg); text-decoration: line-through; cursor: not-allowed; opacity: 0.5; }
+
+        .btn-primary { width: 100%; padding: 18px; margin-top: 25px; background: #ffffff; color: #000000; border: none; font-weight: 700; font-size: 12px; border-radius: 4px; cursor: pointer; text-transform: uppercase; letter-spacing: 3px; }
+        .btn-primary:disabled { background: #151518; color: #44444d; cursor: not-allowed; }
+
+        /* Modales institucionales profesionales */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.88); backdrop-filter: blur(8px); display: none; justify-content: center; align-items: center; z-index: 1000; }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: #0e0e12; width: 90%; max-width: 340px; padding: 35px 25px; text-align: center; border: 1px solid var(--border-color); border-radius: 4px; }
+        .modal-title { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; color: #fff; }
+        .modal-text { font-size: 12px; color: var(--text-muted); margin-bottom: 25px; }
+        .btn-modal { width: 100%; padding: 15px; background: #ffffff; color: #000000; border: none; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 2px; font-size: 10px; border-radius: 2px; }
+        
+        .auth-input {
+            width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 2px; 
+            border: 1px solid var(--border-color); background: #050507; color: #fff; 
+            font-size: 13px; font-family: 'Montserrat', sans-serif; outline: none; text-align: center;
+        }
+        .auth-input:focus { border-color: var(--accent-gold); }
+
+        #notification-toast {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-100px);
+            background: #141418; border: 1px solid var(--accent-gold); color: #fff;
+            padding: 12px 20px; border-radius: 4px; font-size: 11px; font-weight: 600;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); z-index: 2000; transition: transform 0.3s ease;
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+        #notification-toast.show { transform: translateX(-50%) translateY(0); }
+    </style>
+</head>
+<body>
+
+    <div id="notification-toast">Notificación</div>
+
+    <div class="app-wrapper-frame">
+        <div class="app-wrapper">
+            <header>
+                <h1>Excelencia</h1>
+                <p>by martin.g</p>
+            </header>
+
+            <!-- VISTA LOGIN -->
+            <div id="vista-login" class="view-section active">
+                <div style="flex-grow: 1; display: flex; flex-direction: column; justify-content: center;">
+                    <p style="text-align: center; color: var(--text-muted); font-size: 11px; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 25px;">Acceso institucional seguro</p>
+                    
+                    <button class="btn-login btn-google" onclick="abrirModalAuth('google')">
+                        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+                        Continuar con Google
+                    </button>
+                    <button class="btn-login btn-apple" onclick="abrirModalAuth('apple')">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="#ffffff"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.15 2.95.97 3.83 2.32-3.3 2.1-2.73 6.64.44 7.95-.78 1.96-1.78 3.84-2.92 2.74zm-2.99-13.8c.63-1.6 2.17-3.09 3.8-3.19-.38 2.08-2.07 3.73-3.8 3.19z"/></svg>
+                        Continuar con Apple ID
+                    </button>
+                </div>
+            </div>
+
+            <!-- VISTA CLIENTE -->
+            <div id="vista-cliente" class="view-section">
+                <label class="form-label">1. Seleccione Servicio</label>
+                <div class="services-grid" id="lista-servicios-visual"></div>
+
+                <label class="form-label">2. Seleccione Día Hábil</label>
+                <div class="calendar-scroll" id="contenedor-calendario"></div>
+
+                <label class="form-label">3. Horarios Disponibles</label>
+                <div class="time-grid" id="grilla-horarios">
+                    <div style="grid-column: span 3; text-align: center; color: var(--text-muted); font-size: 11px; padding: 15px 0; border: 1px dashed var(--border-color); text-transform: uppercase;">
+                        Seleccione un servicio y día
+                    </div>
+                </div>
+
+                <button class="btn-primary" id="btn-confirmar" disabled onclick="confirmarReserva()">Confirmar Cita</button>
+            </div>
+
+            <!-- VISTA ADMIN -->
+            <div id="vista-admin" class="view-section">
+                <label class="form-label">Panel de Administración - Martín</label>
+                <div id="lista-admin-servicios" style="background: #08080a; border: 1px solid var(--border-color); padding: 0 15px; margin-bottom: 15px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE AUTENTICACIÓN INSTITUCIONAL -->
+    <div class="modal-overlay" id="auth-modal">
+        <div class="modal-box">
+            <h3 class="modal-title" id="auth-modal-title">Acceso Seguro</h3>
+            <p class="modal-text" id="auth-modal-text">Ingrese su correo electrónico institucional o verificado para continuar.</p>
+            <input type="email" id="auth-email-input" class="auth-input" placeholder="correo@ejemplo.com">
+            <button class="btn-modal" onclick="ejecutarAutenticacion()" style="margin-bottom: 10px; background: var(--accent-gold); color: #000;">Continuar</button>
+            <button class="btn-modal" onclick="cerrarModalAuth()" style="background: transparent; color: #888; border: 1px solid var(--border-color);">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE ALERTA -->
+    <div class="modal-overlay" id="custom-modal">
+        <div class="modal-box">
+            <h3 class="modal-title" id="modal-title">Título</h3>
+            <p class="modal-text" id="modal-text">Mensaje</p>
+            <button class="btn-modal" onclick="cerrarAlerta()">Aceptar</button>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = `${window.location.origin}/api`;
+        let usuarioActual = null;
+        let servicioSeleccionadoId = null;
+        let fechaSeleccionada = null;
+        let horarioSeleccionado = null;
+        let metodoActual = '';
+
+        function mostrarAlerta(titulo, mensaje) {
+            document.getElementById('modal-title').textContent = titulo;
+            document.getElementById('modal-text').textContent = mensaje;
+            document.getElementById('custom-modal').classList.add('active');
+        }
+        function cerrarAlerta() { document.getElementById('custom-modal').classList.remove('active'); }
+
+        function dispararToast(texto) {
+            const toast = document.getElementById('notification-toast');
+            toast.textContent = texto;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 4000);
+        }
+
+        function abrirModalAuth(metodo) {
+            metodoActual = metodo;
+            document.getElementById('auth-modal-title').textContent = metodo === 'google' ? 'Acceso con Google' : 'Acceso con Apple ID';
+            document.getElementById('auth-email-input').value = '';
+            document.getElementById('auth-modal').classList.add('active');
+            document.getElementById('auth-email-input').focus();
+        }
+
+        function cerrarModalAuth() {
+            document.getElementById('auth-modal').classList.remove('active');
+        }
+
+        async function ejecutarAutenticacion() {
+            const email = document.getElementById('auth-email-input').value.trim();
+            if (!email || !email.includes('@')) {
+                mostrarAlerta('Atención', 'Ingrese un correo electrónico válido.');
+                return;
+            }
+            cerrarModalAuth();
+
+            try {
+                const res = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, nombre: metodoActual === 'google' ? 'Usuario Google' : 'Usuario Apple' })
+                });
+                
+                usuarioActual = await res.json();
+                document.getElementById('vista-login').classList.remove('active');
+                
+                if (usuarioActual.rol === 'admin') {
+                    document.getElementById('vista-admin').classList.add('active');
+                    cargarServiciosAdmin();
+                } else {
+                    document.getElementById('vista-cliente').classList.add('active');
+                    cargarServiciosClienteVisual();
+                    generarCalendario();
+                }
+            } catch (err) {
+                mostrarAlerta('Error', 'Falla de conexión con el servidor central.');
+            }
+        }
+
+        async function cargarServiciosClienteVisual() {
+            const res = await fetch(`${API_URL}/servicios`);
+            const servicios = await res.json();
+            const contenedor = document.getElementById('lista-servicios-visual');
+            contenedor.innerHTML = '';
+            servicios.forEach(s => {
+                const card = document.createElement('div');
+                card.className = 'service-card';
+                card.innerHTML = `<div class="service-info"><h4>${s.nombre}</h4><span>${s.duracion_minutos} min</span></div><div class="service-price">$${s.precio}</div>`;
+                card.onclick = () => {
+                    document.querySelectorAll('.service-card').forEach(el => el.classList.remove('selected'));
+                    card.classList.add('selected');
+                    servicioSeleccionadoId = s.id;
+                    verificarHabilitacionBoton();
+                };
+                contenedor.appendChild(card);
+            });
+        }
+
+        async function cargarServiciosAdmin() {
+            const res = await fetch(`${API_URL}/servicios`);
+            const servicios = await res.json();
+            const lista = document.getElementById('lista-admin-servicios');
+            lista.innerHTML = '';
+            servicios.forEach(s => {
+                lista.innerHTML += `<div style="display:flex; justify-content:space-between; padding:15px 0; border-bottom:1px solid #1a1a20; font-size:12px;"><span style="color:#aaa;">${s.nombre}</span> <span style="font-weight:700; color:var(--accent-gold);">$${s.precio}</span></div>`;
+            });
+        }
+
+        function generarCalendario() {
+            const contenedor = document.getElementById('contenedor-calendario');
+            contenedor.innerHTML = '';
+            const diasSemana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+            let fechaActual = new Date();
+            let diasAgregados = 0;
+            while (diasAgregados < 10) {
+                if (fechaActual.getDay() !== 0) {
+                    const diaNombre = diasSemana[fechaActual.getDay()];
+                    const diaNumero = fechaActual.getDate();
+                    const fechaISO = fechaActual.toISOString().split('T')[0];
+                    const tarjeta = document.createElement('div');
+                    tarjeta.className = 'date-card';
+                    tarjeta.innerHTML = `<span class="date-day-name">${diaNombre}</span><span class="date-day-number">${diaNumero}</span>`;
+                    tarjeta.onclick = () => {
+                        document.querySelectorAll('.date-card').forEach(el => el.classList.remove('selected'));
+                        tarjeta.classList.add('selected');
+                        fechaSeleccionada = fechaISO;
+                        generarHorariosDisponibles();
+                    };
+                    contenedor.appendChild(tarjeta);
+                    diasAgregados++;
+                }
+                fechaActual.setDate(fechaActual.getDate() + 1);
+            }
+        }
+
+        function generarHorariosDisponibles() {
+            const grilla = document.getElementById('grilla-horarios');
+            grilla.innerHTML = '';
+            horarioSeleccionado = null;
+            verificarHabilitacionBoton();
+            ['10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'].forEach(hora => {
+                const slot = document.createElement('div');
+                slot.textContent = hora;
+                if (Math.random() < 0.3) {
+                    slot.className = 'time-slot unavailable';
+                } else {
+                    slot.className = 'time-slot available';
+                    slot.onclick = () => {
+                        document.querySelectorAll('.time-slot.available').forEach(el => el.classList.remove('selected'));
+                        slot.classList.add('selected');
+                        horarioSeleccionado = hora;
+                        verificarHabilitacionBoton();
+                    };
+                }
+                grilla.appendChild(slot);
+            });
+        }
+
+        function verificarHabilitacionBoton() {
+            document.getElementById('btn-confirmar').disabled = !(servicioSeleccionadoId && fechaSeleccionada && horarioSeleccionado);
+        }
+
+        async function confirmarReserva() {
+            const fechaHora = `${fechaSeleccionada} ${horarioSeleccionado}:00`;
+            try {
+                const res = await fetch(`${API_URL}/turnos`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ cliente_id: usuarioActual.id, servicios_id: servicioSeleccionadoId, fecha_hora: fechaHora })
+                });
+                if (res.ok) {
+                    mostrarAlerta('Cita Confirmada', 'Su turno ha sido registrado con éxito en la base de datos.');
+                    dispararToast('¡Turno agendado con éxito!');
+                    document.getElementById('btn-confirmar').disabled = true;
+                }
+            } catch (err) {
+                mostrarAlerta('Error', 'No se pudo guardar la reserva.');
+            }
+        }
+    </script>
+</body>
+</html>
