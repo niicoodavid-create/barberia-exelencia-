@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Excelencia - Barbería de Autor</title>
-    <!-- Fuente elegante estilo autor / Great Vibes -->
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -18,9 +17,7 @@
             justify-content: center;
             min-height: 100vh;
             padding: 20px;
-            overflow-x: hidden;
         }
-        /* Marco Tricolor Estilizado Animado en Diagonal */
         .marco-tricolor {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -44,10 +41,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             z-index: 10;
         }
-        .header-title {
-            text-align: center;
-            margin-bottom: 25px;
-        }
+        .header-title { text-align: center; margin-bottom: 25px; }
         .header-title h1 {
             font-family: 'Great Vibes', cursive;
             font-size: 52px;
@@ -61,7 +55,6 @@
             text-transform: uppercase;
             letter-spacing: 3px;
         }
-        /* Estilos de Botones Sociales y Formulario */
         .btn-social {
             width: 100%;
             padding: 13px;
@@ -74,20 +67,12 @@
             align-items: center;
             justify-content: center;
             gap: 12px;
-            transition: all 0.2s ease;
             border: none;
+            transition: background 0.2s;
         }
-        .btn-google {
-            background: #ffffff;
-            color: #1f1f1f;
-        }
+        .btn-google { background: #ffffff; color: #1f1f1f; }
         .btn-google:hover { background: #e0e0e0; }
-        .btn-apple {
-            background: #000000;
-            color: #ffffff;
-            border: 1px solid #333;
-        }
-        .btn-apple:hover { background: #1a1a1a; }
+        .btn-apple { background: #000000; color: #ffffff; border: 1px solid #333; }
         .divisor {
             margin: 22px 0;
             border-top: 1px solid #262626;
@@ -96,20 +81,16 @@
         }
         .divisor span {
             position: absolute;
-            top: -10px;
-            left: 50%;
+            top: -10px; left: 50%;
             transform: translateX(-50%);
             background: #141414;
             padding: 0 12px;
             color: #666;
             font-size: 11px;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
-        .input-group {
-            margin-bottom: 15px;
-        }
-        .input-group input {
+        .input-group { margin-bottom: 15px; }
+        .input-group input, .input-group select {
             width: 100%;
             padding: 12px 15px;
             background: #1f1f1f;
@@ -118,10 +99,6 @@
             border-radius: 8px;
             font-size: 14px;
             outline: none;
-            transition: border-color 0.2s;
-        }
-        .input-group input:focus {
-            border-color: #c5a059;
         }
         .btn-primary {
             width: 100%;
@@ -133,111 +110,164 @@
             font-weight: bold;
             font-size: 15px;
             cursor: pointer;
-            transition: background 0.2s;
         }
         .btn-primary:hover { background: #b08d48; }
         .hidden { display: none !important; }
-        
-        /* Panel interno de reserva */
         .dashboard-view { text-align: left; }
-        .dashboard-view h2 { color: #c5a059; margin-bottom: 15px; font-size: 22px; }
+        .dashboard-view h2 { color: #c5a059; margin-bottom: 10px; font-size: 22px; }
         .welcome-msg { font-size: 14px; color: #aaa; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
-    <!-- Marco Tricolor Decorativo -->
     <div class="marco-tricolor"></div>
 
     <div class="main-container">
         <!-- VISTA DE LOGIN -->
-        <div id="loginView" class="header-title">
-            <h1>Excelencia</h1>
-            <p>Barbería de Autor</p>
-
-            <div style="margin-top: 25px;">
-                <!-- Botón Oficial Google -->
-                <button class="btn-social btn-google" onclick="authSocial('Google')">
-                    <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-                    Continuar con Google
-                </button>
-
-                <!-- Botón Oficial Apple -->
-                <button class="btn-social btn-apple" onclick="authSocial('Apple')">
-                    <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 170 170" fill="#fff"><path d="M150.37 130.25c-2.45 5.66-5.35 10.87-8.71 15.66-4.58 6.53-8.33 11.05-11.22 13.56-4.48 4.12-9.28 6.23-14.42 6.35-3.69 0-8.14-1.05-13.32-3.18-5.19-2.12-9.97-3.17-14.34-3.17-4.58 0-9.49 1.05-14.75 3.17-5.26 2.13-9.5 3.24-12.74 3.35-4.35.13-9.1-1.9-14.24-6.08-3.92-3.3-7.86-8-11.82-14.1-8.03-12.44-14.28-26.06-18.76-40.85-4.48-14.79-6.72-28.73-6.72-41.82 0-16.14 4.15-29.23 12.45-39.29 8.3-10.05 18.66-15.15 31.08-15.28 5.65 0 11.39 1.34 17.22 4.02 5.83 2.68 9.72 4.02 11.68 4.02 1.95 0 6.01-1.41 12.18-4.23 6.17-2.82 12.06-4.14 17.68-3.95 12.11.87 21.94 5.67 29.5 14.41-11.05 6.73-16.48 16.29-16.29 28.68.22 9.58 3.96 17.51 11.22 23.8 7.26 6.29 15.96 9.53 26.1 9.72-2.17 6.62-4.99 13.54-8.45 20.76zM119.22 31.85c0-7.85 2.78-15.08 8.34-21.68 5.56-6.6 12.72-10.38 21.48-11.34.22 1.3 .33 2.61.33 3.92 0 7.41-2.78 14.61-8.34 21.61-5.56 7-12.72 10.87-21.48 11.49-.21-1.33-.33-2.65-.33-4z"/></svg>
-                    Continuar con Apple
-                </button>
-
-                <div class="divisor">
-                    <span>o con correo institucional</span>
-                </div>
-
-                <div class="input-group">
-                    <input type="email" id="emailInput" placeholder="Correo electrónico (ej: martin@barberia.com)">
-                </div>
-                <div class="input-group">
-                    <input type="text" id="nombreInput" placeholder="Nombre completo">
-                </div>
-                <button class="btn-primary" onclick="loginTradicional()">Ingresar al Sistema</button>
+        <div id="loginView">
+            <div class="header-title">
+                <h1>Excelencia</h1>
+                <p>Barbería de Autor</p>
             </div>
+
+            <!-- Botón Real de Google OAuth -->
+            <button class="btn-social btn-google" onclick="window.location.href='/auth/google'">
+                <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                Continuar con Google Real
+            </button>
+
+            <div class="divisor">
+                <span>o acceso institucional</span>
+            </div>
+
+            <div class="input-group">
+                <input type="email" id="emailInput" placeholder="Correo electrónico">
+            </div>
+            <div class="input-group">
+                <input type="text" id="nombreInput" placeholder="Nombre completo">
+            </div>
+            <button class="btn-primary" onclick="loginTradicional()">Ingresar al Sistema</button>
         </div>
 
-        <!-- VISTA DE RESERVA / DASHBOARD (Oculta al inicio) -->
+        <!-- VISTA DE PANEL Y RESERVAS -->
         <div id="dashboardView" class="dashboard-view hidden">
             <h2>Panel de Citas</h2>
             <p id="welcomeUser" class="welcome-msg"></p>
-            <hr style="border: 0; border-top: 1px solid #333; margin-bottom: 20px;">
-            <p style="color: #888; font-size: 14px; text-align: center; padding: 20px 0;">Sistema conectado a la base de datos en la nube. Módulo de turnos activo.</p>
-            <button class="btn-primary" onclick="cerrarSesion()" style="background: #333; color: #fff; margin-top: 15px;">Cerrar Sesión</button>
+            
+            <div class="input-group">
+                <label style="font-size: 13px; color: #888; display: block; margin-bottom: 5px;">Selecciona un Servicio:</label>
+                <select id="selectServicios">
+                    <option value="">Cargando servicios...</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label style="font-size: 13px; color: #888; display: block; margin-bottom: 5px;">Fecha y Hora:</label>
+                <input type="datetime-local" id="fechaHoraInput">
+            </div>
+
+            <button class="btn-primary" onclick="reservarTurno()">Reservar Turno</button>
+            <button class="btn-primary" onclick="cerrarSesion()" style="background: #333; color: #fff; margin-top: 10px;">Cerrar Sesión</button>
         </div>
     </div>
 
     <script>
-        // Lógica de Autenticación Rápida
+        let usuarioActual = null;
+
+        // Comprobar si Google devolvió la sesión exitosa por URL
+        window.onload = async function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const userStored = localStorage.getItem('usuarioActivo');
+            
+            if (userStored) {
+                usuarioActual = JSON.parse(userStored);
+                mostrarDashboard(usuarioActual.nombre, usuarioActual.rol);
+            }
+        };
+
         async function loginTradicional() {
             const email = document.getElementById('emailInput').value.trim();
             const nombre = document.getElementById('nombreInput').value.trim();
 
             if (!email || !nombre) {
-                alert("Por favor, completa ambos campos.");
+                alert("Completa ambos campos.");
                 return;
             }
 
             try {
-                const response = await fetch('/api/login', {
+                const res = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, nombre })
                 });
-                const data = await response.json();
-                if (response.ok) {
+                const data = await res.json();
+                if (res.ok) {
+                    usuarioActual = data;
+                    localStorage.setItem('usuarioActivo', JSON.stringify(data));
                     mostrarDashboard(data.nombre, data.rol);
                 } else {
-                    alert("Error en el servidor al iniciar sesión.");
+                    alert("Error al iniciar sesión.");
                 }
-            } catch (error) {
-                alert("Error de conexión con la base de datos.");
+            } catch (err) {
+                alert("Error de conexión con el servidor.");
             }
         }
 
-        function authSocial(proveedor) {
-            // Simulación interactiva oficial de autenticación OAuth emergente
-            const correoSimulado = proveedor === 'Google' ? 'cliente.google@gmail.com' : 'usuario@icloud.com';
-            const nombreSimulado = `Usuario de ${proveedor}`;
-            
-            alert(`[${proveedor} Auth]: Autenticación aprobada con cuenta oficial de ${proveedor}.`);
-            mostrarDashboard(nombreSimulado, 'cliente');
-        }
-
-        function mostrarDashboard(nombre, rol) {
+        async function mostrarDashboard(nombre, rol) {
             document.getElementById('loginView').classList.add('hidden');
             document.getElementById('dashboardView').classList.remove('hidden');
             document.getElementById('welcomeUser').innerText = `Bienvenido, ${nombre} (${rol.toUpperCase()})`;
+            
+            // Cargar servicios desde la base de datos de PostgreSQL
+            try {
+                const res = await fetch('/api/servicios');
+                const servicios = await res.json();
+                const select = document.getElementById('selectServicios');
+                select.innerHTML = '';
+                servicios.forEach(s => {
+                    const opt = document.createElement('option');
+                    opt.value = s.id;
+                    opt.textContent = `${s.nombre} - $${s.precio}`;
+                    select.appendChild(opt);
+                });
+            } catch (err) {
+                console.error("Error al cargar servicios");
+            }
+        }
+
+        async function reservarTurno() {
+            const servicioId = document.getElementById('selectServicios').value;
+            const fechaHora = document.getElementById('fechaHoraInput').value;
+
+            if (!fechaHora || !servicioId) {
+                alert("Selecciona un servicio y una fecha/hora.");
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/turnos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        cliente_id: usuarioActual.id,
+                        servicios_id: servicioId,
+                        fecha_hora: fechaHora
+                    })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    alert("¡Turno reservado con éxito en la base de datos!");
+                } else {
+                    alert("Error al guardar el turno.");
+                }
+            } catch (err) {
+                alert("Error de conexión al reservar.");
+            }
         }
 
         function cerrarSesion() {
-            document.getElementById('dashboardView').classList.add('hidden');
-            document.getElementById('loginView').classList.remove('hidden');
+            localStorage.removeItem('usuarioActivo');
+            window.location.href = '/';
         }
     </script>
 </body>
