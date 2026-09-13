@@ -1,17 +1,15 @@
 const express = require('express');
 const { Pool } = require('pg');
+const path = require('path');
 const https = require('https');
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
-// Configuración de la base de datos PostgreSQL
+// Configuración de la base de datos PostgreSQL en la nube
 const pool = new Pool({
-    user: 'postgres',
-    host: 'localhost',
-    database: 'barberia',
-    password: 'Nicosql', // Reemplaza con tu contraseña real
-    port: 5432,
+    connectionString: process.env.DATABASE_URL,
+    ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
 
 app.use(express.json());
@@ -22,75 +20,34 @@ app.use((req, res, next) => {
     next();
 });
 
-// 1. Autenticación Real con Google Token
-app.post('/api/login-google', async (req, res) => {
-    const { token } = req.body;
+// Configurar carpeta estática para servir el index.html y recursos visuales
+app.use(express.static(path.join(__dirname)));
 
-    https.get(`https://oauth2.googleapis.com/tokeninfo?id_token=${token}`, (resp) => {
-        let data = '';
-        resp.on('data', (chunk) => { data += chunk; });
-        resp.on('end', async () => {
-            try {
-                const googleUser = JSON.parse(data);
-                if (!googleUser.email) {
-                    return res.status(401).json({ error: 'Token de Google inválido' });
-                }
-
-                const email = googleUser.email;
-                const nombre = googleUser.name || 'Usuario Google';
-
-                let usuarioRes = await pool.query('SELECT * FROM clientes WHERE email = $1', [email]);
-                let usuario;
-
-                if (usuarioRes.rows.length > 0) {
-                    usuario = usuarioRes.rows[0];
-                } else {
-                    const nuevoUsuario = await pool.query(
-                        'INSERT INTO clientes (nombre, email, rol) VALUES ($1, $2, $3) RETURNING *',
-                        [nombre, email, 'cliente']
-                    );
-                    usuario = nuevoUsuario.rows[0];
-                }
-
-                res.json(usuario);
-            } catch (err) {
-                res.status(500).json({ error: 'Error procesando el usuario de Google' });
-            }
-        });
-    }).on("error", () => {
-        res.status(500).json({ error: 'No se pudo conectar con el servidor de Google' });
-    });
+// Ruta principal obligatoria para evitar el error "Cannot GET /"
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// 2. Autenticación Real con Apple ID
-app.post('/api/login-apple', async (req, res) => {
+// 1. Ruta de Autenticación Institucional por Correo
+app.post('/api/login', async (req, res) => {
     const { email, nombre } = req.body;
-
     try {
-        if (!email) {
-            return res.status(401).json({ error: 'No se pudo obtener el correo de Apple ID' });
-        }
-
-        let usuarioRes = await pool.query('SELECT * FROM clientes WHERE email = $1', [email]);
-        let usuario;
-
-        if (usuarioRes.rows.length > 0) {
-            usuario = usuarioRes.rows[0];
+        let usuarioExistente = await pool.query('SELECT * FROM clientes WHERE email = $1', [email]);
+        if (usuarioExistente.rows.length > 0) {
+            res.json(usuarioExistente.rows[0]);
         } else {
             const nuevoUsuario = await pool.query(
                 'INSERT INTO clientes (nombre, email, rol) VALUES ($1, $2, $3) RETURNING *',
-                [nombre || 'Usuario Apple ID', email, 'cliente']
+                [nombre, email, 'cliente']
             );
-            usuario = nuevoUsuario.rows[0];
+            res.json(nuevoUsuario.rows[0]);
         }
-
-        res.json(usuario);
-    } catch (err) {
-        res.status(500).json({ error: 'Error procesando el usuario de Apple ID' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error en el inicio de sesión' });
     }
 });
 
-// 3. Obtener el catálogo de servicios desde PostgreSQL
+// 2. Catálogo de servicios desde PostgreSQL
 app.get('/api/servicios', async (req, res) => {
     try {
         const resultado = await pool.query('SELECT * FROM servicios;');
@@ -100,7 +57,7 @@ app.get('/api/servicios', async (req, res) => {
     }
 });
 
-// 4. Guardar un nuevo turno/cita
+// 3. Guardar un nuevo turno/cita
 app.post('/api/turnos', async (req, res) => {
     const { cliente_id, servicios_id, fecha_hora } = req.body;
     try {
@@ -115,5 +72,5 @@ app.post('/api/turnos', async (req, res) => {
 });
 
 app.listen(port, () => {
-    console.log(`Servidor real de "Excelencia" corriendo en http://localhost:${port}`);
+    console.log(`Servidor de "Excelencia" corriendo en el puerto ${port}`);
 });
