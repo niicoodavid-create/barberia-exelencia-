@@ -13,7 +13,7 @@ const pool = new Pool({
     ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
 
-// FUNCIÓN AUTOMÁTICA: Crea las tablas y precarga los servicios de la barbería
+// FUNCIÓN AUTOMÁTICA: Crea las tablas, servicios y control de días
 async function inicializarBaseDeDatos() {
     try {
         await pool.query(`
@@ -37,6 +37,12 @@ async function inicializarBaseDeDatos() {
                 fecha_hora VARCHAR(100),
                 estado VARCHAR(50)
             );
+
+            -- NUEVA TABLA: Días bloqueados por el Barbero
+            CREATE TABLE IF NOT EXISTS dias_bloqueados (
+                id SERIAL PRIMARY KEY,
+                fecha VARCHAR(50) UNIQUE
+            );
         `);
 
         // Insertar los servicios solicitados si la tabla está vacía
@@ -56,7 +62,6 @@ async function inicializarBaseDeDatos() {
     }
 }
 
-// Ejecutar la inicialización al arrancar
 inicializarBaseDeDatos();
 
 app.use(express.json());
@@ -65,7 +70,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
     next();
 });
 
@@ -180,7 +185,7 @@ app.put('/api/servicios/:id', async (req, res) => {
     }
 });
 
-// 5. Obtener Turnos Registrados (Para el Administrador)
+// 5. Obtener Turnos Registrados
 app.get('/api/turnos', async (req, res) => {
     try {
         const resultado = await pool.query(`
@@ -200,7 +205,7 @@ app.get('/api/turnos', async (req, res) => {
 app.post('/api/turnos', async (req, res) => {
     const { cliente_id, servicios_id, fecha_hora } = req.body;
     try {
-        // Evitar solapamiento de horarios exactos
+        // Evitar solapamiento
         const ocupado = await pool.query('SELECT * FROM turnos WHERE fecha_hora = $1', [fecha_hora]);
         if (ocupado.rows.length > 0) {
             return res.status(400).json({ error: 'Este horario ya se encuentra reservado.' });
@@ -213,6 +218,26 @@ app.post('/api/turnos', async (req, res) => {
         res.json({ mensaje: '¡Turno reservado con éxito!', turno: nuevoTurno.rows[0] });
     } catch (error) {
         res.status(500).json({ error: 'Error al reservar el turno' });
+    }
+});
+
+// 7. Gestión de Días Bloqueados (NUEVO)
+app.get('/api/dias-bloqueados', async (req, res) => {
+    try {
+        const resultado = await pool.query('SELECT fecha FROM dias_bloqueados;');
+        res.json(resultado.rows.map(row => row.fecha));
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener días bloqueados' });
+    }
+});
+
+app.post('/api/dias-bloqueados', async (req, res) => {
+    const { fecha } = req.body;
+    try {
+        await pool.query('INSERT INTO dias_bloqueados (fecha) VALUES ($1) ON CONFLICT DO NOTHING', [fecha]);
+        res.json({ mensaje: 'Día bloqueado exitosamente' });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al bloquear día' });
     }
 });
 

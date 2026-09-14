@@ -4,15 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Excelencia - Barbería de Autor by Martín G</title>
-    <!-- Favicon del Logo -->
-    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23111'/><path d='M40 20h20v60H40z' fill='%23fff'/><path d='M50 20h10v60H50z' fill='%230033a0'/><path d='M30 20h10v60H30z' fill='%23d52b1e'/><text x='50' y='62' font-family='serif' font-size='42' font-weight='bold' fill='%23c5a059' text-anchor='middle'>E</text></svg>">
-    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23050505'/><path d='M40 20h20v60H40z' fill='%23fff'/><path d='M50 20h10v60H50z' fill='%230033a0'/><path d='M30 20h10v60H30z' fill='%23d52b1e'/><text x='50' y='62' font-family='serif' font-size='42' font-weight='bold' fill='%23c5a059' text-anchor='middle'>E</text></svg>">
+    
+    <!-- Fuentes Profesionales 2026 -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap" rel="stylesheet">
+    
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+        
         body {
-            background: linear-gradient(145deg, #0d0d0d 0%, #171717 100%);
+            background: radial-gradient(circle at top, #1a1a1a 0%, #050505 100%);
             color: #f4f4f4;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Outfit', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -20,176 +24,192 @@
             min-height: 100vh;
             padding: 15px;
             overflow-x: hidden;
+            position: relative;
         }
-        /* Marco Tricolor Diagonal Animado y Elegante */
+
+        /* MARCO TRICOLOR ANIMADO (AZUL, BLANCO, ROJO) */
+        @keyframes marcoMovement {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
         .marco-tricolor {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
             z-index: 9999;
-            border: 5px solid transparent;
-            background: linear-gradient(135deg, #0033a0 0%, #ffffff 50%, #d52b1e 100%);
+            border: 6px solid transparent;
+            background: linear-gradient(135deg, #0033a0, #ffffff, #d52b1e, #ffffff, #0033a0);
+            background-size: 300% 300%;
+            animation: marcoMovement 8s ease infinite;
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             -webkit-mask-composite: xor;
             mask-composite: exclude;
             opacity: 0.9;
         }
+
         .main-container {
             width: 100%;
             max-width: 440px;
-            background: #181818;
-            border: 1px solid #2c2c2c;
-            border-radius: 20px;
-            padding: 30px 22px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+            background: rgba(15, 15, 15, 0.95);
+            border: 1px solid rgba(197, 160, 89, 0.2);
+            border-radius: 24px;
+            padding: 35px 25px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
             z-index: 10;
+            backdrop-filter: blur(10px);
         }
-        .header-title { text-align: center; margin-bottom: 22px; }
+
+        .header-title { text-align: center; margin-bottom: 25px; position: relative; }
         .header-title h1 {
-            font-family: 'Great Vibes', cursive;
-            font-size: 50px;
+            font-family: 'Playfair Display', serif;
+            font-size: 52px;
             color: #c5a059;
-            letter-spacing: 2px;
-            margin-bottom: 2px;
-            text-shadow: 0 2px 10px rgba(197,160,89,0.2);
+            line-height: 1.1;
+            margin-bottom: 5px;
+            text-shadow: 0 4px 15px rgba(197,160,89,0.25);
         }
         .header-title p {
             font-size: 11px;
-            color: #888;
+            color: #aaa;
             text-transform: uppercase;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
             font-weight: 600;
         }
-        .btn-social {
+
+        /* Campana de Notificaciones */
+        .notificaciones {
+            position: absolute;
+            top: 5px; right: 5px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .notificaciones:hover { transform: scale(1.1); }
+        .notificaciones svg { fill: #c5a059; width: 26px; height: 26px; }
+        .badge-noti {
+            position: absolute; top: -4px; right: -4px;
+            background: #d52b1e; color: #fff;
+            font-size: 10px; font-weight: bold;
+            width: 16px; height: 16px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        /* Botones e Inputs */
+        .btn-social, .btn-primary {
             width: 100%;
-            padding: 14px;
-            margin-bottom: 12px;
-            border-radius: 10px;
-            font-weight: 600;
+            padding: 15px;
+            border-radius: 12px;
+            font-weight: 800;
             font-size: 15px;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            border: none;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        .btn-google { background: #ffffff; color: #1f1f1f; }
-        .btn-google:hover { background: #eaeaea; transform: translateY(-1px); }
-        .divisor {
-            margin: 20px 0;
-            border-top: 1px solid #2c2c2c;
-            position: relative;
-            text-align: center;
-        }
-        .divisor span {
-            position: absolute;
-            top: -10px; left: 50%;
-            transform: translateX(-50%);
-            background: #181818;
-            padding: 0 10px;
-            color: #777;
-            font-size: 11px;
+            transition: all 0.3s ease;
             text-transform: uppercase;
             letter-spacing: 1px;
+            border: none;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
         }
-        .input-group { margin-bottom: 15px; }
+        .btn-google { background: #fff; color: #050505; }
+        .btn-google:active { transform: scale(0.97); }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #c5a059 0%, #a67c00 100%);
+            color: #000;
+            box-shadow: 0 5px 20px rgba(197,160,89,0.3);
+            margin-top: 10px;
+        }
+        .btn-primary:active { transform: scale(0.97); }
+
+        .input-group { margin-bottom: 20px; }
         .input-group label {
             font-size: 12px;
-            color: #aaa;
+            color: #c5a059;
             display: block;
-            margin-bottom: 6px;
-            font-weight: 600;
+            margin-bottom: 8px;
+            font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-        .input-group input {
+        .input-group input, .input-group select {
             width: 100%;
-            padding: 13px 15px;
-            background: #202020;
+            padding: 15px;
+            background: #111;
             border: 1px solid #333;
             color: #fff;
-            border-radius: 10px;
+            border-radius: 12px;
             font-size: 15px;
             outline: none;
-            transition: border-color 0.2s;
+            font-family: 'Outfit', sans-serif;
+            transition: border-color 0.3s;
         }
         .input-group input:focus { border-color: #c5a059; }
 
-        /* Botones de Servicios Táctiles Profesionales */
+        /* Cuadrícula de Servicios */
         .servicios-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 12px;
         }
         .btn-servicio {
-            background: #202020;
-            border: 2px solid #333;
-            border-radius: 10px;
-            padding: 12px 10px;
+            background: #111;
+            border: 2px solid #222;
+            border-radius: 12px;
+            padding: 16px 10px;
             color: #fff;
             cursor: pointer;
             text-align: center;
-            transition: all 0.2s;
+            transition: all 0.3s;
         }
-        .btn-servicio span { display: block; font-size: 13px; font-weight: bold; margin-bottom: 4px; }
-        .btn-servicio small { font-size: 12px; color: #c5a059; font-weight: bold; }
+        .btn-servicio span { display: block; font-size: 14px; font-weight: 800; margin-bottom: 5px; }
+        .btn-servicio small { font-size: 13px; color: #aaa; font-weight: 600; }
         .btn-servicio.seleccionado {
             border-color: #c5a059;
             background: rgba(197, 160, 89, 0.1);
         }
+        .btn-servicio.seleccionado small { color: #c5a059; }
 
-        .badge-verde {
-            display: inline-block;
-            background: rgba(46, 204, 113, 0.15);
-            color: #2ecc71;
-            border: 1px solid #2ecc71;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: bold;
-            margin-bottom: 12px;
+        /* HORARIOS (GRILLA DE TURNOS) */
+        .horarios-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
         }
-
-        .btn-primary {
-            width: 100%;
-            padding: 14px;
-            background: #c5a059;
-            color: #0b0b0b;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 15px;
+        .btn-hora {
+            padding: 12px 0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 800;
+            text-align: center;
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
-            box-shadow: 0 4px 15px rgba(197,160,89,0.3);
+            border: 2px solid transparent;
+            transition: all 0.3s;
         }
-        .btn-primary:hover { background: #b08d48; }
-        .btn-primary:active { transform: scale(0.98); }
-
+        .hora-disponible { background: rgba(46, 204, 113, 0.1); color: #2ecc71; border-color: rgba(46, 204, 113, 0.4); }
+        .hora-disponible:hover, .hora-disponible.seleccionada { background: #2ecc71; color: #000; border-color: #2ecc71; }
+        .hora-ocupada { background: rgba(213, 43, 30, 0.1); color: #d52b1e; border-color: rgba(213, 43, 30, 0.3); cursor: not-allowed; opacity: 0.6; }
+        
+        .admin-section { background: #111; padding: 20px; border-radius: 16px; border-top: 3px solid #c5a059; margin-bottom: 20px; }
         .hidden { display: none !important; }
-        .dashboard-view { text-align: left; }
-        .dashboard-view h2 { color: #c5a059; margin-bottom: 6px; font-size: 22px; font-weight: 700; }
-        .welcome-msg { font-size: 13px; color: #aaa; margin-bottom: 15px; }
 
-        /* Lista de turnos para el barbero */
-        .turno-card {
-            background: #202020;
-            border-left: 4px solid #c5a059;
-            padding: 10px 12px;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            font-size: 13px;
+        .divisor { margin: 25px 0; border-top: 1px solid #333; position: relative; text-align: center; }
+        .divisor span { position: absolute; top: -11px; left: 50%; transform: translateX(-50%); background: #151515; padding: 0 15px; color: #888; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+
+        /* Firma Personal Discreta */
+        .firma-naicky {
+            margin-top: 25px;
+            text-align: center;
+            font-size: 11px;
+            color: #555;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
         }
-        .turno-card strong { color: #c5a059; }
 
         @media (max-width: 480px) {
-            .main-container { padding: 22px 16px; }
-            .header-title h1 { font-size: 44px; }
+            .main-container { padding: 30px 20px; border-radius: 0; min-height: 100vh; border: none; }
+            body { padding: 0; }
         }
     </style>
 </head>
@@ -198,103 +218,118 @@
     <div class="marco-tricolor"></div>
 
     <div class="main-container">
-        <!-- VISTA DE LOGIN -->
+        <!-- VISTA LOGIN -->
         <div id="loginView">
             <div class="header-title">
                 <h1>Excelencia</h1>
-                <p>Barbería de Autor by Martín G</p>
+                <p>Barbería de Autor</p>
             </div>
 
             <button class="btn-social btn-google" onclick="window.location.href='/auth/google'">
-                <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+                <svg width="20" height="20" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
                 Continuar con Google
             </button>
 
-            <div class="divisor">
-                <span>o acceso institucional</span>
-            </div>
-
-            <div class="input-group">
-                <label>Correo Electrónico</label>
-                <input type="email" id="emailInput" placeholder="ej: martin@barberia.com">
-            </div>
-            <div class="input-group">
-                <label>Nombre Completo</label>
-                <input type="text" id="nombreInput" placeholder="Tu nombre">
-            </div>
-            <button class="btn-primary" onclick="loginTradicional()">Ingresar al Sistema</button>
+            <div class="divisor"><span>o acceso manual</span></div>
+            <div class="input-group"><input type="email" id="emailInput" placeholder="Correo electrónico"></div>
+            <div class="input-group"><input type="text" id="nombreInput" placeholder="Nombre completo"></div>
+            <button class="btn-primary" onclick="loginTradicional()">Entrar</button>
         </div>
 
-        <!-- VISTA DE PANEL (CLIENTE Y BARBERO) -->
-        <div id="dashboardView" class="dashboard-view hidden">
-            <h2 id="tituloPanel">Panel de Citas</h2>
-            <p id="welcomeUser" class="welcome-msg"></p>
-            
-            <!-- SECCIÓN CLIENTE -->
-            <div id="seccionCliente">
-                <div class="badge-verde">● Horarios Disponibles Habilitados</div>
+        <!-- VISTA PANEL GENERAL -->
+        <div id="dashboardView" class="hidden">
+            <div class="header-title" style="margin-bottom: 15px;">
+                <h1 style="font-size: 38px;">Excelencia</h1>
+                <p id="welcomeUser" style="color:#c5a059;">Bienvenido</p>
                 
-                <div class="input-group">
-                    <label>Selecciona un Servicio:</label>
-                    <div id="contenedorServicios" class="servicios-grid">
-                        <!-- Botones de servicios cargados dinámicamente -->
-                    </div>
+                <!-- Campanita Barbero -->
+                <div id="btnNotificaciones" class="notificaciones hidden" onclick="verNotificaciones()">
+                    <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/></svg>
+                    <span id="badgeNoti" class="badge-noti hidden">0</span>
                 </div>
-
-                <div class="input-group">
-                    <label>Fecha y Hora del Turno:</label>
-                    <input type="datetime-local" id="fechaHoraInput">
-                </div>
-
-                <button class="btn-primary" onclick="reservarTurno()">Reservar Turno con Autor</button>
             </div>
 
-            <!-- SECCIÓN EXCLUSIVA DEL BARBERO (Gamarramartin1995@gmail.com) -->
+            <!-- SECCIÓN CLIENTE (TURNOS) -->
+            <div id="seccionCliente">
+                <div class="input-group">
+                    <label>1. Selecciona tu Estilo</label>
+                    <div id="contenedorServicios" class="servicios-grid"></div>
+                </div>
+
+                <div class="input-group">
+                    <label>2. Elige el Día</label>
+                    <input type="date" id="fechaInput" onchange="cargarHorarios()" style="text-transform: uppercase;">
+                </div>
+
+                <div class="input-group" id="contenedorHorarios" style="display:none;">
+                    <label>3. Horarios Disponibles (9:00 a 20:00)</label>
+                    <div id="grillaHorarios" class="horarios-grid"></div>
+                </div>
+
+                <button class="btn-primary" onclick="reservarTurno()" style="margin-top:20px;">Confirmar Turno</button>
+            </div>
+
+            <!-- SECCIÓN BARBERO ADMIN -->
             <div id="seccionBarbero" class="hidden">
-                <div style="background: #202020; padding: 14px; border-radius: 10px; border-left: 4px solid #c5a059; margin-bottom: 15px;">
-                    <p style="font-size: 13px; color: #c5a059; font-weight: bold; margin-bottom: 4px;">Panel de Administración (Martín G)</p>
-                    <p style="font-size: 11px; color: #bbb;">Modifica los precios de los servicios al instante o revisa la agenda de turnos reservados en la nube.</p>
+                <div class="admin-section">
+                    <label style="color:#c5a059; font-size:14px;">GESTIÓN DE PRECIOS</label>
+                    <div id="listaPreciosAdmin" style="margin-top:10px; display:flex; flex-direction:column; gap:10px;"></div>
+                </div>
+                
+                <div class="admin-section">
+                    <label style="color:#c5a059; font-size:14px;">AGENDA DE HOY</label>
+                    <div id="listaTurnosAdmin" style="margin-top:10px; font-size:13px; color:#aaa;">Cargando turnos...</div>
                 </div>
 
-                <div class="input-group">
-                    <label>Actualizar Precios en Vivo:</label>
-                    <div id="listaPreciosAdmin" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px;">
-                        <!-- Se llena con JS -->
-                    </div>
-                </div>
-
-                <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 6px; text-transform: uppercase; font-weight: 600;">Turnos Agendados por Clientes:</label>
-                <div id="listaTurnosAdmin" style="max-height: 180px; overflow-y: auto; margin-bottom: 15px;">
-                    <!-- Se llena con JS -->
+                <div class="admin-section" style="border-top: 3px solid #d52b1e;">
+                    <label style="color:#d52b1e; font-size:14px;">BLOQUEAR DÍA (ADMIN)</label>
+                    <p style="font-size:11px; color:#888; margin-bottom:10px;">Evita que los clientes reserven en un día específico.</p>
+                    <input type="date" id="fechaBloqueo" style="width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:10px; background:#222; color:#fff;">
+                    <button class="btn-primary" style="background:#d52b1e; box-shadow:none; padding:10px;" onclick="bloquearDia()">Bloquear Día</button>
                 </div>
             </div>
 
-            <button class="btn-primary" onclick="cerrarSesion()" style="background: #282828; color: #fff; margin-top: 10px; box-shadow: none;">Cerrar Sesión</button>
+            <button onclick="cerrarSesion()" style="width:100%; background:transparent; border:1px solid #444; color:#888; padding:12px; border-radius:12px; margin-top:15px; cursor:pointer; font-family:'Outfit'; font-weight:600;">Cerrar Sesión</button>
         </div>
+
+        <div class="firma-naicky">by naicky</div>
     </div>
 
     <script>
         let usuarioActual = null;
         let servicioSeleccionadoId = null;
-        let listaServiciosCache = [];
+        let horaSeleccionada = null;
+        let todosLosTurnos = [];
+        let diasBloqueados = JSON.parse(localStorage.getItem('diasBloqueados')) || []; 
+        let cantidadTurnosLeidos = localStorage.getItem('turnosLeidos') || 0;
+        
         const CORREO_BARBERO = "gamarramartin1995@gmail.com";
+        const HORAS_LABORALES = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"];
 
         window.onload = async function() {
+            // Restringir fechas anteriores a hoy en el calendario
+            const hoy = new Date().toISOString().split('T')[0];
+            document.getElementById('fechaInput').setAttribute('min', hoy);
+
             const userStored = localStorage.getItem('usuarioActivo');
             if (userStored) {
                 usuarioActual = JSON.parse(userStored);
+                await fetchTurnosGlobales();
                 mostrarDashboard(usuarioActual);
             }
         };
 
+        async function fetchTurnosGlobales() {
+            try {
+                const res = await fetch('/api/turnos');
+                todosLosTurnos = await res.json();
+            } catch (err) { console.error("Error trayendo turnos"); }
+        }
+
         async function loginTradicional() {
             const email = document.getElementById('emailInput').value.trim();
             const nombre = document.getElementById('nombreInput').value.trim();
-
-            if (!email || !nombre) {
-                alert("Por favor, completa ambos campos.");
-                return;
-            }
+            if (!email || !nombre) { alert("Completa los datos"); return; }
 
             try {
                 const res = await fetch('/api/login', {
@@ -302,138 +337,101 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, nombre })
                 });
-                const data = await res.json();
                 if (res.ok) {
-                    usuarioActual = data;
+                    const data = await res.json();
                     localStorage.setItem('usuarioActivo', JSON.stringify(data));
+                    usuarioActual = data;
+                    await fetchTurnosGlobales();
                     mostrarDashboard(data);
-                } else {
-                    alert("Error al iniciar sesión.");
                 }
-            } catch (err) {
-                alert("Error de conexión con el servidor.");
-            }
+            } catch (err) { alert("Error de servidor."); }
         }
 
         async function mostrarDashboard(user) {
             document.getElementById('loginView').classList.add('hidden');
             document.getElementById('dashboardView').classList.remove('hidden');
             
-            const esBarbero = user.email && user.email.toLowerCase().trim() === CORREO_BARBERO;
+            const esBarbero = user.email.toLowerCase() === CORREO_BARBERO;
             
             if (esBarbero) {
-                document.getElementById('tituloPanel').innerText = "Panel del Barbero";
-                document.getElementById('welcomeUser').innerText = `Maestro: ${user.nombre} (Admin)`;
+                document.getElementById('welcomeUser').innerText = `Maestro: ${user.nombre}`;
                 document.getElementById('seccionCliente').classList.add('hidden');
                 document.getElementById('seccionBarbero').classList.remove('hidden');
+                document.getElementById('btnNotificaciones').classList.remove('hidden');
                 cargarPanelBarbero();
+                revisarNotificaciones();
             } else {
-                document.getElementById('tituloPanel').innerText = "Reserva tu Turno";
-                document.getElementById('welcomeUser').innerText = `Bienvenido, ${user.nombre}`;
-                document.getElementById('seccionBarbero').classList.add('hidden');
+                document.getElementById('welcomeUser').innerText = `Cliente: ${user.nombre}`;
                 document.getElementById('seccionCliente').classList.remove('hidden');
+                document.getElementById('seccionBarbero').classList.add('hidden');
                 cargarServiciosCliente();
             }
         }
 
         async function cargarServiciosCliente() {
-            try {
-                const res = await fetch('/api/servicios');
-                listaServiciosCache = await res.json();
-                const contenedor = document.getElementById('contenedorServicios');
-                contenedor.innerHTML = '';
-                
-                listaServiciosCache.forEach((s, index) => {
-                    const btn = document.createElement('div');
-                    btn.className = `btn-servicio ${index === 0 ? 'seleccionado' : ''}`;
-                    if (index === 0) servicioSeleccionadoId = s.id;
-                    
-                    btn.innerHTML = `<span>${s.nombre}</span><small>$${Number(s.precio).toLocaleString()}</small>`;
-                    btn.onclick = () => {
-                        document.querySelectorAll('.btn-servicio').forEach(b => b.classList.remove('seleccionado'));
-                        btn.classList.add('seleccionado');
-                        servicioSeleccionadoId = s.id;
-                    };
-                    contenedor.appendChild(btn);
-                });
-            } catch (err) {
-                console.error("Error al cargar servicios");
-            }
+            const res = await fetch('/api/servicios');
+            const servicios = await res.json();
+            const contenedor = document.getElementById('contenedorServicios');
+            contenedor.innerHTML = '';
+            
+            servicios.forEach((s, index) => {
+                const btn = document.createElement('div');
+                btn.className = `btn-servicio ${index === 0 ? 'seleccionado' : ''}`;
+                if (index === 0) servicioSeleccionadoId = s.id;
+                btn.innerHTML = `<span>${s.nombre}</span><small>$${Number(s.precio).toLocaleString()}</small>`;
+                btn.onclick = () => {
+                    document.querySelectorAll('.btn-servicio').forEach(b => b.classList.remove('seleccionado'));
+                    btn.classList.add('seleccionado');
+                    servicioSeleccionadoId = s.id;
+                };
+                contenedor.appendChild(btn);
+            });
         }
 
-        async function cargarPanelBarbero() {
-            try {
-                // Cargar precios para editar
-                const res = await fetch('/api/servicios');
-                const servicios = await res.json();
-                const contenedorPrecios = document.getElementById('listaPreciosAdmin');
-                contenedorPrecios.innerHTML = '';
+        function cargarHorarios() {
+            const fecha = document.getElementById('fechaInput').value;
+            if (!fecha) return;
 
-                servicios.forEach(s => {
-                    const div = document.createElement('div');
-                    div.style.display = 'flex';
-                    div.style.gap = '8px';
-                    div.style.alignItems = 'center';
-                    div.innerHTML = `
-                        <span style="flex:1; font-size:13px; font-weight:600;">${s.nombre}</span>
-                        <input type="number" id="precio_serv_${s.id}" value="${s.precio}" style="width: 100px; padding: 6px 10px; font-size: 13px; background:#181818; border:1px solid #444; color:#fff; border-radius:6px;">
-                        <button class="btn-primary" style="width: auto; padding: 6px 12px; font-size: 12px;" onclick="actualizarPrecio(${s.id})">Guardar</button>
-                    `;
-                    contenedorPrecios.appendChild(div);
-                });
+            document.getElementById('contenedorHorarios').style.display = 'block';
+            const grilla = document.getElementById('grillaHorarios');
+            grilla.innerHTML = '';
+            horaSeleccionada = null;
 
-                // Cargar turnos
-                const resTurnos = await fetch('/api/turnos');
-                const turnos = await resTurnos.json();
-                const contenedorTurnos = document.getElementById('listaTurnosAdmin');
-                contenedorTurnos.innerHTML = '';
-
-                if (turnos.length === 0) {
-                    contenedorTurnos.innerHTML = '<p style="color:#777; font-size:12px; text-align:center; padding:10px;">No hay turnos agendados todavía.</p>';
-                } else {
-                    turnos.forEach(t => {
-                        const card = document.createElement('div');
-                        card.className = 'turno-card';
-                        card.innerHTML = `<strong>${t.cliente}</strong> (${t.servicio})<br><span style="color:#aaa;">📅 ${t.fecha_hora.replace('T', ' - ')}</span>`;
-                        contenedorTurnos.appendChild(card);
-                    });
-                }
-            } catch (err) {
-                console.error("Error cargando panel de barbero");
-            }
-        }
-
-        async function actualizarPrecio(id) {
-            const nuevoPrecio = document.getElementById(`precio_serv_${id}`).value;
-            if (!nuevoPrecio || nuevoPrecio <= 0) {
-                alert("Ingresa un precio válido.");
+            // Verificar si el barbero bloqueó el día
+            if (diasBloqueados.includes(fecha)) {
+                grilla.innerHTML = '<div style="grid-column: span 3; text-align:center; color:#d52b1e; font-size:13px; font-weight:bold; padding:20px 0;">El Maestro Barbero no atenderá este día.</div>';
                 return;
             }
 
-            try {
-                const res = await fetch(`/api/servicios/${id}`, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ precio: nuevoPrecio })
-                });
-                if (res.ok) {
-                    alert("¡Precio actualizado con éxito!");
-                    cargarPanelBarbero();
+            HORAS_LABORALES.forEach(hora => {
+                const fechaHoraExacta = `${fecha} ${hora}`;
+                const estaOcupado = todosLosTurnos.some(t => t.fecha_hora === fechaHoraExacta);
+
+                const btn = document.createElement('div');
+                btn.className = `btn-hora ${estaOcupado ? 'hora-ocupada' : 'hora-disponible'}`;
+                btn.innerText = hora;
+
+                if (!estaOcupado) {
+                    btn.onclick = () => {
+                        document.querySelectorAll('.btn-hora').forEach(b => b.classList.remove('seleccionada'));
+                        btn.classList.add('seleccionada');
+                        horaSeleccionada = hora;
+                    };
                 } else {
-                    alert("Error al actualizar precio.");
+                    btn.innerText = "Ocupado";
                 }
-            } catch (err) {
-                alert("Error de conexión.");
-            }
+                grilla.appendChild(btn);
+            });
         }
 
         async function reservarTurno() {
-            const fechaHora = document.getElementById('fechaHoraInput').value;
-
-            if (!fechaHora || !servicioSeleccionadoId) {
-                alert("Por favor, selecciona un servicio y una fecha/hora válida.");
+            const fecha = document.getElementById('fechaInput').value;
+            if (!fecha || !horaSeleccionada || !servicioSeleccionadoId) {
+                alert("Selecciona la fecha y haz clic en un horario verde disponible.");
                 return;
             }
+
+            const fechaHora = `${fecha} ${horaSeleccionada}`;
 
             try {
                 const res = await fetch('/api/turnos', {
@@ -445,21 +443,84 @@
                         fecha_hora: fechaHora
                     })
                 });
-                const data = await res.json();
                 if (res.ok) {
-                    alert("¡Turno reservado con éxito en Excelencia!");
-                    document.getElementById('fechaHoraInput').value = '';
+                    alert("¡Turno confirmado en Excelencia!");
+                    await fetchTurnosGlobales();
+                    cargarHorarios(); // Refresca los botones
                 } else {
-                    alert(data.error || "Este horario ya está ocupado. Elige otro.");
+                    alert("Alguien acaba de ganar este turno. Elige otro.");
                 }
-            } catch (err) {
-                alert("Error de conexión al reservar.");
+            } catch (err) { alert("Error de red."); }
+        }
+
+        /* --- FUNCIONES EXCLUSIVAS DEL BARBERO --- */
+        async function cargarPanelBarbero() {
+            const res = await fetch('/api/servicios');
+            const servicios = await res.json();
+            const contPrecios = document.getElementById('listaPreciosAdmin');
+            contPrecios.innerHTML = '';
+
+            servicios.forEach(s => {
+                contPrecios.innerHTML += `
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <span style="flex:1; font-size:14px; font-weight:800;">${s.nombre}</span>
+                        <input type="number" id="precio_${s.id}" value="${s.precio}" style="width:90px; padding:8px; border-radius:6px; border:none; background:#222; color:#c5a059; font-weight:bold; font-family:'Outfit';">
+                        <button onclick="guardarPrecio(${s.id})" style="padding:8px 12px; background:#c5a059; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">OK</button>
+                    </div>`;
+            });
+
+            const contTurnos = document.getElementById('listaTurnosAdmin');
+            if (todosLosTurnos.length === 0) {
+                contTurnos.innerHTML = "Sin turnos aún.";
+            } else {
+                contTurnos.innerHTML = todosLosTurnos.map(t => 
+                    `<div style="background:#222; padding:10px; border-radius:8px; margin-bottom:8px; border-left:3px solid #c5a059;">
+                        <strong style="color:#fff;">${t.cliente}</strong> - <span style="color:#c5a059;">${t.servicio}</span><br>
+                        📅 ${t.fecha_hora}
+                    </div>`
+                ).join('');
             }
+        }
+
+        async function guardarPrecio(id) {
+            const val = document.getElementById(`precio_${id}`).value;
+            await fetch(`/api/servicios/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ precio: val })
+            });
+            alert("Precio actualizado en la base de datos.");
+        }
+
+        function bloquearDia() {
+            const fecha = document.getElementById('fechaBloqueo').value;
+            if (!fecha) return;
+            if (!diasBloqueados.includes(fecha)) {
+                diasBloqueados.push(fecha);
+                localStorage.setItem('diasBloqueados', JSON.stringify(diasBloqueados));
+                alert(`Día ${fecha} bloqueado. Nadie podrá reservar.`);
+            }
+        }
+
+        function revisarNotificaciones() {
+            const turnosActuales = todosLosTurnos.length;
+            const nuevos = turnosActuales - cantidadTurnosLeidos;
+            if (nuevos > 0) {
+                document.getElementById('badgeNoti').innerText = nuevos;
+                document.getElementById('badgeNoti').classList.remove('hidden');
+            }
+        }
+
+        function verNotificaciones() {
+            cantidadTurnosLeidos = todosLosTurnos.length;
+            localStorage.setItem('turnosLeidos', cantidadTurnosLeidos);
+            document.getElementById('badgeNoti').classList.add('hidden');
+            alert("Has revisado tu agenda. Notificaciones limpias.");
         }
 
         function cerrarSesion() {
             localStorage.removeItem('usuarioActivo');
-            window.location.href = '/';
+            window.location.reload();
         }
     </script>
 </body>
