@@ -59,25 +59,6 @@ app.get('/auth/google/callback', async (req, res) => {
         return res.status(400).send('Falta el código de Google.');
     }
 
-    // 🚨 ESCÁNER PROFUNDO DE VARIABLES 🚨
-    if (!CLIENT_SECRET || CLIENT_SECRET === '') {
-        // Busca cualquier variable que tenga la palabra GOOGLE en su nombre
-        const clavesGoogleDetectadas = Object.keys(process.env).filter(k => k.toUpperCase().includes('GOOGLE'));
-        
-        return res.send(`
-            <div style="background:#0b0b0b; color:#f4f4f4; padding: 40px; font-family: sans-serif; text-align: center;">
-                <h2 style="color:#d52b1e;">¡Análisis Profundo de Render!</h2>
-                <p>Render no encuentra la variable exacta "GOOGLE_CLIENT_SECRET".</p>
-                <p>Estos son los nombres exactos que Render SÍ encontró en tu servidor:</p>
-                <pre style="background:#1f1f1f; padding: 15px; color:#c5a059; border-radius: 8px; display: inline-block; text-align: left; font-size: 18px;">
-${clavesGoogleDetectadas.length > 0 ? clavesGoogleDetectadas.join('\n') : '❌ NINGUNA VARIABLE CON LA PALABRA "GOOGLE" FUE ENCONTRADA.'}
-                </pre>
-                <p style="color:#aaa; margin-top:20px;">* Si ves tu variable arriba pero tiene un error ortográfico o un espacio extra, ahí está el problema.</p>
-                <p><strong>Solución:</strong> Ve a Render, borra la variable, créala de nuevo <b>ESCRIBIENDO EL NOMBRE A MANO</b> (no lo copies y pegues), guarda y haz Manual Deploy.</p>
-            </div>
-        `);
-    }
-
     try {
         const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
             method: 'POST',
@@ -94,7 +75,7 @@ ${clavesGoogleDetectadas.length > 0 ? clavesGoogleDetectadas.join('\n') : '❌ N
         const tokenJson = await tokenResponse.json();
 
         if (!tokenJson.access_token) {
-            return res.send(`<div style="padding: 40px;"><h2>Error de Google</h2><pre>${JSON.stringify(tokenJson, null, 2)}</pre></div>`);
+            return res.send(`<div style="padding: 40px; background:#0b0b0b; color:#fff;"><h2>Error de Google</h2><pre>${JSON.stringify(tokenJson, null, 2)}</pre></div>`);
         }
 
         const userResponse = await fetch(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${tokenJson.access_token}`);
@@ -102,6 +83,7 @@ ${clavesGoogleDetectadas.length > 0 ? clavesGoogleDetectadas.join('\n') : '❌ N
         const email = googleUser.email;
         const nombre = googleUser.name;
 
+        // AQUÍ ES DONDE ESTÁ OCURRIENDO EL ERROR AHORA (PostgreSQL)
         let usuarioExistente = await pool.query('SELECT * FROM clientes WHERE email = $1', [email]);
         let usuarioFinal;
         
@@ -122,7 +104,16 @@ ${clavesGoogleDetectadas.length > 0 ? clavesGoogleDetectadas.join('\n') : '❌ N
             </script>
         `);
     } catch (err) {
-        res.status(500).send('Error interno procesando la autenticación.');
+        // AHORA NOS MOSTRARÁ EL ERROR REAL DE LA BASE DE DATOS
+        res.status(500).send(`
+            <div style="background:#0b0b0b; color:#f4f4f4; padding: 40px; font-family: sans-serif; text-align: center;">
+                <h2 style="color:#c5a059;">¡Conexión con Google Exitosa!</h2>
+                <p>Google nos dio tus datos perfectamente, pero la base de datos de la barbería rechazó guardarlos.</p>
+                <p>El error de PostgreSQL es el siguiente:</p>
+                <pre style="background:#1f1f1f; padding: 15px; color:#d52b1e; border-radius: 8px; display: inline-block; text-align: left; font-size: 16px;">${err.message}</pre>
+                <br><br><a href="/" style="color:#000; text-decoration: none; padding: 10px 20px; background:#c5a059; border-radius: 5px;">Volver al inicio</a>
+            </div>
+        `);
     }
 });
 
