@@ -27,7 +27,7 @@
             position: relative;
         }
 
-        /* MARCO TRICOLOR ANIMADO (AZUL, BLANCO, ROJO) */
+        /* MARCO TRICOLOR ANIMADO */
         @keyframes marcoMovement {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -78,7 +78,6 @@
             font-weight: 600;
         }
 
-        /* Campana de Notificaciones */
         .notificaciones {
             position: absolute;
             top: 5px; right: 5px;
@@ -96,7 +95,6 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* Botones e Inputs */
         .btn-social, .btn-primary {
             width: 100%;
             padding: 15px;
@@ -146,7 +144,6 @@
         }
         .input-group input:focus { border-color: #c5a059; }
 
-        /* Cuadrícula de Servicios */
         .servicios-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -171,7 +168,7 @@
         }
         .btn-servicio.seleccionado small { color: #c5a059; }
 
-        /* HORARIOS (GRILLA DE TURNOS CLIENTE) */
+        /* HORARIOS (GRILLA DE TURNOS CLIENTE) - COLORES CORREGIDOS */
         .horarios-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -181,33 +178,38 @@
         .btn-hora {
             padding: 12px 0;
             border-radius: 8px;
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 800;
             text-align: center;
             cursor: pointer;
-            border: 2px solid transparent;
             transition: all 0.3s;
             font-family: 'Outfit', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
         
         .hora-disponible { 
-            background: rgba(46, 204, 113, 0.08); 
+            background: rgba(46, 204, 113, 0.15); 
             color: #2ecc71; 
-            border-color: rgba(46, 204, 113, 0.3); 
+            border: 2px solid #2ecc71; 
         }
         .hora-disponible:hover, .hora-disponible.seleccionada { 
             background: #2ecc71; 
             color: #000; 
-            border-color: #2ecc71; 
-            box-shadow: 0 0 10px rgba(46,204,113,0.4);
+            box-shadow: 0 0 15px rgba(46, 204, 113, 0.6);
         }
+        /* Las letras "LIBRE" cambian a negro cuando se selecciona el botón */
+        .hora-disponible.seleccionada span { color: #000 !important; font-weight: 800; }
+        .hora-disponible:hover span { color: #000 !important; }
+
         .hora-ocupada { 
-            background: rgba(213, 43, 30, 0.1); 
-            color: #d52b1e; 
-            border-color: rgba(213, 43, 30, 0.3); 
+            background: rgba(213, 43, 30, 0.15); 
+            color: #ff4d4d; 
+            border: 2px solid #d52b1e; 
             text-decoration: line-through; 
             cursor: not-allowed; 
-            opacity: 0.5; 
             pointer-events: none; 
         }
         
@@ -217,7 +219,6 @@
         .divisor { margin: 25px 0; border-top: 1px solid #333; position: relative; text-align: center; }
         .divisor span { position: absolute; top: -11px; left: 50%; transform: translateX(-50%); background: #151515; padding: 0 15px; color: #888; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px;}
 
-        /* Firma Personal Discreta */
         .firma-naicky {
             margin-top: 25px;
             text-align: center;
@@ -263,7 +264,6 @@
                 <h1 style="font-size: 38px;">Excelencia</h1>
                 <p id="welcomeUser" style="color:#c5a059;">Bienvenido a la Experiencia</p>
                 
-                <!-- Campanita Barbero -->
                 <div id="btnNotificaciones" class="notificaciones hidden" onclick="verNotificaciones()">
                     <svg viewBox="0 0 24 24"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/></svg>
                     <span id="badgeNoti" class="badge-noti hidden">0</span>
@@ -283,7 +283,7 @@
                 </div>
 
                 <div class="input-group" id="contenedorHorarios" style="display:none;">
-                    <label>3. Horarios (Verde = Libre)</label>
+                    <label>3. Selecciona una hora Libre (Verde)</label>
                     <div id="grillaHorarios" class="horarios-grid"></div>
                 </div>
 
@@ -302,18 +302,16 @@
                     <p style="font-size:11px; color:#aaa; margin-bottom:12px;">Revisa las horas Libres (Verde) y Ocupadas (Rojo) de cualquier día.</p>
                     <input type="date" id="fechaAgendaAdmin" onchange="cargarAgendaBarbero()" style="width:100%; padding:12px; border-radius:8px; border:none; background:#222; color:#fff; font-family:'Outfit'; text-transform:uppercase; margin-bottom:15px;">
                     
-                    <!-- Resumen de Libres/Ocupados -->
+                    <!-- Resumen Numérico (Verdes y Rojos) -->
                     <div id="resumenAgenda" style="display:flex; gap:10px; margin-bottom:15px;"></div>
                     
-                    <!-- Lista de las 12 horas -->
-                    <div id="listaTurnosAdmin" style="display:flex; flex-direction:column; gap:10px;">
-                        <!-- Se llena con JS -->
-                    </div>
+                    <!-- Lista Completa de Horarios para el Barbero -->
+                    <div id="listaTurnosAdmin" style="display:flex; flex-direction:column; gap:10px;"></div>
                 </div>
 
                 <div class="admin-section" style="border-top: 3px solid #d52b1e;">
                     <label style="color:#d52b1e; font-size:14px; font-weight:800; letter-spacing:1px;">BLOQUEAR UN DÍA</label>
-                    <p style="font-size:11px; color:#888; margin-bottom:10px; margin-top:5px;">Selecciona una fecha en la que no atenderás en el salón para que nadie reserve.</p>
+                    <p style="font-size:11px; color:#888; margin-bottom:10px; margin-top:5px;">Inhabilita todo el salón para que ningún cliente reserve en esta fecha.</p>
                     <input type="date" id="fechaBloqueo" style="width:100%; padding:12px; border-radius:8px; border:none; margin-bottom:12px; background:#222; color:#fff; font-family:'Outfit';">
                     <button class="btn-primary" style="background:#d52b1e; box-shadow:none; padding:12px;" onclick="bloquearDia()">Inhabilitar Día Seleccionado</button>
                 </div>
@@ -337,7 +335,6 @@
         const HORAS_LABORALES = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"];
 
         window.onload = async function() {
-            // Restringir fechas anteriores a hoy en todos los calendarios
             const hoy = new Date().toISOString().split('T')[0];
             document.getElementById('fechaInput').setAttribute('min', hoy);
             document.getElementById('fechaBloqueo').setAttribute('min', hoy);
@@ -352,15 +349,13 @@
 
         async function fetchTurnosGlobales() {
             try {
-                // EVITAR CACHÉ (Agregamos un TIMESTAMP para asegurar datos frescos al instante)
                 const ts = new Date().getTime();
-                
                 const resTurnos = await fetch(`/api/turnos?t=${ts}`);
                 todosLosTurnos = await resTurnos.json();
                 
                 const resDias = await fetch(`/api/dias-bloqueados?t=${ts}`);
                 diasBloqueados = await resDias.json();
-            } catch (err) { console.error("Error trayendo datos de Excelencia"); }
+            } catch (err) { console.error("Error conectando a la Barbería"); }
         }
 
         async function loginTradicional() {
@@ -381,7 +376,7 @@
                     await fetchTurnosGlobales();
                     mostrarDashboard(data);
                 }
-            } catch (err) { alert("Error al conectar con la Barbería."); }
+            } catch (err) { alert("Error al conectar con el servidor."); }
         }
 
         async function mostrarDashboard(user) {
@@ -396,12 +391,10 @@
                 document.getElementById('seccionBarbero').classList.remove('hidden');
                 document.getElementById('btnNotificaciones').classList.remove('hidden');
                 
-                // Configurar agenda barbero al día de hoy por defecto
                 const adminInput = document.getElementById('fechaAgendaAdmin');
                 if (!adminInput.value) {
                     adminInput.value = new Date().toISOString().split('T')[0];
                 }
-
                 cargarPanelBarbero();
                 revisarNotificaciones();
             } else {
@@ -441,9 +434,8 @@
             grilla.innerHTML = '';
             horaSeleccionada = null;
 
-            // Bloqueo de día completo
             if (diasBloqueados.includes(fecha)) {
-                grilla.innerHTML = '<div style="grid-column: span 3; text-align:center; color:#d52b1e; font-size:14px; font-weight:bold; padding:20px 0; border: 1px solid #d52b1e; border-radius: 8px; background: rgba(213, 43, 30, 0.1);">El Maestro Barbero no atenderá este día.</div>';
+                grilla.innerHTML = '<div style="grid-column: span 3; text-align:center; color:#ff4d4d; font-size:14px; font-weight:bold; padding:20px 0; border: 1px solid #d52b1e; border-radius: 8px; background: rgba(213, 43, 30, 0.1);">El Maestro Barbero no atenderá este día.</div>';
                 return;
             }
 
@@ -453,11 +445,13 @@
 
                 const btn = document.createElement('div');
                 
-                // Si ocupado: clase 'hora-ocupada' lo pinta ROJO, lo TACHA y BLOQUEA clics
-                btn.className = `btn-hora ${estaOcupado ? 'hora-ocupada' : 'hora-disponible'}`;
-                btn.innerText = hora; 
-
-                if (!estaOcupado) {
+                if (estaOcupado) {
+                    btn.className = 'btn-hora hora-ocupada';
+                    btn.innerHTML = `${hora}<br><span style="font-size:11px; color:#ff4d4d; margin-top:2px; letter-spacing:1px;">OCUPADO</span>`;
+                } else {
+                    btn.className = 'btn-hora hora-disponible';
+                    btn.innerHTML = `${hora}<br><span style="font-size:11px; color:#2ecc71; margin-top:2px; letter-spacing:1px; font-weight:800;">LIBRE</span>`;
+                    
                     btn.onclick = () => {
                         document.querySelectorAll('.btn-hora').forEach(b => b.classList.remove('seleccionada'));
                         btn.classList.add('seleccionada');
@@ -471,7 +465,7 @@
         async function reservarTurno() {
             const fecha = document.getElementById('fechaInput').value;
             if (!fecha || !horaSeleccionada || !servicioSeleccionadoId) {
-                alert("Por favor, selecciona una fecha y luego un horario Verde.");
+                alert("Por favor, selecciona una fecha y toca un horario Libre (Verde).");
                 return;
             }
 
@@ -489,14 +483,18 @@
                         fecha_hora: fechaHora
                     })
                 });
+                
                 if (res.ok) {
                     alert("¡Reserva confirmada con Éxito en Excelencia!");
                     
-                    // Actualizar memoria para tachar de inmediato
-                    await fetchTurnosGlobales();
+                    // Inyectamos el turno manualmente para que se ponga rojo INSTANTÁNEAMENTE en pantalla
+                    todosLosTurnos.push({ fecha_hora: fechaHora, cliente: usuarioActual.nombre });
                     cargarHorarios(); 
+                    
+                    // Luego sincronizamos en segundo plano
+                    fetchTurnosGlobales();
                 } else {
-                    alert("Lo sentimos, este turno acaba de ser tomado.");
+                    alert("Lo sentimos, este turno acaba de ser tomado. Elige otro horario verde.");
                 }
             } catch (err) { alert("Error de red. Intenta nuevamente."); }
             
@@ -505,7 +503,6 @@
 
         /* --- FUNCIONES EXCLUSIVAS DEL BARBERO --- */
         async function cargarPanelBarbero() {
-            // Carga lista de precios para editar
             const res = await fetch('/api/servicios');
             const servicios = await res.json();
             const contPrecios = document.getElementById('listaPreciosAdmin');
@@ -520,7 +517,6 @@
                     </div>`;
             });
 
-            // Carga la agenda específica del día seleccionado
             cargarAgendaBarbero();
         }
 
@@ -536,7 +532,7 @@
 
             if (diasBloqueados.includes(fecha)) {
                 contResumen.innerHTML = "";
-                contTurnos.innerHTML = `<div style="text-align:center; padding:15px; color:#d52b1e; border:1px solid #d52b1e; border-radius:8px; background: rgba(213, 43, 30, 0.1); font-weight:bold;">¡Atención! Este día ha sido bloqueado por ti.</div>`;
+                contTurnos.innerHTML = `<div style="text-align:center; padding:15px; color:#ff4d4d; border:1px solid #d52b1e; border-radius:8px; background: rgba(213, 43, 30, 0.1); font-weight:bold;">¡Atención! Has bloqueado este día por completo.</div>`;
                 return;
             }
 
@@ -544,35 +540,32 @@
             let libres = 0;
             let htmlAgenda = "";
 
-            // Mapeamos TODAS las 12 horas del día seleccionado
             HORAS_LABORALES.forEach(hora => {
                 const fechaHoraExacta = `${fecha} ${hora}`;
-                // Buscamos si existe un turno reservado para esa hora exacta
                 const turnoExistente = todosLosTurnos.find(t => t.fecha_hora === fechaHoraExacta);
 
                 if (turnoExistente) {
                     ocupados++;
                     htmlAgenda += `
-                        <div style="background:rgba(213, 43, 30, 0.08); border-left:4px solid #d52b1e; padding:12px; border-radius:8px;">
-                            <span style="color:#d52b1e; font-weight:800; font-size:15px;">${hora} - OCUPADO</span><br>
-                            <span style="color:#fff; font-size:15px; font-weight:600; display:block; margin-top:4px;">👤 ${turnoExistente.cliente}</span>
-                            <span style="color:#c5a059; font-size:13px; font-weight:bold;">✂️ ${turnoExistente.servicio}</span>
+                        <div style="background:rgba(213, 43, 30, 0.1); border-left:4px solid #d52b1e; padding:12px; border-radius:8px;">
+                            <span style="color:#ff4d4d; font-weight:800; font-size:15px;">${hora} - OCUPADO</span><br>
+                            <span style="color:#fff; font-size:15px; font-weight:600; display:block; margin-top:4px;">👤 Cliente: ${turnoExistente.cliente}</span>
+                            <span style="color:#c5a059; font-size:13px; font-weight:bold;">✂️ Servicio: ${turnoExistente.servicio}</span>
                         </div>
                     `;
                 } else {
                     libres++;
                     htmlAgenda += `
                         <div style="background:rgba(46, 204, 113, 0.05); border-left:4px solid #2ecc71; padding:12px; border-radius:8px;">
-                            <span style="color:#2ecc71; font-weight:800; font-size:15px;">${hora} - LIBRE</span>
+                            <span style="color:#2ecc71; font-weight:800; font-size:15px;">${hora} - LIBRE (Disponible)</span>
                         </div>
                     `;
                 }
             });
 
-            // Pintar resumen numérico Arriba
             contResumen.innerHTML = `
-                <div style="flex:1; background:rgba(46, 204, 113, 0.1); color:#2ecc71; text-align:center; padding:10px; border-radius:8px; font-weight:800; font-size:14px; border:1px solid rgba(46, 204, 113, 0.3);">🟩 Libres: ${libres}</div>
-                <div style="flex:1; background:rgba(213, 43, 30, 0.1); color:#d52b1e; text-align:center; padding:10px; border-radius:8px; font-weight:800; font-size:14px; border:1px solid rgba(213, 43, 30, 0.3);">🟥 Ocupados: ${ocupados}</div>
+                <div style="flex:1; background:rgba(46, 204, 113, 0.15); color:#2ecc71; text-align:center; padding:10px; border-radius:8px; font-weight:800; font-size:14px; border:2px solid #2ecc71;">🟩 ${libres} LIBRES</div>
+                <div style="flex:1; background:rgba(213, 43, 30, 0.15); color:#ff4d4d; text-align:center; padding:10px; border-radius:8px; font-weight:800; font-size:14px; border:2px solid #d52b1e;">🟥 ${ocupados} OCUPADOS</div>
             `;
             
             contTurnos.innerHTML = htmlAgenda;
@@ -585,15 +578,12 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ precio: val })
             });
-            alert("Precio actualizado exitosamente en la nube.");
+            alert("Precio guardado.");
         }
 
         async function bloquearDia() {
             const fecha = document.getElementById('fechaBloqueo').value;
-            if (!fecha) {
-                alert("Primero selecciona una fecha en el calendario.");
-                return;
-            }
+            if (!fecha) { alert("Primero selecciona una fecha."); return; }
             
             try {
                 await fetch('/api/dias-bloqueados', {
@@ -603,9 +593,9 @@
                 });
                 alert(`Has INHABILITADO el día ${fecha}.`);
                 await fetchTurnosGlobales(); 
-                cargarAgendaBarbero(); // Actualizamos la vista de agenda
+                cargarAgendaBarbero();
             } catch (err) {
-                alert("Fallo al bloquear. Intenta nuevamente.");
+                alert("Fallo al bloquear.");
             }
         }
 
@@ -622,7 +612,7 @@
             cantidadTurnosLeidos = todosLosTurnos.length;
             localStorage.setItem('turnosLeidos', cantidadTurnosLeidos);
             document.getElementById('badgeNoti').classList.add('hidden');
-            alert("¡Agenda revisada, Maestro!");
+            alert("¡Agenda revisada!");
         }
 
         function cerrarSesion() {
