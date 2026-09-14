@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Excelencia - Barbería de Autor</title>
     <!-- Favicon del Logo (Polo de Barbero con la E dorada) -->
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230b0b0b'/><path d='M40 20h20v60H40z' fill='%23ffffff'/><path d='M50 20h10v60H50z' fill='%230033a0'/><path d='M30 20h10v60H30z' fill='%23d52b1e'/><text x='50' y='62' font-family='serif' font-size='42' font-weight='bold' fill='%23c5a059' text-anchor='middle'>E</text></svg>">
@@ -18,14 +18,16 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            padding: 20px;
+            padding: 15px;
+            overflow-x: hidden;
         }
+        /* Marco Tricolor Estilizado Adaptativo */
         .marco-tricolor {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none;
             z-index: 9999;
-            border: 8px solid transparent;
+            border: 6px solid transparent;
             background: linear-gradient(135deg, #0033a0 0%, #ffffff 50%, #d52b1e 100%);
             -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
             mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
@@ -35,47 +37,47 @@
         }
         .main-container {
             width: 100%;
-            max-width: 440px;
+            max-width: 420px;
             background: #141414;
             border: 1px solid #262626;
             border-radius: 16px;
-            padding: 35px 25px;
+            padding: 30px 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             z-index: 10;
         }
-        .header-title { text-align: center; margin-bottom: 25px; }
+        .header-title { text-align: center; margin-bottom: 20px; }
         .header-title h1 {
             font-family: 'Great Vibes', cursive;
-            font-size: 52px;
+            font-size: 48px;
             color: #c5a059;
             letter-spacing: 2px;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
         }
         .header-title p {
-            font-size: 13px;
+            font-size: 12px;
             color: #777;
             text-transform: uppercase;
             letter-spacing: 3px;
         }
         .btn-social {
             width: 100%;
-            padding: 13px;
+            padding: 12px;
             margin-bottom: 12px;
             border-radius: 8px;
             font-weight: 600;
-            font-size: 15px;
+            font-size: 14px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 10px;
             border: none;
             transition: background 0.2s;
         }
         .btn-google { background: #ffffff; color: #1f1f1f; }
         .btn-google:hover { background: #e0e0e0; }
         .divisor {
-            margin: 22px 0;
+            margin: 18px 0;
             border-top: 1px solid #262626;
             position: relative;
             text-align: center;
@@ -85,15 +87,15 @@
             top: -10px; left: 50%;
             transform: translateX(-50%);
             background: #141414;
-            padding: 0 12px;
+            padding: 0 10px;
             color: #666;
             font-size: 11px;
             text-transform: uppercase;
         }
-        .input-group { margin-bottom: 15px; }
+        .input-group { margin-bottom: 14px; }
         .input-group input, .input-group select {
             width: 100%;
-            padding: 12px 15px;
+            padding: 12px 14px;
             background: #1f1f1f;
             border: 1px solid #333;
             color: #fff;
@@ -106,21 +108,27 @@
         }
         .btn-primary {
             width: 100%;
-            padding: 13px;
+            padding: 12px;
             background: #c5a059;
             color: #0b0b0b;
             border: none;
             border-radius: 8px;
             font-weight: bold;
-            font-size: 15px;
+            font-size: 14px;
             cursor: pointer;
             transition: background 0.2s;
         }
         .btn-primary:hover { background: #b08d48; }
         .hidden { display: none !important; }
         .dashboard-view { text-align: left; }
-        .dashboard-view h2 { color: #c5a059; margin-bottom: 10px; font-size: 22px; }
-        .welcome-msg { font-size: 14px; color: #aaa; margin-bottom: 20px; }
+        .dashboard-view h2 { color: #c5a059; margin-bottom: 8px; font-size: 20px; }
+        .welcome-msg { font-size: 13px; color: #aaa; margin-bottom: 15px; }
+        
+        /* Adaptabilidad móvil estricta */
+        @media (max-width: 480px) {
+            .main-container { padding: 20px 15px; }
+            .header-title h1 { font-size: 42px; }
+        }
     </style>
 </head>
 <body>
@@ -154,36 +162,48 @@
             <button class="btn-primary" onclick="loginTradicional()">Ingresar al Sistema</button>
         </div>
 
-        <!-- VISTA DE PANEL Y RESERVAS -->
+        <!-- VISTA DE CLIENTE (RESERVA DE TURNOS) -->
         <div id="dashboardView" class="dashboard-view hidden">
-            <h2>Panel de Citas</h2>
+            <h2 id="tituloPanel">Panel de Citas</h2>
             <p id="welcomeUser" class="welcome-msg"></p>
             
-            <div class="input-group">
-                <label style="font-size: 13px; color: #888; display: block; margin-bottom: 5px;">Selecciona un Servicio:</label>
-                <select id="selectServicios">
-                    <option value="">Cargando servicios...</option>
-                </select>
+            <div id="seccionCliente">
+                <div class="input-group">
+                    <label style="font-size: 12px; color: #888; display: block; margin-bottom: 5px;">Selecciona un Servicio:</label>
+                    <select id="selectServicios">
+                        <option value="">Cargando servicios...</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label style="font-size: 12px; color: #888; display: block; margin-bottom: 5px;">Fecha y Hora:</label>
+                    <input type="datetime-local" id="fechaHoraInput">
+                </div>
+
+                <button class="btn-primary" onclick="reservarTurno()">Reservar Turno</button>
             </div>
 
-            <div class="input-group">
-                <label style="font-size: 13px; color: #888; display: block; margin-bottom: 5px;">Fecha y Hora:</label>
-                <input type="datetime-local" id="fechaHoraInput">
+            <!-- VISTA EXCLUSIVA PARA EL BARBERO (Gamarramartin1995@gmail.com) -->
+            <div id="seccionBarbero" class="hidden">
+                <div style="background: #1f1f1f; padding: 15px; border-radius: 8px; border-left: 4px solid #c5a059; margin-bottom: 15px;">
+                    <p style="font-size: 14px; color: #c5a059; font-weight: bold; margin-bottom: 5px;">Modo Administrador / Barbero</p>
+                    <p style="font-size: 12px; color: #bbb;">Aquí tienes el control maestro de la barbería Excelencia. Los turnos agendados por los clientes se registrarán en la base de datos cloud.</p>
+                </div>
             </div>
 
-            <button class="btn-primary" onclick="reservarTurno()">Reservar Turno</button>
-            <button class="btn-primary" onclick="cerrarSesion()" style="background: #333; color: #fff; margin-top: 10px;">Cerrar Sesión</button>
+            <button class="btn-primary" onclick="cerrarSesion()" style="background: #333; color: #fff; margin-top: 15px;">Cerrar Sesión</button>
         </div>
     </div>
 
     <script>
         let usuarioActual = null;
+        const CORREO_BARBERO = "gamarramartin1995@gmail.com";
 
         window.onload = async function() {
             const userStored = localStorage.getItem('usuarioActivo');
             if (userStored) {
                 usuarioActual = JSON.parse(userStored);
-                mostrarDashboard(usuarioActual.nombre, usuarioActual.rol);
+                mostrarDashboard(usuarioActual);
             }
         };
 
@@ -206,7 +226,7 @@
                 if (res.ok) {
                     usuarioActual = data;
                     localStorage.setItem('usuarioActivo', JSON.stringify(data));
-                    mostrarDashboard(data.nombre, data.rol);
+                    mostrarDashboard(data);
                 } else {
                     alert("Error al iniciar sesión.");
                 }
@@ -215,24 +235,38 @@
             }
         }
 
-        async function mostrarDashboard(nombre, rol) {
+        async function mostrarDashboard(user) {
             document.getElementById('loginView').classList.add('hidden');
             document.getElementById('dashboardView').classList.remove('hidden');
-            document.getElementById('welcomeUser').innerText = `Bienvenido, ${nombre} (${rol.toUpperCase()})`;
             
-            try {
-                const res = await fetch('/api/servicios');
-                const servicios = await res.json();
-                const select = document.getElementById('selectServicios');
-                select.innerHTML = '';
-                servicios.forEach(s => {
-                    const opt = document.createElement('option');
-                    opt.value = s.id;
-                    opt.textContent = `${s.nombre} - $${s.precio}`;
-                    select.appendChild(opt);
-                });
-            } catch (err) {
-                console.error("Error al cargar servicios");
+            const esBarbero = user.email && user.email.toLowerCase().trim() === CORREO_BARBERO;
+            
+            if (esBarbero) {
+                document.getElementById('tituloPanel').innerText = "Panel del Barbero";
+                document.getElementById('welcomeUser').innerText = `Maestro Barber: ${user.nombre} (ADMINISTRADOR)`;
+                document.getElementById('seccionCliente').classList.add('hidden');
+                document.getElementById('seccionBarbero').classList.remove('hidden');
+            } else {
+                document.getElementById('tituloPanel').innerText = "Panel de Citas";
+                document.getElementById('welcomeUser').innerText = `Bienvenido, ${user.nombre} (Cliente)`;
+                document.getElementById('seccionBarbero').classList.add('hidden');
+                document.getElementById('seccionCliente').classList.remove('hidden');
+                
+                // Cargar servicios desde PostgreSQL
+                try {
+                    const res = await fetch('/api/servicios');
+                    const servicios = await res.json();
+                    const select = document.getElementById('selectServicios');
+                    select.innerHTML = '';
+                    servicios.forEach(s => {
+                        const opt = document.createElement('option');
+                        opt.value = s.id;
+                        opt.textContent = `${s.nombre} - $${s.precio}`;
+                        select.appendChild(opt);
+                    });
+                } catch (err) {
+                    console.error("Error al cargar servicios");
+                }
             }
         }
 
@@ -257,7 +291,8 @@
                 });
                 const data = await res.json();
                 if (res.ok) {
-                    alert("¡Turno reservado con éxito en la base de datos!");
+                    alert("¡Turno reservado con éxito en la base de datos de la barbería!");
+                    document.getElementById('fechaHoraInput').value = '';
                 } else {
                     alert("Error al guardar el turno.");
                 }
