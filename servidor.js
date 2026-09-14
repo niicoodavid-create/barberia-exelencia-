@@ -1,1109 +1,556 @@
-const express = require('express');
-const { Pool } = require('pg');
-const path = require('path');
-
-const app = express();
-const port = process.env.PORT || 3000;
-
-// ======================================================
-// CONFIGURACIÓN GOOGLE
-// ======================================================
-
-const CLIENT_ID = process.env.GOOGLE_CLIENT_ID
-    ? process.env.GOOGLE_CLIENT_ID.trim()
-    : '';
-
-const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET
-    ? process.env.GOOGLE_CLIENT_SECRET.trim()
-    : '';
-
-const GOOGLE_REDIRECT_URI =
-    'https://barberia-exelencia.onrender.com/auth/google/callback';
-
-
-// ======================================================
-// BASE DE DATOS
-// ======================================================
-
-const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: process.env.DATABASE_URL
-        ? { rejectUnauthorized: false }
-        : false
+const express=require('express');
+const {Pool}=require('pg');
+const path=require('path');
+const app=express();
+const port=process.env.PORT||3000;
+const ARGENTINA_TIME_ZONE='America/Argentina/Buenos_Aires';
+const CLIENT_ID=process.env.GOOGLE_CLIENT_ID?process.env.GOOGLE_CLIENT_ID.trim():'';
+const CLIENT_SECRET=process.env.GOOGLE_CLIENT_SECRET?process.env.GOOGLE_CLIENT_SECRET.trim():'';
+const GOOGLE_REDIRECT_URI='https://barberia-exelencia.onrender.com/auth/google/callback';
+const pool=new Pool({
+    connectionString:process.env.DATABASE_URL,
+    ssl:process.env.DATABASE_URL?{rejectUnauthorized:false}:false
 });
-
-
-// ======================================================
-// DATOS DEL NEGOCIO
-// ======================================================
-
-const CORREO_BARBERO = 'gamarramartin1995@gmail.com';
-
-const DIRECCION_BARBERIA = 'Paraguay 176';
-
-const HORAS_LABORALES = [
-    '09:00',
-    '10:00',
-    '11:00',
-    '12:00',
-    '13:00',
-    '14:00',
-    '15:00',
-    '16:00',
-    '17:00',
-    '18:00',
-    '19:00',
-    '20:00'
+const CORREO_BARBERO='gamarramartin1995@gmail.com';
+const DIRECCION_BARBERIA='Paraguay 176';
+const HORAS_LABORALES=[
+    '09:00','10:00','11:00','12:00','13:00','14:00',
+    '15:00','16:00','17:00','18:00','19:00','20:00'
 ];
 
+function fechaHoraArgentina(){
+    const partes=new Intl.DateTimeFormat('sv-SE',{
+        timeZone:ARGENTINA_TIME_ZONE,
+        year:'numeric',
+        month:'2-digit',
+        day:'2-digit',
+        hour:'2-digit',
+        minute:'2-digit',
+        hourCycle:'h23'
+    }).formatToParts(new Date());
+    const datos=Object.fromEntries(
+        partes
+            .filter(p=>p.type!=='literal')
+            .map(p=>[p.type,p.value])
+    );
+    return `${datos.year}-${datos.month}-${datos.day} ${datos.hour}:${datos.minute}`;
+}
 
-// ======================================================
-// INICIALIZACIÓN DE BASE DE DATOS
-// ======================================================
+function fechaArgentina(){
+    return fechaHoraArgentina().slice(0,10);
+}
 
-async function inicializarBaseDeDatos() {
+function esFechaValida(fecha){
+    if(typeof fecha!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(fecha))return false;
+    const [y,m,d]=fecha.split('-').map(Number);
+    const x=new Date(Date.UTC(y,m-1,d));
+    return x.getUTCFullYear()===y&&x.getUTCMonth()===m-1&&x.getUTCDate()===d;
+}
 
-    try {
+function esFechaHoraValida(fechaHora){
+    if(typeof fechaHora!=='string'||!/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(fechaHora))return false;
+    const [fecha,hora]=fechaHora.split(' ');
+    return esFechaValida(fecha)&&HORAS_LABORALES.includes(hora);
+}
 
+async function inicializarBaseDeDatos(){
+    try{
         await pool.query(`
-
-            CREATE TABLE IF NOT EXISTS clientes (
+            CREATE TABLE IF NOT EXISTS clientes(
                 id SERIAL PRIMARY KEY,
                 nombre VARCHAR(255),
                 email VARCHAR(255) UNIQUE,
                 rol VARCHAR(50)
             );
-
-            CREATE TABLE IF NOT EXISTS servicios (
+            CREATE TABLE IF NOT EXISTS servicios(
                 id SERIAL PRIMARY KEY,
                 nombre VARCHAR(255),
                 precio NUMERIC
             );
-
-            CREATE TABLE IF NOT EXISTS turnos (
+            CREATE TABLE IF NOT EXISTS turnos(
                 id SERIAL PRIMARY KEY,
                 clientes_id INT REFERENCES clientes(id),
                 servicios_id INT REFERENCES servicios(id),
                 fecha_hora VARCHAR(100),
                 estado VARCHAR(50)
             );
-
-            CREATE TABLE IF NOT EXISTS dias_bloqueados (
+            CREATE TABLE IF NOT EXISTS dias_bloqueados(
                 id SERIAL PRIMARY KEY,
                 fecha VARCHAR(50) UNIQUE
             );
-
         `);
 
+        const resServicios=await pool.query('SELECT COUNT(*) FROM servicios');
 
-        // ==================================================
-        // SERVICIOS INICIALES
-        // ==================================================
-
-        const resServicios = await pool.query(
-            'SELECT COUNT(*) FROM servicios'
-        );
-
-        if (parseInt(resServicios.rows[0].count) === 0) {
-
+        if(Number(resServicios.rows[0].count)===0){
             await pool.query(`
-                INSERT INTO servicios (nombre, precio)
+                INSERT INTO servicios(nombre,precio)
                 VALUES
-                    ('Global', 50000),
-                    ('Mechas', 45000),
-                    ('Corte', 14000),
-                    ('Corte y Barba', 15000);
+                    ('Global',50000),
+                    ('Mechas',45000),
+                    ('Corte',14000),
+                    ('Corte y Barba',15000);
             `);
-
         }
 
-
-        // ==================================================
-        // PROTECCIÓN CONTRA DOBLE RESERVA
-        // ==================================================
-        //
-        // IMPORTANTE:
-        // NO elimina ningún turno existente.
-        //
-        // Simplemente impide que PostgreSQL permita
-        // dos turnos exactamente en la misma fecha/hora.
-        //
-
-        await pool.query(`
-            CREATE UNIQUE INDEX IF NOT EXISTS
-            idx_turnos_fecha_hora_unica
-            ON turnos (fecha_hora);
-        `);
-
-
-        console.log(
-            '¡Tablas y base de datos de Excelencia listas y operativas!'
-        );
-
-        console.log(
-            `Dirección configurada: ${DIRECCION_BARBERIA}`
-        );
-
-    } catch (err) {
-
-        console.error(
-            'Error al auto-inicializar la base de datos:',
-            err
-        );
-
+        try{
+            await pool.query(`
+                CREATE UNIQUE INDEX IF NOT EXISTS
+                idx_turnos_fecha_hora_confirmado
+                ON turnos(fecha_hora)
+                WHERE estado='confirmado';
+            `);
+        }catch(error){
+            if(error.code!=='23505'){
+                console.error('No se pudo crear la protección única de turnos:',error.message);
+            }
+        }
+    }catch(error){
+        console.error('Error al auto-inicializar la base de datos:',error);
     }
 }
 
-inicializarBaseDeDatos();
-
-
-// ======================================================
-// MIDDLEWARE
-// ======================================================
+app.disable('etag');
 
 app.use(express.json());
+app.use(express.urlencoded({extended:true}));
 
-app.use(
-    express.urlencoded({
-        extended: true
-    })
-);
-
-
-app.use((req, res, next) => {
-
-    res.header(
-        'Access-Control-Allow-Origin',
-        '*'
-    );
-
-    res.header(
-        'Access-Control-Allow-Headers',
-        'Origin, Content-Type, Accept'
-    );
-
-    res.header(
-        'Access-Control-Allow-Methods',
-        'GET, POST, PUT, DELETE'
-    );
-
+app.use((req,res,next)=>{
+    res.set('Cache-Control','no-store');
+    res.header('Access-Control-Allow-Origin','*');
+    res.header('Access-Control-Allow-Headers','Origin, Content-Type, Accept');
+    res.header('Access-Control-Allow-Methods','GET, POST, PUT, DELETE');
     next();
-
 });
 
+app.use(express.static(path.join(__dirname)));
 
-app.use(
-    express.static(
-        path.join(__dirname)
-    )
-);
-
-
-// ======================================================
-// PÁGINA PRINCIPAL
-// ======================================================
-
-app.get('/', (req, res) => {
-
-    res.sendFile(
-        path.join(__dirname, 'index.html')
-    );
-
+app.get('/',(req,res)=>{
+    res.sendFile(path.join(__dirname,'index.html'));
 });
 
-
-// ======================================================
-// INFORMACIÓN DE LA BARBERÍA
-// ======================================================
-
-app.get('/api/configuracion', (req, res) => {
-
+app.get('/api/configuracion',(req,res)=>{
     res.json({
-
-        nombre: 'Barbería Excelencia',
-
-        direccion: DIRECCION_BARBERIA,
-
-        horasLaborales: HORAS_LABORALES
-
+        nombre:'Barbería Excelencia',
+        direccion:DIRECCION_BARBERIA,
+        horasLaborales:HORAS_LABORALES
     });
-
 });
 
+app.post('/api/login',async(req,res)=>{
+    const {email,nombre}=req.body;
 
-// ======================================================
-// 1. LOGIN TRADICIONAL
-// ======================================================
-
-app.post('/api/login', async (req, res) => {
-
-    const { email, nombre } = req.body;
-
-    if (!email || !nombre) {
-
+    if(!email||!nombre){
         return res.status(400).json({
-            error: 'Faltan datos para iniciar sesión.'
+            error:'Faltan datos para iniciar sesión.'
         });
-
     }
 
-    try {
-
-        let usuarioExistente = await pool.query(
-            'SELECT * FROM clientes WHERE email = $1',
+    try{
+        const existente=await pool.query(
+            'SELECT * FROM clientes WHERE email=$1',
             [email]
         );
 
-
-        if (usuarioExistente.rows.length > 0) {
-
-            res.json(
-                usuarioExistente.rows[0]
-            );
-
-        } else {
-
-            const nuevoUsuario = await pool.query(
-
-                `
-                INSERT INTO clientes
-                (nombre, email, rol)
-                VALUES ($1, $2, $3)
-                RETURNING *
-                `,
-
-                [
-                    nombre,
-                    email,
-                    'cliente'
-                ]
-
-            );
-
-            res.json(
-                nuevoUsuario.rows[0]
-            );
-
+        if(existente.rows.length){
+            return res.json(existente.rows[0]);
         }
 
-    } catch (error) {
+        const nuevo=await pool.query(
+            'INSERT INTO clientes(nombre,email,rol) VALUES($1,$2,$3) RETURNING *',
+            [nombre,email,'cliente']
+        );
 
+        res.json(nuevo.rows[0]);
+    }catch(error){
         console.error(error);
-
         res.status(500).json({
-            error: 'Error en inicio de sesión'
+            error:'Error en inicio de sesión'
         });
-
     }
-
 });
 
-
-// ======================================================
-// 2. GOOGLE OAUTH
-// ======================================================
-
-app.get('/auth/google', (req, res) => {
-
-    const googleAuthUrl =
-        `https://accounts.google.com/o/oauth2/v2/auth` +
-        `?client_id=${CLIENT_ID}` +
-        `&redirect_uri=${encodeURIComponent(GOOGLE_REDIRECT_URI)}` +
-        `&response_type=code` +
+app.get('/auth/google',(req,res)=>{
+    const url=
+        `https://accounts.google.com/o/oauth2/v2/auth`+
+        `?client_id=${CLIENT_ID}`+
+        `&redirect_uri=${encodeURIComponent(GOOGLE_REDIRECT_URI)}`+
+        `&response_type=code`+
         `&scope=email%20profile`;
 
-    res.redirect(googleAuthUrl);
-
+    res.redirect(url);
 });
 
+app.get('/auth/google/callback',async(req,res)=>{
+    const code=req.query.code;
 
-app.get('/auth/google/callback', async (req, res) => {
-
-    const code = req.query.code;
-
-    if (!code) {
-
-        return res
-            .status(400)
-            .send('Falta el código de Google.');
-
+    if(!code){
+        return res.status(400).send('Falta el código de Google.');
     }
 
-    try {
-
-        const tokenResponse = await fetch(
+    try{
+        const tokenResponse=await fetch(
             'https://oauth2.googleapis.com/token',
             {
-
-                method: 'POST',
-
-                headers: {
+                method:'POST',
+                headers:{
                     'Content-Type':
                         'application/x-www-form-urlencoded'
                 },
-
-                body: new URLSearchParams({
-
-                    code: code,
-
-                    client_id: CLIENT_ID,
-
-                    client_secret: CLIENT_SECRET,
-
-                    redirect_uri: GOOGLE_REDIRECT_URI,
-
-                    grant_type: 'authorization_code'
-
+                body:new URLSearchParams({
+                    code,
+                    client_id:CLIENT_ID,
+                    client_secret:CLIENT_SECRET,
+                    redirect_uri:GOOGLE_REDIRECT_URI,
+                    grant_type:'authorization_code'
                 })
-
             }
         );
 
+        const tokenJson=await tokenResponse.json();
 
-        const tokenJson =
-            await tokenResponse.json();
-
-
-        if (!tokenJson.access_token) {
-
-            return res.send(`
-                <div style="
-                    padding:40px;
-                    background:#0b0b0b;
-                    color:#fff;
-                    font-family:Arial;
-                ">
-
-                    <h2>Error de Google</h2>
-
-                    <pre>
-${JSON.stringify(tokenJson, null, 2)}
-                    </pre>
-
-                </div>
-            `);
-
+        if(!tokenResponse.ok||!tokenJson.access_token){
+            return res.status(502).send(
+                'No se pudo completar la autenticación con Google.'
+            );
         }
 
-
-        const userResponse = await fetch(
-
-            `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${tokenJson.access_token}`
-
+        const userResponse=await fetch(
+            `https://www.googleapis.com/oauth2/v3/userinfo?access_token=${encodeURIComponent(tokenJson.access_token)}`
         );
 
+        const googleUser=await userResponse.json();
 
-        const googleUser =
-            await userResponse.json();
-
-
-        const email =
-            googleUser.email;
-
-        const nombre =
-            googleUser.name;
-
-
-        let usuarioExistente =
-            await pool.query(
-
-                'SELECT * FROM clientes WHERE email = $1',
-
-                [email]
-
+        if(!userResponse.ok||!googleUser.email){
+            return res.status(502).send(
+                'No se pudo obtener el usuario de Google.'
             );
+        }
 
+        const existente=await pool.query(
+            'SELECT * FROM clientes WHERE email=$1',
+            [googleUser.email]
+        );
 
         let usuarioFinal;
 
+        if(existente.rows.length){
+            usuarioFinal=existente.rows[0];
+        }else{
+            const nuevo=await pool.query(
+                'INSERT INTO clientes(nombre,email,rol) VALUES($1,$2,$3) RETURNING *',
+                [
+                    googleUser.name,
+                    googleUser.email,
+                    'cliente'
+                ]
+            );
 
-        if (usuarioExistente.rows.length > 0) {
-
-            usuarioFinal =
-                usuarioExistente.rows[0];
-
-        } else {
-
-            const nuevoUsuario =
-                await pool.query(
-
-                    `
-                    INSERT INTO clientes
-                    (nombre, email, rol)
-                    VALUES ($1, $2, $3)
-                    RETURNING *
-                    `,
-
-                    [
-                        nombre,
-                        email,
-                        'cliente'
-                    ]
-
-                );
-
-            usuarioFinal =
-                nuevoUsuario.rows[0];
-
+            usuarioFinal=nuevo.rows[0];
         }
-
 
         res.send(`
-
             <script>
-
                 localStorage.setItem(
                     'usuarioActivo',
-                    JSON.stringify(
-                        ${JSON.stringify(usuarioFinal)}
-                    )
+                    JSON.stringify(${JSON.stringify(usuarioFinal)})
                 );
-
-                window.location.href =
-                    '/?login=success';
-
+                window.location.href='/?login=success';
             </script>
-
         `);
-
-
-    } catch (err) {
-
-        console.error(err);
-
-        res.status(500).send(
-            `Error interno procesando la autenticación: ${err.message}`
-        );
-
-    }
-
-});
-
-
-// ======================================================
-// 3. OBTENER SERVICIOS
-// ======================================================
-
-app.get('/api/servicios', async (req, res) => {
-
-    try {
-
-        const resultado =
-            await pool.query(
-                'SELECT * FROM servicios ORDER BY id ASC'
-            );
-
-        res.json(
-            resultado.rows
-        );
-
-    } catch (error) {
-
+    }catch(error){
         console.error(error);
-
-        res.status(500).json({
-            error: 'Error al obtener servicios'
-        });
-
+        res.status(500).send(
+            'Error interno procesando la autenticación.'
+        );
     }
-
 });
 
+app.get('/api/servicios',async(req,res)=>{
+    try{
+        const resultado=await pool.query(
+            'SELECT * FROM servicios ORDER BY id ASC'
+        );
 
-// ======================================================
-// 4. ACTUALIZAR PRECIOS
-// ======================================================
-
-app.put('/api/servicios/:id', async (req, res) => {
-
-    const { id } =
-        req.params;
-
-    const { precio } =
-        req.body;
-
-
-    if (precio === undefined || precio === '') {
-
-        return res.status(400).json({
-            error: 'Debe indicar un precio.'
+        res.json(resultado.rows);
+    }catch(error){
+        console.error(error);
+        res.status(500).json({
+            error:'Error al obtener servicios'
         });
+    }
+});
 
+app.put('/api/servicios/:id',async(req,res)=>{
+    const {id}=req.params;
+    const {precio}=req.body;
+
+    if(precio===undefined||precio===''){
+        return res.status(400).json({
+            error:'Debe indicar un precio.'
+        });
     }
 
+    if(Number.isNaN(Number(precio))||Number(precio)<0){
+        return res.status(400).json({
+            error:'Precio inválido.'
+        });
+    }
 
-    try {
+    try{
+        const actualizado=await pool.query(
+            'UPDATE servicios SET precio=$1 WHERE id=$2 RETURNING *',
+            [precio,id]
+        );
 
-        const actualizado =
-            await pool.query(
-
-                `
-                UPDATE servicios
-                SET precio = $1
-                WHERE id = $2
-                RETURNING *
-                `,
-
-                [
-                    precio,
-                    id
-                ]
-
-            );
-
-
-        if (actualizado.rows.length === 0) {
-
+        if(!actualizado.rows.length){
             return res.status(404).json({
-                error: 'Servicio no encontrado.'
+                error:'Servicio no encontrado.'
             });
-
         }
 
-
         res.json({
-
-            mensaje:
-                'Precio actualizado con éxito',
-
-            servicio:
-                actualizado.rows[0]
-
+            mensaje:'Precio actualizado con éxito',
+            servicio:actualizado.rows[0]
         });
-
-
-    } catch (error) {
-
+    }catch(error){
         console.error(error);
-
         res.status(500).json({
-            error:
-                'Error al actualizar el precio'
+            error:'Error al actualizar el precio'
         });
-
     }
-
 });
 
+app.get('/api/turnos',async(req,res)=>{
+    try{
+        const resultado=await pool.query(`
+            SELECT
+                turnos.id,
+                turnos.fecha_hora,
+                turnos.estado,
+                turnos.clientes_id,
+                turnos.servicios_id,
+                clientes.nombre AS cliente,
+                servicios.nombre AS servicio
+            FROM turnos
+            JOIN clientes
+                ON turnos.clientes_id=clientes.id
+            JOIN servicios
+                ON turnos.servicios_id=servicios.id
+            ORDER BY turnos.fecha_hora ASC
+        `);
 
-// ======================================================
-// 5. OBTENER TURNOS
-// ======================================================
-
-app.get('/api/turnos', async (req, res) => {
-
-    try {
-
-        const resultado =
-            await pool.query(`
-
-                SELECT
-
-                    turnos.id,
-
-                    turnos.fecha_hora,
-
-                    turnos.estado,
-
-                    turnos.clientes_id,
-
-                    turnos.servicios_id,
-
-                    clientes.nombre AS cliente,
-
-                    servicios.nombre AS servicio
-
-                FROM turnos
-
-                JOIN clientes
-                    ON turnos.clientes_id = clientes.id
-
-                JOIN servicios
-                    ON turnos.servicios_id = servicios.id
-
-                ORDER BY turnos.fecha_hora ASC;
-
-            `);
-
+        const ahora=fechaHoraArgentina();
 
         res.json(
-            resultado.rows
+            resultado.rows.map(t=>({
+                ...t,
+                vencido:
+                    t.estado==='confirmado'&&
+                    t.fecha_hora<=ahora
+            }))
         );
-
-
-    } catch (error) {
-
+    }catch(error){
         console.error(error);
-
         res.status(500).json({
-            error:
-                'Error al obtener turnos'
+            error:'Error al obtener turnos'
         });
-
     }
-
 });
 
-
-// ======================================================
-// 6. CREAR TURNO
-// ======================================================
-
-app.post('/api/turnos', async (req, res) => {
-
+app.post('/api/turnos',async(req,res)=>{
     const {
         cliente_id,
         servicios_id,
         fecha_hora
-    } = req.body;
+    }=req.body;
 
-
-    // ==================================================
-    // VALIDACIÓN BÁSICA
-    // ==================================================
-
-    if (
-        !cliente_id ||
-        !servicios_id ||
-        !fecha_hora
-    ) {
-
+    if(!cliente_id||!servicios_id||!fecha_hora){
         return res.status(400).json({
-            error:
-                'Faltan datos para crear el turno.'
+            error:'Faltan datos para crear el turno.'
         });
-
     }
 
+    if(!esFechaHoraValida(fecha_hora)){
+        return res.status(400).json({
+            error:'Fecha u horario inválido.'
+        });
+    }
 
-    try {
+    if(fecha_hora<=fechaHoraArgentina()){
+        return res.status(400).json({
+            error:'No se puede reservar un horario que ya pasó.'
+        });
+    }
 
-        // ==================================================
-        // VALIDAR FORMATO
-        // ==================================================
+    const fecha=fecha_hora.slice(0,10);
+    const client=await pool.connect();
 
-        const formato =
-            /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})$/;
+    try{
+        await client.query('BEGIN');
+        await client.query(
+            'SELECT pg_advisory_xact_lock(hashtext($1))',
+            [fecha_hora]
+        );
 
-        const partes =
-            fecha_hora.match(formato);
+        const bloqueado=await client.query(
+            'SELECT id FROM dias_bloqueados WHERE fecha=$1',
+            [fecha]
+        );
 
-
-        if (!partes) {
-
+        if(bloqueado.rows.length){
+            await client.query('ROLLBACK');
             return res.status(400).json({
-                error:
-                    'Formato de fecha inválido.'
+                error:'La barbería no atiende ese día.'
             });
-
         }
 
+        const cliente=await client.query(
+            'SELECT id FROM clientes WHERE id=$1',
+            [cliente_id]
+        );
 
-        const anio =
-            Number(partes[1]);
-
-        const mes =
-            Number(partes[2]);
-
-        const dia =
-            Number(partes[3]);
-
-        const hora =
-            Number(partes[4]);
-
-        const minuto =
-            Number(partes[5]);
-
-
-        // ==================================================
-        // VALIDAR HORA LABORAL
-        // ==================================================
-
-        const horaNormalizada =
-            `${String(hora).padStart(2, '0')}:${String(minuto).padStart(2, '0')}`;
-
-
-        if (
-            !HORAS_LABORALES.includes(
-                horaNormalizada
-            )
-        ) {
-
-            return res.status(400).json({
-                error:
-                    'Ese horario no pertenece al horario laboral.'
-            });
-
-        }
-
-
-        // ==================================================
-        // FECHA/HORA REAL
-        // ==================================================
-
-        const fechaTurno =
-            new Date(
-                anio,
-                mes - 1,
-                dia,
-                hora,
-                minuto,
-                0,
-                0
-            );
-
-
-        if (
-            Number.isNaN(
-                fechaTurno.getTime()
-            )
-        ) {
-
-            return res.status(400).json({
-                error:
-                    'Fecha inválida.'
-            });
-
-        }
-
-
-        // ==================================================
-        // IMPEDIR TURNOS PASADOS
-        // ==================================================
-
-        const ahora =
-            new Date();
-
-
-        if (
-            fechaTurno <= ahora
-        ) {
-
-            return res.status(400).json({
-                error:
-                    'No se puede reservar un horario que ya pasó.'
-            });
-
-        }
-
-
-        // ==================================================
-        // VERIFICAR DÍA BLOQUEADO
-        // ==================================================
-
-        const fechaTexto =
-            `${anio}-${String(mes).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-
-
-        const diaBloqueado =
-            await pool.query(
-
-                `
-                SELECT id
-                FROM dias_bloqueados
-                WHERE fecha = $1
-                `,
-
-                [fechaTexto]
-
-            );
-
-
-        if (
-            diaBloqueado.rows.length > 0
-        ) {
-
-            return res.status(400).json({
-                error:
-                    'La barbería no atiende ese día.'
-            });
-
-        }
-
-
-        // ==================================================
-        // VERIFICAR QUE EXISTA EL CLIENTE
-        // ==================================================
-
-        const cliente =
-            await pool.query(
-
-                `
-                SELECT id
-                FROM clientes
-                WHERE id = $1
-                `,
-
-                [cliente_id]
-
-            );
-
-
-        if (
-            cliente.rows.length === 0
-        ) {
-
+        if(!cliente.rows.length){
+            await client.query('ROLLBACK');
             return res.status(404).json({
-                error:
-                    'Cliente no encontrado.'
+                error:'Cliente no encontrado.'
             });
-
         }
 
+        const servicio=await client.query(
+            'SELECT id FROM servicios WHERE id=$1',
+            [servicios_id]
+        );
 
-        // ==================================================
-        // VERIFICAR QUE EXISTA EL SERVICIO
-        // ==================================================
-
-        const servicio =
-            await pool.query(
-
-                `
-                SELECT id
-                FROM servicios
-                WHERE id = $1
-                `,
-
-                [servicios_id]
-
-            );
-
-
-        if (
-            servicio.rows.length === 0
-        ) {
-
+        if(!servicio.rows.length){
+            await client.query('ROLLBACK');
             return res.status(404).json({
-                error:
-                    'Servicio no encontrado.'
+                error:'Servicio no encontrado.'
             });
-
         }
 
+        const ocupado=await client.query(
+            `SELECT id
+             FROM turnos
+             WHERE fecha_hora=$1
+             AND estado='confirmado'
+             FOR UPDATE`,
+            [fecha_hora]
+        );
 
-        // ==================================================
-        // VERIFICAR SI YA ESTÁ OCUPADO
-        // ==================================================
-
-        const ocupado =
-            await pool.query(
-
-                `
-                SELECT id
-                FROM turnos
-                WHERE fecha_hora = $1
-                `,
-
-                [fecha_hora]
-
-            );
-
-
-        if (
-            ocupado.rows.length > 0
-        ) {
-
+        if(ocupado.rows.length){
+            await client.query('ROLLBACK');
             return res.status(409).json({
-                error:
-                    'Este horario ya se encuentra reservado.'
+                error:'Este horario ya se encuentra reservado.'
             });
-
         }
 
+        const nuevo=await client.query(
+            `INSERT INTO turnos(
+                clientes_id,
+                servicios_id,
+                fecha_hora,
+                estado
+            )
+            VALUES($1,$2,$3,$4)
+            RETURNING *`,
+            [
+                cliente_id,
+                servicios_id,
+                fecha_hora,
+                'confirmado'
+            ]
+        );
 
-        // ==================================================
-        // CREAR TURNO
-        // ==================================================
-
-        const nuevoTurno =
-            await pool.query(
-
-                `
-                INSERT INTO turnos
-                (
-                    clientes_id,
-                    servicios_id,
-                    fecha_hora,
-                    estado
-                )
-
-                VALUES
-                (
-                    $1,
-                    $2,
-                    $3,
-                    $4
-                )
-
-                RETURNING *
-                `,
-
-                [
-                    cliente_id,
-                    servicios_id,
-                    fecha_hora,
-                    'confirmado'
-                ]
-
-            );
-
+        await client.query('COMMIT');
 
         res.status(201).json({
-
-            mensaje:
-                '¡Turno reservado con éxito!',
-
-            turno:
-                nuevoTurno.rows[0]
-
+            mensaje:'¡Turno reservado con éxito!',
+            turno:nuevo.rows[0]
         });
+    }catch(error){
+        try{
+            await client.query('ROLLBACK');
+        }catch{}
 
+        console.error('Error al reservar turno:',error);
 
-    } catch (error) {
-
-        console.error(
-            'Error al reservar turno:',
-            error
-        );
-
-
-        // ==================================================
-        // ERROR DE DOBLE RESERVA
-        // ==================================================
-
-        if (
-            error.code === '23505'
-        ) {
-
+        if(error.code==='23505'){
             return res.status(409).json({
-                error:
-                    'Este horario acaba de ser reservado por otra persona.'
+                error:'Este horario acaba de ser reservado por otra persona.'
             });
-
         }
 
-
         res.status(500).json({
-            error:
-                'Error al reservar el turno'
+            error:'Error al reservar el turno'
         });
-
+    }finally{
+        client.release();
     }
-
 });
 
-
-// ======================================================
-// 7. DÍAS BLOQUEADOS
-// ======================================================
-
-app.get('/api/dias-bloqueados', async (req, res) => {
-
-    try {
-
-        const resultado =
-            await pool.query(
-
-                `
-                SELECT fecha
-                FROM dias_bloqueados
-                ORDER BY fecha ASC
-                `
-
-            );
-
+app.get('/api/dias-bloqueados',async(req,res)=>{
+    try{
+        const resultado=await pool.query(
+            'SELECT fecha FROM dias_bloqueados ORDER BY fecha ASC'
+        );
 
         res.json(
-
-            resultado.rows.map(
-                row => row.fecha
-            )
-
+            resultado.rows.map(row=>row.fecha)
         );
-
-
-    } catch (error) {
-
+    }catch(error){
         console.error(error);
-
         res.status(500).json({
-            error:
-                'Error al obtener días bloqueados'
+            error:'Error al obtener días bloqueados'
         });
-
     }
-
 });
 
+app.post('/api/dias-bloqueados',async(req,res)=>{
+    const {fecha}=req.body;
 
-app.post('/api/dias-bloqueados', async (req, res) => {
-
-    const { fecha } =
-        req.body;
-
-
-    if (!fecha) {
-
+    if(!esFechaValida(fecha)){
         return res.status(400).json({
-            error:
-                'Debe indicar una fecha.'
+            error:'Fecha inválida.'
         });
-
     }
 
+    if(fecha<fechaArgentina()){
+        return res.status(400).json({
+            error:'No se puede bloquear una fecha pasada.'
+        });
+    }
 
-    try {
-
+    try{
         await pool.query(
-
-            `
-            INSERT INTO dias_bloqueados
-            (fecha)
-
-            VALUES ($1)
-
-            ON CONFLICT (fecha)
-            DO NOTHING
-            `,
-
+            `INSERT INTO dias_bloqueados(fecha)
+             VALUES($1)
+             ON CONFLICT(fecha) DO NOTHING`,
             [fecha]
-
         );
-
 
         res.json({
-
-            mensaje:
-                'Día bloqueado exitosamente',
-
-            fecha:
-                fecha
-
+            mensaje:'Día bloqueado exitosamente',
+            fecha
         });
-
-
-    } catch (error) {
-
+    }catch(error){
         console.error(error);
-
         res.status(500).json({
-            error:
-                'Error al bloquear día'
+            error:'Error al bloquear día'
         });
-
     }
-
 });
 
-
-// ======================================================
-// SERVIDOR
-// ======================================================
-
-app.listen(port, () => {
-
-    console.log(
-        `Servidor de Excelencia corriendo en el puerto ${port}`
-    );
-
-});
+inicializarBaseDeDatos()
+    .then(()=>{
+        app.listen(
+            port,
+            ()=>console.log(
+                `Servidor de Excelencia corriendo en el puerto ${port}`
+            )
+        );
+    })
+    .catch(error=>{
+        console.error(error);
+        process.exit(1);
+    });

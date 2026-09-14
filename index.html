@@ -1,125 +1,59 @@
-
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
     <title>Excelencia - Barbería de Autor</title>
-
-
-    <!-- =====================================================
-         FAVICON
-         ===================================================== -->
-
-    <link rel="icon"
-          type="image/svg+xml"
-          href="data:image/svg+xml,
-          <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
-          <rect width='100' height='100' rx='20' fill='%23050505'/>
-          <path d='M40 20h20v60H40z' fill='%23fff'/>
-          <path d='M50 20h10v60H50z' fill='%230033a0'/>
-          <path d='M30 20h10v60H30z' fill='%23d52b1e'/>
-          <text x='50' y='62' font-family='serif' font-size='42'
-          font-weight='bold' fill='%23c5a059'
-          text-anchor='middle'>E</text>
-          </svg>">
-
-
-    <!-- =====================================================
-         FUENTES
-         ===================================================== -->
-
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23050505'/%3E%3Cpath d='M40 20h20v60H40z' fill='%23fff'/%3E%3Cpath d='M50 20h10v60H50z' fill='%230033a0'/%3E%3Cpath d='M30 20h10v60H30z' fill='%23d52b1e'/%3E%3Ctext x='50' y='62' font-family='serif' font-size='42' font-weight='bold' fill='%23c5a059' text-anchor='middle'%3EE%3C/text%3E%3C/svg%3E">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Playfair+Display:ital,wght@0,600;0,800;1,600&display=swap"
           rel="stylesheet">
-
-
     <style>
-
-        /* =====================================================
-           CONFIGURACIÓN GENERAL
-           ===================================================== */
-
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+          <svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'>
             -webkit-tap-highlight-color: transparent;
         }
-
-
         body {
-
             background:
                 radial-gradient(
                     circle at top,
                     #1a1a1a 0%,
                     #050505 100%
                 );
-
             color: #f4f4f4;
-
             font-family: 'Outfit', sans-serif;
-
             display: flex;
-
             flex-direction: column;
-
             align-items: center;
-
             justify-content: center;
-
             min-height: 100vh;
-
             padding: 15px;
-
             overflow-x: hidden;
-
             position: relative;
         }
-
-
-        /* =====================================================
-           MARCO TRICOLOR
-           ===================================================== */
-
         @keyframes marcoMovement {
-
             0% {
                 background-position: 0% 50%;
             }
-
             50% {
                 background-position: 100% 50%;
             }
-
             100% {
                 background-position: 0% 50%;
             }
-
         }
-
-
         .marco-tricolor {
-
             position: fixed;
-
             top: 0;
             left: 0;
-
             width: 100%;
             height: 100%;
-
             pointer-events: none;
-
             z-index: 9999;
-
             border: 6px solid transparent;
-
             background:
                 linear-gradient(
                     135deg,
@@ -129,450 +63,230 @@
                     #ffffff,
                     #0033a0
                 );
-
             background-size: 300% 300%;
-
             animation:
                 marcoMovement 8s ease infinite;
-
             -webkit-mask:
                 linear-gradient(#fff 0 0) content-box,
                 linear-gradient(#fff 0 0);
-
             mask:
                 linear-gradient(#fff 0 0) content-box,
                 linear-gradient(#fff 0 0);
-
             -webkit-mask-composite: xor;
-
             mask-composite: exclude;
-
             opacity: 0.9;
         }
-
-
-        /* =====================================================
-           CONTENEDOR PRINCIPAL
-           ===================================================== */
-
         .main-container {
-
             width: 100%;
-
             max-width: 440px;
-
             background:
                 rgba(15, 15, 15, 0.95);
-
             border:
                 1px solid rgba(197, 160, 89, 0.2);
-
             border-radius: 24px;
-
             padding: 30px 25px;
-
             box-shadow:
                 0 20px 50px rgba(0,0,0,0.9);
-
             z-index: 10;
-
             backdrop-filter: blur(10px);
         }
-
-
-        /* =====================================================
-           MARCA PRINCIPAL
-           SIEMPRE VISIBLE
-           ===================================================== */
-
         .marca-excelencia {
-
             text-align: center;
-
             margin-bottom: 24px;
-
             position: relative;
         }
-
-
         .marca-excelencia h1 {
-
             font-family:
                 'Playfair Display',
                 serif;
-
             font-size: 48px;
-
             color: #c5a059;
-
             line-height: 1;
-
             margin-bottom: 6px;
-
             text-shadow:
                 0 4px 15px
                 rgba(197,160,89,0.25);
         }
-
-
         .marca-excelencia .subtitulo {
-
             font-size: 10px;
-
             color: #aaa;
-
             text-transform: uppercase;
-
             letter-spacing: 4px;
-
             font-weight: 600;
         }
-
-
         .direccion-salon {
-
             margin-top: 9px;
-
             color: #777;
-
             font-size: 10px;
-
             letter-spacing: 2px;
-
             text-transform: uppercase;
-
             font-weight: 600;
         }
-
-
-        /* =====================================================
-           TÍTULOS SECUNDARIOS
-           ===================================================== */
-
         .header-title {
-
             text-align: center;
-
             margin-bottom: 20px;
-
             position: relative;
         }
-
-
         .header-title p {
-
             font-size: 13px;
-
             color: #c5a059;
-
             font-weight: 600;
-
             letter-spacing: 1px;
         }
-
-
-        /* =====================================================
-           NOTIFICACIONES
-           ===================================================== */
-
         .notificaciones {
-
             position: absolute;
-
             top: 0;
-
             right: 5px;
-
             cursor: pointer;
-
             transition:
                 transform 0.2s;
         }
-
-
         .notificaciones:hover {
-
             transform:
                 scale(1.1);
         }
-
-
         .notificaciones svg {
-
             fill: #c5a059;
-
             width: 26px;
-
             height: 26px;
         }
-
-
         .badge-noti {
-
             position: absolute;
-
             top: -4px;
-
             right: -4px;
-
             background: #d52b1e;
-
             color: #fff;
-
             font-size: 10px;
-
             font-weight: bold;
-
             width: 16px;
-
             height: 16px;
-
             border-radius: 50%;
-
             display: flex;
-
             align-items: center;
-
             justify-content: center;
         }
-
-
-        /* =====================================================
-           OCULTAR ELEMENTOS
-           ===================================================== */
-
         .hidden {
-
             display: none !important;
         }
-
-
-        /* =====================================================
-           BOTONES
-           ===================================================== */
-
         .btn-social,
         .btn-primary {
-
             width: 100%;
-
             padding: 15px;
-
             border-radius: 12px;
-
             font-weight: 800;
-
             font-size: 15px;
-
             cursor: pointer;
-
             transition:
                 all 0.3s ease;
-
             text-transform: uppercase;
-
             letter-spacing: 1px;
-
             border: none;
-
             display: flex;
-
             align-items: center;
-
             justify-content: center;
-
             gap: 12px;
-
             font-family:
                 'Outfit',
                 sans-serif;
         }
-
-
         .btn-google {
-
             background: #fff;
-
             color: #050505;
         }
-
-
         .btn-google:active {
-
             transform:
                 scale(0.97);
         }
-
-
         .btn-primary {
-
             background:
                 linear-gradient(
                     135deg,
                     #c5a059 0%,
                     #a67c00 100%
                 );
-
             color: #000;
-
             box-shadow:
                 0 5px 20px
                 rgba(197,160,89,0.3);
-
             margin-top: 10px;
         }
-
-
         .btn-primary:active {
-
             transform:
                 scale(0.97);
         }
-
-
         .btn-primary:disabled {
-
             opacity: 0.6;
-
             cursor: wait;
         }
-
-
-        /* =====================================================
-           CAMPOS
-           ===================================================== */
-
         .input-group {
-
             margin-bottom: 20px;
         }
-
-
         .input-group label {
-
             font-size: 12px;
-
             color: #c5a059;
-
             display: block;
-
             margin-bottom: 8px;
-
             font-weight: 700;
-
             text-transform: uppercase;
-
             letter-spacing: 1px;
         }
-
-
         .input-group input,
         .input-group select {
-
             width: 100%;
-
             padding: 15px;
-
             background: #111;
-
             border: 1px solid #333;
-
             color: #fff;
-
             border-radius: 12px;
-
             font-size: 15px;
-
             outline: none;
-
             font-family:
                 'Outfit',
                 sans-serif;
-
             transition:
                 border-color 0.3s;
         }
-
-
         .input-group input:focus {
-
             border-color:
                 #c5a059;
         }
-
-
-        /* =====================================================
-           SERVICIOS
-           ===================================================== */
-
         .servicios-grid {
-
             display: grid;
-
             grid-template-columns:
                 1fr 1fr;
-
             gap: 12px;
         }
-
-
         .btn-servicio {
-
             background: #111;
-
             border:
                 2px solid #222;
-
             border-radius: 12px;
-
             padding: 16px 10px;
-
             color: #fff;
-
             cursor: pointer;
-
             text-align: center;
-
             transition:
                 all 0.3s;
-
             font-family:
                 'Outfit',
                 sans-serif;
         }
-
-
         .btn-servicio span {
-
             display: block;
-
             font-size: 14px;
-
             font-weight: 800;
-
             margin-bottom: 5px;
-
             text-transform: uppercase;
-
             letter-spacing: 1px;
         }
-
-
         .btn-servicio small {
-
             font-size: 13px;
-
             color: #aaa;
-
             font-weight: 600;
         }
-
-
         .btn-servicio.seleccionado {
-
             border-color:
                 #c5a059;
-
             background:
                 rgba(
                     197,
@@ -581,71 +295,36 @@
                     0.1
                 );
         }
-
-
         .btn-servicio.seleccionado small {
-
             color:
                 #c5a059;
         }
-
-
-        /* =====================================================
-           GRILLA DE HORARIOS
-           ===================================================== */
-
         .horarios-grid {
-
             display: grid;
-
             grid-template-columns:
                 repeat(3, 1fr);
-
             gap: 10px;
-
             margin-top: 10px;
         }
-
-
         .btn-hora {
-
             padding: 12px 0;
-
             min-height: 64px;
-
             border-radius: 8px;
-
             font-size: 16px;
-
             font-weight: 800;
-
             text-align: center;
-
             cursor: pointer;
-
             transition:
                 all 0.3s;
-
             font-family:
                 'Outfit',
                 sans-serif;
-
             display: flex;
-
             flex-direction: column;
-
             align-items: center;
-
             justify-content: center;
         }
-
-
-        /* =====================================================
-           🟩 HORARIO DISPONIBLE
-           ===================================================== */
-
         .hora-disponible {
-
             background:
                 rgba(
                     46,
@@ -653,24 +332,17 @@
                     113,
                     0.15
                 );
-
             color:
                 #2ecc71;
-
             border:
                 2px solid #2ecc71;
         }
-
-
         .hora-disponible:hover,
         .hora-disponible.seleccionada {
-
             background:
                 #2ecc71;
-
             color:
                 #000;
-
             box-shadow:
                 0 0 15px
                 rgba(
@@ -680,22 +352,12 @@
                     0.6
                 );
         }
-
-
         .hora-disponible:hover span,
         .hora-disponible.seleccionada span {
-
             color:
                 #000 !important;
         }
-
-
-        /* =====================================================
-           🟥 HORARIO OCUPADO
-           ===================================================== */
-
         .hora-ocupada {
-
             background:
                 rgba(
                     213,
@@ -703,30 +365,18 @@
                     30,
                     0.15
                 );
-
             color:
                 #ff4d4d;
-
             border:
                 2px solid #d52b1e;
-
             cursor:
                 not-allowed;
-
             pointer-events:
                 none;
-
             opacity:
                 0.9;
         }
-
-
-        /* =====================================================
-           🟥 HORARIO VENCIDO
-           ===================================================== */
-
         .hora-vencida {
-
             background:
                 rgba(
                     213,
@@ -734,478 +384,249 @@
                     30,
                     0.12
                 );
-
             color:
                 #ff4d4d;
-
             border:
                 2px solid #d52b1e;
-
             cursor:
                 not-allowed;
-
             pointer-events:
                 none;
-
             opacity:
                 0.65;
         }
-
-
         .hora-vencida span {
-
             color:
                 #ff4d4d !important;
         }
-
-
-        /* =====================================================
-           ACTUALIZACIÓN EN TIEMPO REAL
-           ===================================================== */
-
         .estado-tiempo-real {
-
             text-align: center;
-
             font-size: 9px;
-
             color: #555;
-
             margin-top: 8px;
-
             letter-spacing: 1px;
-
             text-transform: uppercase;
         }
-
-
-        /* =====================================================
-           PANEL ADMIN
-           ===================================================== */
-
         .admin-section {
-
             background: #111;
-
             padding: 20px;
-
             border-radius: 16px;
-
             border-top:
                 3px solid #c5a059;
-
             margin-bottom: 20px;
         }
-
-
-        /* =====================================================
-           DIVISOR
-           ===================================================== */
-
         .divisor {
-
             margin: 25px 0;
-
             border-top:
                 1px solid #333;
-
             position: relative;
-
             text-align: center;
         }
-
-
         .divisor span {
-
             position: absolute;
-
             top: -11px;
-
             left: 50%;
-
             transform:
                 translateX(-50%);
-
             background:
                 #151515;
-
             padding:
                 0 15px;
-
             color:
                 #888;
-
             font-size:
                 11px;
-
             font-weight:
                 800;
-
             text-transform:
                 uppercase;
-
             letter-spacing:
                 2px;
         }
-
-
-        /* =====================================================
-           FIRMA BY NAICKY
-           ===================================================== */
-
         .firma-naicky {
-
             margin-top:
                 28px;
-
             text-align:
                 center;
-
             font-family:
                 'Playfair Display',
                 serif;
-
             font-style:
                 italic;
-
             font-size:
                 17px;
-
             color:
                 #555;
-
             letter-spacing:
                 1px;
-
             user-select:
                 none;
         }
-
-
         .firma-naicky::after {
-
             content:
                 " ®";
-
             font-family:
                 'Outfit',
                 sans-serif;
-
             font-size:
                 8px;
-
             vertical-align:
                 super;
-
             font-style:
                 normal;
-
             letter-spacing:
                 0;
         }
-
-
-        /* =====================================================
-           MÓVIL
-           ===================================================== */
-
         @media (max-width: 480px) {
-
             .main-container {
-
                 padding:
                     30px 20px;
-
                 border-radius:
                     0;
-
                 min-height:
                     100vh;
-
                 border:
                     none;
             }
-
-
             body {
-
                 padding:
                     0;
             }
-
-
             .marca-excelencia h1 {
-
                 font-size:
                     44px;
             }
-
         }
-
     </style>
-
 </head>
-
-
 <body>
-
-
-    <!-- =====================================================
-         MARCO DECORATIVO
-         ===================================================== -->
-
     <div class="marco-tricolor"></div>
-
-
     <div class="main-container">
-
-
-        <!-- =================================================
-             MARCA PERMANENTE
-             ================================================= -->
-
         <div class="marca-excelencia">
-
             <h1>
                 Excelencia
             </h1>
-
             <div class="subtitulo">
                 Barbería de Autor
             </div>
-
             <div class="direccion-salon">
                 Paraguay 176
             </div>
-
         </div>
-
-
-        <!-- =================================================
-             VISTA LOGIN
-             ================================================= -->
-
         <div id="loginView">
-
-
-            <!-- LOGIN GOOGLE -->
-
             <button
                 class="btn-social btn-google"
                 onclick="window.location.href='/auth/google'">
-
                 <svg
                     width="20"
                     height="20"
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 48 48">
-
                     <path
                         fill="#EA4335"
                         d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-
                     <path
                         fill="#4285F4"
                         d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-
                     <path
                         fill="#FBBC05"
                         d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-
                     <path
                         fill="#34A853"
                         d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.46-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-
                 </svg>
-
                 Ingresar con Google
-
             </button>
-
-
-            <!-- DIVISOR -->
-
             <div class="divisor">
-
                 <span>
                     o registro manual
                 </span>
-
             </div>
-
-
-            <!-- EMAIL -->
-
             <div class="input-group">
-
                 <input
                     type="email"
                     id="emailInput"
                     placeholder="Tu correo electrónico">
-
             </div>
-
-
-            <!-- NOMBRE -->
-
             <div class="input-group">
-
                 <input
                     type="text"
                     id="nombreInput"
                     placeholder="Tu nombre completo">
-
             </div>
-
-
             <button
                 class="btn-primary"
                 onclick="loginTradicional()">
-
                 Acceder al Salón
-
             </button>
-
         </div>
-
-
-
-        <!-- =================================================
-             DASHBOARD
-             ================================================= -->
-
         <div
             id="dashboardView"
             class="hidden">
-
-
-            <!-- CABECERA DEL USUARIO -->
-
             <div
                 class="header-title"
                 style="margin-bottom:15px;">
-
-
                 <p
                     id="welcomeUser">
-
                     Bienvenido a la Experiencia
-
                 </p>
-
-
-                <!-- NOTIFICACIONES -->
-
                 <div
                     id="btnNotificaciones"
                     class="notificaciones hidden"
                     onclick="verNotificaciones()">
-
                     <svg viewBox="0 0 24 24">
-
                         <path
                             d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.63-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2zm-2 1H8v-6c0-2.48 1.51-4.5 4-4.5s4 2.02 4 4.5v6z"/>
-
                     </svg>
-
                     <span
                         id="badgeNoti"
                         class="badge-noti hidden">
                         0
                     </span>
-
                 </div>
-
             </div>
-
-
-
-            <!-- =================================================
-                 SECCIÓN CLIENTE
-                 ================================================= -->
-
             <div id="seccionCliente">
-
-
-                <!-- SERVICIOS -->
-
                 <div class="input-group">
-
                     <label>
                         1. Selecciona tu Estilo
                     </label>
-
                     <div
                         id="contenedorServicios"
                         class="servicios-grid">
                     </div>
-
                 </div>
-
-
-                <!-- FECHA -->
-
                 <div class="input-group">
-
                     <label>
                         2. Elige el Día
                     </label>
-
                     <input
                         type="date"
                         id="fechaInput">
-
                 </div>
-
-
-                <!-- HORARIOS -->
-
                 <div
                     class="input-group"
                     id="contenedorHorarios"
                     style="display:none;">
-
                     <label>
                         3. Selecciona una hora Libre (Verde)
                     </label>
-
                     <div
                         id="grillaHorarios"
                         class="horarios-grid">
                     </div>
-
                 </div>
-
-
-                <!-- RESERVAR -->
-
                 <button
                     id="btnConfirmarReserva"
                     class="btn-primary"
                     onclick="reservarTurno()"
                     style="margin-top:20px;">
-
                     Confirmar Reserva
-
                 </button>
-
             </div>
-
-
-
-            <!-- =================================================
-                 SECCIÓN BARBERO
-                 ================================================= -->
-
             <div
                 id="seccionBarbero"
                 class="hidden">
-
-
-                <!-- PRECIOS -->
-
                 <div class="admin-section">
-
                     <label
                         style="
                             color:#c5a059;
@@ -1215,12 +636,8 @@
                             font-weight:800;
                             letter-spacing:1px;
                         ">
-
                         GESTIÓN DE PRECIOS
-
                     </label>
-
-
                     <div
                         id="listaPreciosAdmin"
                         style="
@@ -1229,15 +646,8 @@
                             gap:10px;
                         ">
                     </div>
-
                 </div>
-
-
-
-                <!-- AGENDA -->
-
                 <div class="admin-section">
-
                     <label
                         style="
                             color:#c5a059;
@@ -1247,24 +657,16 @@
                             letter-spacing:1px;
                             margin-bottom:5px;
                         ">
-
                         AGENDA DETALLADA
-
                     </label>
-
-
                     <p
                         style="
                             font-size:11px;
                             color:#aaa;
                             margin-bottom:12px;
                         ">
-
                         Revisa las horas Libres (Verde) y Ocupadas (Rojo) de cualquier día.
-
                     </p>
-
-
                     <input
                         type="date"
                         id="fechaAgendaAdmin"
@@ -1279,10 +681,6 @@
                             font-family:'Outfit';
                             margin-bottom:15px;
                         ">
-
-
-                    <!-- RESUMEN -->
-
                     <div
                         id="resumenAgenda"
                         style="
@@ -1291,10 +689,6 @@
                             margin-bottom:15px;
                         ">
                     </div>
-
-
-                    <!-- LISTA -->
-
                     <div
                         id="listaTurnosAdmin"
                         style="
@@ -1303,19 +697,12 @@
                             gap:10px;
                         ">
                     </div>
-
                 </div>
-
-
-
-                <!-- BLOQUEAR DÍA -->
-
                 <div
                     class="admin-section"
                     style="
                         border-top:3px solid #d52b1e;
                     ">
-
                     <label
                         style="
                             color:#d52b1e;
@@ -1323,12 +710,8 @@
                             font-weight:800;
                             letter-spacing:1px;
                         ">
-
                         BLOQUEAR UN DÍA
-
                     </label>
-
-
                     <p
                         style="
                             font-size:11px;
@@ -1336,12 +719,8 @@
                             margin-bottom:10px;
                             margin-top:5px;
                         ">
-
                         Inhabilita todo el salón para que ningún cliente reserve en esta fecha.
-
                     </p>
-
-
                     <input
                         type="date"
                         id="fechaBloqueo"
@@ -1355,8 +734,6 @@
                             color:#fff;
                             font-family:'Outfit';
                         ">
-
-
                     <button
                         class="btn-primary"
                         style="
@@ -1365,19 +742,10 @@
                             padding:12px;
                         "
                         onclick="bloquearDia()">
-
                         Inhabilitar Día Seleccionado
-
                     </button>
-
                 </div>
-
             </div>
-
-
-
-            <!-- CERRAR SESIÓN -->
-
             <button
                 onclick="cerrarSesion()"
                 style="
@@ -1394,65 +762,30 @@
                     text-transform:uppercase;
                     letter-spacing:1px;
                 ">
-
                 Cerrar Sesión Segura
-
             </button>
-
         </div>
-
-
-
-        <!-- =================================================
-             FIRMA
-             ================================================= -->
-
         <div class="firma-naicky">
             By Naicky
         </div>
-
-
     </div>
-
-
-
-    <!-- =====================================================
-         JAVASCRIPT
-         ===================================================== -->
-
     <script>
-
-
-        /* =================================================
-           VARIABLES
-           ================================================= */
-
         let usuarioActual = null;
-
         let servicioSeleccionadoId = null;
-
         let horaSeleccionada = null;
-
         let todosLosTurnos = [];
-
         let diasBloqueados = [];
-
         let intervaloTiempoReal = null;
-
+        let agendaConfirmada = false;
         let cantidadTurnosLeidos =
             Number(
                 localStorage.getItem(
                     'turnosLeidos'
                 )
             ) || 0;
-
-
         const CORREO_BARBERO =
             "gamarramartin1995@gmail.com";
-
-
         const HORAS_LABORALES = [
-
             "09:00",
             "10:00",
             "11:00",
@@ -1465,132 +798,41 @@
             "18:00",
             "19:00",
             "20:00"
-
         ];
-
-
-
-        /* =================================================
-           FECHA ARGENTINA
-           ================================================= */
-
+        function obtenerFechaHoraArgentina() {
+            const partes = new Intl.DateTimeFormat('sv-SE', {
+                timeZone: 'America/Argentina/Buenos_Aires',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                hourCycle: 'h23'
+            }).formatToParts(new Date());
+            const valores = Object.fromEntries(
+                partes.filter(p => p.type !== 'literal').map(p => [p.type, p.value])
+            );
+            return `${valores.year}-${valores.month}-${valores.day} ${valores.hour}:${valores.minute}`;
+        }
         function obtenerFechaArgentina() {
-
-            return new Intl.DateTimeFormat(
-                'en-CA',
-                {
-                    timeZone:
-                        'America/Argentina/Buenos_Aires',
-
-                    year:
-                        'numeric',
-
-                    month:
-                        '2-digit',
-
-                    day:
-                        '2-digit'
-                }
-            ).format(
-                new Date()
-            );
+            return obtenerFechaHoraArgentina().slice(0, 10);
         }
-
-
-
-        /* =================================================
-           HORA ARGENTINA
-           ================================================= */
-
         function obtenerHoraArgentina() {
-
-            return new Intl.DateTimeFormat(
-                'en-GB',
-                {
-                    timeZone:
-                        'America/Argentina/Buenos_Aires',
-
-                    hour:
-                        '2-digit',
-
-                    minute:
-                        '2-digit',
-
-                    hour12:
-                        false
-                }
-            ).format(
-                new Date()
-            );
+            return obtenerFechaHoraArgentina().slice(11, 16);
         }
-
-
-
-        /* =================================================
-           ¿EL HORARIO YA PASÓ?
-           ================================================= */
-
-        function horarioYaPaso(
-            fecha,
-            hora
-        ) {
-
-            const fechaActual =
-                obtenerFechaArgentina();
-
-            const horaActual =
-                obtenerHoraArgentina();
-
-
-            /*
-               Si el día seleccionado es anterior
-               a hoy, todos sus horarios vencieron.
-            */
-
-            if (
-                fecha <
-                fechaActual
-            ) {
-
-                return true;
-            }
-
-
-            /*
-               Si es un día futuro,
-               ningún horario venció.
-            */
-
-            if (
-                fecha >
-                fechaActual
-            ) {
-
-                return false;
-            }
-
-
-            /*
-               Si es hoy,
-               comparamos las horas.
-            */
-
-            return hora <= horaActual;
+        function horarioYaPaso(fecha, hora) {
+            return `${fecha} ${hora}` <= obtenerFechaHoraArgentina();
         }
-
-
-
-        /* =================================================
-           CARGA INICIAL
-           ================================================= */
-
+        function normalizarFechaHora(valor) {
+            if (typeof valor !== 'string') return '';
+            const limpio = valor.trim().replace('T', ' ');
+            const match = limpio.match(/^(\d{4}-\d{2}-\d{2} \d{2}:\d{2})/);
+            return match ? match[1] : limpio;
+        }
         window.onload =
             async function() {
-
                 const hoy =
                     obtenerFechaArgentina();
-
-
                 document
                     .getElementById(
                         'fechaInput'
@@ -1599,8 +841,6 @@
                         'min',
                         hoy
                     );
-
-
                 document
                     .getElementById(
                         'fechaBloqueo'
@@ -1609,124 +849,52 @@
                         'min',
                         hoy
                     );
-
-
                 const userStored =
                     localStorage.getItem(
                         'usuarioActivo'
                     );
-
-
                 if (userStored) {
-
                     try {
-
                         usuarioActual =
                             JSON.parse(
                                 userStored
                             );
-
-
                         await fetchTurnosGlobales();
-
-
                         mostrarDashboard(
                             usuarioActual
                         );
-
                     }
-
                     catch (error) {
-
                         console.error(
                             "Error recuperando usuario:",
                             error
                         );
-
                     }
-
                 }
-
             };
-
-
-
-        /* =================================================
-           OBTENER TURNOS DEL SERVIDOR
-           ================================================= */
-
         async function fetchTurnosGlobales() {
-
             try {
-
-                const ts =
-                    Date.now();
-
-
-                const resTurnos =
-                    await fetch(
-                        `/api/turnos?t=${ts}`,
-                        {
-                            cache:
-                                'no-store'
-                        }
-                    );
-
-
-                if (!resTurnos.ok) {
-
-                    throw new Error(
-                        'No se pudieron obtener los turnos.'
-                    );
-                }
-
-
-                todosLosTurnos =
-                    await resTurnos.json();
-
-
-                const resDias =
-                    await fetch(
-                        `/api/dias-bloqueados?t=${ts}`,
-                        {
-                            cache:
-                                'no-store'
-                        }
-                    );
-
-
-                if (!resDias.ok) {
-
-                    throw new Error(
-                        'No se pudieron obtener los días bloqueados.'
-                    );
-                }
-
-
-                diasBloqueados =
-                    await resDias.json();
-
+                const ts = Date.now();
+                const [resTurnos, resDias] = await Promise.all([
+                    fetch(`/api/turnos?t=${ts}`, { cache: 'no-store' }),
+                    fetch(`/api/dias-bloqueados?t=${ts}`, { cache: 'no-store' })
+                ]);
+                if (!resTurnos.ok || !resDias.ok) throw new Error('No se pudo sincronizar la agenda.');
+                const turnos = await resTurnos.json();
+                const dias = await resDias.json();
+                todosLosTurnos = Array.isArray(turnos)
+                    ? turnos.map(t => ({ ...t, fecha_hora: normalizarFechaHora(t.fecha_hora) }))
+                    : [];
+                diasBloqueados = Array.isArray(dias) ? dias : [];
+                agendaConfirmada = true;
+                return true;
+            } catch (err) {
+                agendaConfirmada = false;
+                console.error(err);
+                return false;
             }
-
-            catch (err) {
-
-                console.error(
-                    "Error conectando a la Barbería:",
-                    err
-                );
-
-            }
-
         }
-
-
-
-        /* =================================================
-           LOGIN TRADICIONAL
-           ================================================= */
-
         async function loginTradicional() {
-
             const email =
                 document
                     .getElementById(
@@ -1734,8 +902,6 @@
                     )
                     .value
                     .trim();
-
-
             const nombre =
                 document
                     .getElementById(
@@ -1743,35 +909,26 @@
                     )
                     .value
                     .trim();
-
-
             if (
                 !email ||
                 !nombre
             ) {
-
                 alert(
                     "Por favor, completa tus credenciales."
                 );
-
                 return;
             }
-
-
             try {
-
                 const res =
                     await fetch(
                         '/api/login',
                         {
                             method:
                                 'POST',
-
                             headers: {
                                 'Content-Type':
                                     'application/json'
                             },
-
                             body:
                                 JSON.stringify({
                                     email,
@@ -1779,190 +936,113 @@
                                 })
                         }
                     );
-
-
                 if (res.ok) {
-
                     const data =
                         await res.json();
-
-
                     localStorage.setItem(
                         'usuarioActivo',
                         JSON.stringify(data)
                     );
-
-
                     usuarioActual =
                         data;
-
-
                     await fetchTurnosGlobales();
-
-
                     mostrarDashboard(
                         data
                     );
-
                 }
-
                 else {
-
                     alert(
                         "No se pudo iniciar sesión."
                     );
-
                 }
-
             }
-
             catch (err) {
-
                 console.error(err);
-
                 alert(
                     "Error al conectar con el servidor."
                 );
-
             }
-
         }
-
-
-
-        /* =================================================
-           MOSTRAR DASHBOARD
-           ================================================= */
-
         async function mostrarDashboard(
             user
         ) {
-
             document
                 .getElementById(
                     'loginView'
                 )
                 .classList
                 .add('hidden');
-
-
             document
                 .getElementById(
                     'dashboardView'
                 )
                 .classList
                 .remove('hidden');
-
-
             const esBarbero =
                 user.email
                     .toLowerCase() ===
                 CORREO_BARBERO;
-
-
             if (esBarbero) {
-
                 document
                     .getElementById(
                         'welcomeUser'
                     )
                     .innerText =
                     `Maestro Autor: ${user.nombre}`;
-
-
                 document
                     .getElementById(
                         'seccionCliente'
                     )
                     .classList
                     .add('hidden');
-
-
                 document
                     .getElementById(
                         'seccionBarbero'
                     )
                     .classList
                     .remove('hidden');
-
-
                 document
                     .getElementById(
                         'btnNotificaciones'
                     )
                     .classList
                     .remove('hidden');
-
-
                 const adminInput =
                     document.getElementById(
                         'fechaAgendaAdmin'
                     );
-
-
                 if (!adminInput.value) {
-
                     adminInput.value =
                         obtenerFechaArgentina();
-
                 }
-
-
                 await cargarPanelBarbero();
-
                 revisarNotificaciones();
-
             }
-
             else {
-
                 document
                     .getElementById(
                         'welcomeUser'
                     )
                     .innerText =
                     `Cliente VIP: ${user.nombre}`;
-
-
                 document
                     .getElementById(
                         'seccionCliente'
                     )
                     .classList
                     .remove('hidden');
-
-
                 document
                     .getElementById(
                         'seccionBarbero'
                     )
                     .classList
                     .add('hidden');
-
-
                 await cargarServiciosCliente();
-
             }
-
-
-            /*
-               Arrancamos actualización automática.
-            */
-
             iniciarActualizacionTiempoReal();
-
         }
-
-
-
-        /* =================================================
-           SERVICIOS
-           ================================================= */
-
         async function cargarServiciosCliente() {
-
             try {
-
                 const res =
                     await fetch(
                         '/api/servicios',
@@ -1971,72 +1051,49 @@
                                 'no-store'
                         }
                     );
-
-
                 if (!res.ok) {
-
                     throw new Error(
                         'Error obteniendo servicios.'
                     );
                 }
-
-
                 const servicios =
                     await res.json();
-
-
                 const contenedor =
                     document.getElementById(
                         'contenedorServicios'
                     );
-
-
                 contenedor.innerHTML =
                     '';
-
-
                 servicios.forEach(
                     (s, index) => {
-
                         const btn =
                             document.createElement(
                                 'div'
                             );
-
-
                         btn.className =
                             `btn-servicio ${
                                 index === 0
                                 ? 'seleccionado'
                                 : ''
                             }`;
-
-
                         if (
                             index === 0
                         ) {
-
                             servicioSeleccionadoId =
                                 s.id;
                         }
-
-
                         btn.innerHTML = `
                             <span>
                                 ${s.nombre}
                             </span>
-
                             <small>
                                 $${Number(
                                     s.precio
                                 ).toLocaleString()}
                             </small>
                         `;
-
-
                         btn.onclick =
                             () => {
-
                                 document
                                     .querySelectorAll(
                                         '.btn-servicio'
@@ -2048,388 +1105,103 @@
                                                     'seleccionado'
                                                 )
                                     );
-
-
                                 btn.classList.add(
                                     'seleccionado'
                                 );
-
-
                                 servicioSeleccionadoId =
                                     s.id;
-
                             };
-
-
                         contenedor.appendChild(
                             btn
                         );
-
                     }
                 );
-
             }
-
             catch (error) {
-
                 console.error(
                     error
                 );
-
             }
-
         }
-
-
-
-        /* =================================================
-           CARGAR HORARIOS
-           ================================================= */
-
         function cargarHorarios() {
-
-            const fecha =
-                document
-                    .getElementById(
-                        'fechaInput'
-                    )
-                    .value;
-
-
-            if (!fecha) {
-
+            const fecha = document.getElementById('fechaInput').value;
+            if (!fecha) return;
+            const contenedor = document.getElementById('contenedorHorarios');
+            const grilla = document.getElementById('grillaHorarios');
+            contenedor.style.display = 'block';
+            grilla.innerHTML = '';
+            horaSeleccionada = null;
+            if (!agendaConfirmada) {
+                HORAS_LABORALES.forEach(hora => {
+                    const btn = document.createElement('div');
+                    btn.className = 'btn-hora hora-ocupada';
+                    btn.innerHTML = `${hora}<br><span>NO DISPONIBLE</span>`;
+                    grilla.appendChild(btn);
+                });
                 return;
             }
-
-
-            const contenedor =
-                document.getElementById(
-                    'contenedorHorarios'
-                );
-
-
-            const grilla =
-                document.getElementById(
-                    'grillaHorarios'
-                );
-
-
-            contenedor.style.display =
-                'block';
-
-
-            grilla.innerHTML =
-                '';
-
-
-            horaSeleccionada =
-                null;
-
-
-
-            /* =============================================
-               DÍA BLOQUEADO
-               ============================================= */
-
-            if (
-                diasBloqueados.includes(
-                    fecha
-                )
-            ) {
-
-                grilla.innerHTML = `
-
-                    <div style="
-                        grid-column:span 3;
-                        text-align:center;
-                        color:#ff4d4d;
-                        font-size:14px;
-                        font-weight:bold;
-                        padding:20px 0;
-                        border:1px solid #d52b1e;
-                        border-radius:8px;
-                        background:rgba(
-                            213,
-                            43,
-                            30,
-                            0.1
-                        );
-                    ">
-
-                        El Maestro Barbero no atenderá este día.
-
-                    </div>
-
-                `;
-
-
+            if (diasBloqueados.includes(fecha)) {
+                grilla.innerHTML = `<div style="grid-column:span 3;text-align:center;color:#ff4d4d;font-size:14px;font-weight:bold;padding:20px 0;border:1px solid #d52b1e;border-radius:8px;background:rgba(213,43,30,0.1);">El Maestro Barbero no atenderá este día.</div>`;
                 return;
             }
-
-
-
-            /* =============================================
-               GENERAR HORARIOS
-               ============================================= */
-
-            HORAS_LABORALES.forEach(
-                hora => {
-
-                    const fechaHoraExacta =
-                        `${fecha} ${hora}`;
-
-
-                    const estaOcupado =
-                        todosLosTurnos.some(
-                            t =>
-                                t.fecha_hora ===
-                                fechaHoraExacta
-                        );
-
-
-                    const estaVencido =
-                        horarioYaPaso(
-                            fecha,
-                            hora
-                        );
-
-
-                    const btn =
-                        document.createElement(
-                            'div'
-                        );
-
-
-
-                    /* =================================
-                       VENCIDO
-                       ================================= */
-
-                    if (
-                        estaVencido
-                    ) {
-
-                        btn.className =
-                            'btn-hora hora-vencida';
-
-
-                        btn.innerHTML = `
-
-                            ${hora}
-
-                            <br>
-
-                            <span style="
-                                font-size:11px;
-                                margin-top:2px;
-                                letter-spacing:1px;
-                                font-weight:800;
-                            ">
-
-                                VENCIDO
-
-                            </span>
-
-                        `;
-
-                    }
-
-
-
-                    /* =================================
-                       OCUPADO
-                       ================================= */
-
-                    else if (
-                        estaOcupado
-                    ) {
-
-                        btn.className =
-                            'btn-hora hora-ocupada';
-
-
-                        btn.innerHTML = `
-
-                            ${hora}
-
-                            <br>
-
-                            <span style="
-                                font-size:11px;
-                                margin-top:2px;
-                                letter-spacing:1px;
-                                font-weight:800;
-                            ">
-
-                                OCUPADO
-
-                            </span>
-
-                        `;
-
-                    }
-
-
-
-                    /* =================================
-                       LIBRE
-                       ================================= */
-
-                    else {
-
-                        btn.className =
-                            'btn-hora hora-disponible';
-
-
-                        btn.innerHTML = `
-
-                            ${hora}
-
-                            <br>
-
-                            <span style="
-                                font-size:11px;
-                                margin-top:2px;
-                                letter-spacing:1px;
-                                font-weight:800;
-                            ">
-
-                                LIBRE
-
-                            </span>
-
-                        `;
-
-
-                        btn.onclick =
-                            () => {
-
-                                document
-                                    .querySelectorAll(
-                                        '.btn-hora'
-                                    )
-                                    .forEach(
-                                        b =>
-                                            b.classList
-                                                .remove(
-                                                    'seleccionada'
-                                                )
-                                    );
-
-
-                                btn.classList.add(
-                                    'seleccionada'
-                                );
-
-
-                                horaSeleccionada =
-                                    hora;
-
-                            };
-
-                    }
-
-
-                    grilla.appendChild(
-                        btn
-                    );
-
+            HORAS_LABORALES.forEach(hora => {
+                const fechaHora = `${fecha} ${hora}`;
+                const estaOcupado = todosLosTurnos.some(t => normalizarFechaHora(t.fecha_hora) === fechaHora && t.estado !== 'cancelado');
+                const estaVencido = horarioYaPaso(fecha, hora);
+                const btn = document.createElement('div');
+                if (estaVencido) {
+                    btn.className = 'btn-hora hora-vencida';
+                    btn.innerHTML = `${hora}<br><span>VENCIDO</span>`;
+                } else if (estaOcupado) {
+                    btn.className = 'btn-hora hora-ocupada';
+                    btn.innerHTML = `${hora}<br><span>OCUPADO</span>`;
+                } else {
+                    btn.className = 'btn-hora hora-disponible';
+                    btn.innerHTML = `${hora}<br><span>LIBRE</span>`;
+                    btn.onclick = () => {
+                        document.querySelectorAll('.btn-hora').forEach(b => b.classList.remove('seleccionada'));
+                        btn.classList.add('seleccionada');
+                        horaSeleccionada = hora;
+                    };
                 }
-            );
-
-
-
-            /* =============================================
-               INDICADOR
-               ============================================= */
-
-            let indicador =
-                document.getElementById(
-                    'indicadorTiempoReal'
-                );
-
-
+                grilla.appendChild(btn);
+            });
+            let indicador = document.getElementById('indicadorTiempoReal');
             if (!indicador) {
-
-                indicador =
-                    document.createElement(
-                        'div'
-                    );
-
-
-                indicador.id =
-                    'indicadorTiempoReal';
-
-
-                indicador.className =
-                    'estado-tiempo-real';
-
-
-                contenedor.appendChild(
-                    indicador
-                );
-
+                indicador = document.createElement('div');
+                indicador.id = 'indicadorTiempoReal';
+                indicador.className = 'estado-tiempo-real';
+                contenedor.appendChild(indicador);
             }
-
-
-            indicador.innerText =
-                '● Agenda actualizada en tiempo real';
-
+            indicador.innerText = '● Agenda actualizada';
         }
-
-
-
-        /* =================================================
-           ACTUALIZACIÓN AUTOMÁTICA
-           ================================================= */
-
         function iniciarActualizacionTiempoReal() {
-
             if (
                 intervaloTiempoReal
             ) {
-
                 clearInterval(
                     intervaloTiempoReal
                 );
-
             }
-
-
             intervaloTiempoReal =
                 setInterval(
                     async () => {
-
                         if (
                             !usuarioActual
                         ) {
-
                             return;
                         }
-
-
                         await fetchTurnosGlobales();
-
-
-
-                        /* =========================
-                           CLIENTE
-                           ========================= */
-
                         const fechaCliente =
                             document
                                 .getElementById(
                                     'fechaInput'
                                 );
-
-
                         const seccionCliente =
                             document
                                 .getElementById(
                                     'seccionCliente'
                                 );
-
-
                         if (
                             fechaCliente &&
                             fechaCliente.value &&
@@ -2439,31 +1211,18 @@
                                     'hidden'
                                 )
                         ) {
-
                             cargarHorarios();
-
                         }
-
-
-
-                        /* =========================
-                           BARBERO
-                           ========================= */
-
                         const fechaAdmin =
                             document
                                 .getElementById(
                                     'fechaAgendaAdmin'
                                 );
-
-
                         const seccionBarbero =
                             document
                                 .getElementById(
                                     'seccionBarbero'
                                 );
-
-
                         if (
                             fechaAdmin &&
                             fechaAdmin.value &&
@@ -2473,25 +1232,12 @@
                                     'hidden'
                                 )
                         ) {
-
                             cargarAgendaBarbero();
-
                         }
-
-
                     },
-
                     10000
                 );
-
         }
-
-
-
-        /* =================================================
-           CAMBIO DE FECHA
-           ================================================= */
-
         document
             .getElementById(
                 'fechaInput'
@@ -2500,225 +1246,74 @@
                 'change',
                 cargarHorarios
             );
-
-
-
-        /* =================================================
-           RESERVAR TURNO
-           ================================================= */
-
         async function reservarTurno() {
-
-            const fecha =
-                document
-                    .getElementById(
-                        'fechaInput'
-                    )
-                    .value;
-
-
-            if (
-                !fecha ||
-                !horaSeleccionada ||
-                !servicioSeleccionadoId
-            ) {
-
-                alert(
-                    "Por favor, selecciona una fecha y toca un horario Libre (Verde)."
-                );
-
+            const fecha = document.getElementById('fechaInput').value;
+            if (!fecha || !horaSeleccionada || !servicioSeleccionadoId) {
+                alert('Por favor, selecciona una fecha y toca un horario Libre (Verde).');
                 return;
             }
-
-
-
-            /*
-               PRIMERA ACTUALIZACIÓN.
-               Consultamos nuevamente el servidor
-               antes de intentar reservar.
-            */
-
-            await fetchTurnosGlobales();
-
-
-
-            /*
-               VERIFICAR SI EL HORARIO VENCIÓ.
-            */
-
-            if (
-                horarioYaPaso(
-                    fecha,
-                    horaSeleccionada
-                )
-            ) {
-
-                alert(
-                    "Este horario ya pasó y no puede ser reservado."
-                );
-
-
-                cargarHorarios();
-
-
-                return;
-            }
-
-
-
-            const fechaHora =
-                `${fecha} ${horaSeleccionada}`;
-
-
-
-            /*
-               VERIFICAR SI OTRO CLIENTE
-               YA LO RESERVÓ.
-            */
-
-            const yaOcupado =
-                todosLosTurnos.some(
-                    t =>
-                        t.fecha_hora ===
-                        fechaHora
-                );
-
-
-            if (yaOcupado) {
-
-                alert(
-                    "Este turno acaba de ser reservado por otro cliente. Elige otro horario verde."
-                );
-
-
-                cargarHorarios();
-
-
-                return;
-            }
-
-
-
-            const botonReserva =
-                document.getElementById(
-                    'btnConfirmarReserva'
-                );
-
-
-            botonReserva.innerText =
-                "Confirmando...";
-
-
-            botonReserva.disabled =
-                true;
-
-
-
+            const botonReserva = document.getElementById('btnConfirmarReserva');
+            botonReserva.innerText = 'Verificando...';
+            botonReserva.disabled = true;
             try {
-
-                const res =
-                    await fetch(
-                        '/api/turnos',
-                        {
-                            method:
-                                'POST',
-
-                            headers: {
-                                'Content-Type':
-                                    'application/json'
-                            },
-
-                            body:
-                                JSON.stringify({
-
-                                    cliente_id:
-                                        usuarioActual.id,
-
-                                    servicios_id:
-                                        servicioSeleccionadoId,
-
-                                    fecha_hora:
-                                        fechaHora
-
-                                })
-                        }
-                    );
-
-
-
+                if (!(await fetchTurnosGlobales())) {
+                    alert('No se pudo verificar la agenda. El turno no se puede reservar ahora.');
+                    cargarHorarios();
+                    return;
+                }
+                const fechaHora = `${fecha} ${horaSeleccionada}`;
+                if (diasBloqueados.includes(fecha)) {
+                    alert('Ese día está inhabilitado.');
+                    cargarHorarios();
+                    return;
+                }
+                if (horarioYaPaso(fecha, horaSeleccionada)) {
+                    alert('Este horario ya pasó y no puede ser reservado.');
+                    cargarHorarios();
+                    return;
+                }
+                const yaOcupado = todosLosTurnos.some(t => normalizarFechaHora(t.fecha_hora) === fechaHora && t.estado !== 'cancelado');
+                if (yaOcupado) {
+                    alert('Este horario ya está ocupado. Elige otro horario verde.');
+                    cargarHorarios();
+                    return;
+                }
+                botonReserva.innerText = 'Confirmando...';
+                const res = await fetch('/api/turnos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        cliente_id: usuarioActual.id,
+                        servicios_id: servicioSeleccionadoId,
+                        fecha_hora: fechaHora
+                    })
+                });
+                let data = {};
+                try { data = await res.json(); } catch {}
                 if (res.ok) {
-
-                    alert(
-                        "¡Reserva confirmada con éxito en Excelencia!"
-                    );
-
-
-                    /*
-                       IMPORTANTE:
-                       No agregamos manualmente el turno.
-
-                       Pedimos al servidor
-                       la información verdadera.
-                    */
-
+                    alert('¡Reserva confirmada con éxito en Excelencia!');
                     await fetchTurnosGlobales();
-
-
                     cargarHorarios();
-
-                }
-
-                else {
-
-                    alert(
-                        "Lo sentimos, este turno acaba de ser tomado. Elige otro horario verde."
-                    );
-
-
+                } else if (res.status === 409) {
+                    alert(data.error || 'Este turno ya está ocupado. Elige otro horario verde.');
                     await fetchTurnosGlobales();
-
-
                     cargarHorarios();
-
+                } else {
+                    alert(data.error || 'No se pudo reservar el turno.');
+                    await fetchTurnosGlobales();
+                    cargarHorarios();
                 }
-
+            } catch (err) {
+                console.error(err);
+                alert('Error de red. Intenta nuevamente.');
+                await fetchTurnosGlobales();
+                cargarHorarios();
+            } finally {
+                botonReserva.innerText = 'Confirmar Reserva';
+                botonReserva.disabled = false;
             }
-
-            catch (err) {
-
-                console.error(
-                    err
-                );
-
-
-                alert(
-                    "Error de red. Intenta nuevamente."
-                );
-
-            }
-
-
-            finally {
-
-                botonReserva.innerText =
-                    "Confirmar Reserva";
-
-
-                botonReserva.disabled =
-                    false;
-
-            }
-
         }
-
-
-
-        /* =================================================
-           PANEL BARBERO
-           ================================================= */
-
         async function cargarPanelBarbero() {
-
             const res =
                 await fetch(
                     '/api/servicios',
@@ -2727,46 +1322,30 @@
                             'no-store'
                     }
                 );
-
-
             const servicios =
                 await res.json();
-
-
             const contPrecios =
                 document.getElementById(
                     'listaPreciosAdmin'
                 );
-
-
             contPrecios.innerHTML =
                 '';
-
-
-
             servicios.forEach(
                 s => {
-
                     contPrecios.innerHTML += `
-
                         <div style="
                             display:flex;
                             gap:10px;
                             align-items:center;
                         ">
-
                             <span style="
                                 flex:1;
                                 font-size:13px;
                                 font-weight:800;
                                 text-transform:uppercase;
                             ">
-
                                 ${s.nombre}
-
                             </span>
-
-
                             <input
                                 type="number"
                                 id="precio_${s.id}"
@@ -2781,8 +1360,6 @@
                                     font-weight:bold;
                                     font-family:'Outfit';
                                 ">
-
-
                             <button
                                 onclick="guardarPrecio(${s.id})"
                                 style="
@@ -2794,83 +1371,48 @@
                                     color:#000;
                                     cursor:pointer;
                                 ">
-
                                 OK
-
                             </button>
-
                         </div>
-
                     `;
-
                 }
             );
-
-
             cargarAgendaBarbero();
-
         }
-
-
-
-        /* =================================================
-           AGENDA BARBERO
-           ================================================= */
-
         function cargarAgendaBarbero() {
-
             const fecha =
                 document
                     .getElementById(
                         'fechaAgendaAdmin'
                     )
                     .value;
-
-
             const contResumen =
                 document.getElementById(
                     'resumenAgenda'
                 );
-
-
             const contTurnos =
                 document.getElementById(
                     'listaTurnosAdmin'
                 );
-
-
             if (!fecha) {
-
                 contTurnos.innerHTML = `
-
                     <p style="
                         color:#777;
                         font-size:13px;
                     ">
-
                         Selecciona una fecha arriba.
-
                     </p>
-
                 `;
-
                 return;
             }
-
-
-
             if (
                 diasBloqueados.includes(
                     fecha
                 )
             ) {
-
                 contResumen.innerHTML =
                     "";
-
-
                 contTurnos.innerHTML = `
-
                     <div style="
                         text-align:center;
                         padding:15px;
@@ -2885,69 +1427,39 @@
                         );
                         font-weight:bold;
                     ">
-
                         ¡Atención! Has bloqueado este día por completo.
-
                     </div>
-
                 `;
-
-
                 return;
             }
-
-
-
             let ocupados =
                 0;
-
             let libres =
                 0;
-
             let vencidos =
                 0;
-
             let htmlAgenda =
                 "";
-
-
-
             HORAS_LABORALES.forEach(
                 hora => {
-
                     const fechaHoraExacta =
                         `${fecha} ${hora}`;
-
-
                     const turnoExistente =
                         todosLosTurnos.find(
                             t =>
                                 t.fecha_hora ===
                                 fechaHoraExacta
                         );
-
-
                     const estaVencido =
                         horarioYaPaso(
                             fecha,
                             hora
                         );
-
-
-
-                    /* ===========================
-                       OCUPADO
-                       =========================== */
-
                     if (
                         turnoExistente
                     ) {
-
                         ocupados++;
-
-
                         htmlAgenda += `
-
                             <div style="
                                 background:rgba(
                                     213,
@@ -2960,21 +1472,14 @@
                                 padding:12px;
                                 border-radius:8px;
                             ">
-
                                 <span style="
                                     color:#ff4d4d;
                                     font-weight:800;
                                     font-size:15px;
                                 ">
-
                                     ${hora} - OCUPADO
-
                                 </span>
-
-
                                 <br>
-
-
                                 <span style="
                                     color:#fff;
                                     font-size:15px;
@@ -2982,45 +1487,25 @@
                                     display:block;
                                     margin-top:4px;
                                 ">
-
                                     👤 Cliente:
                                     ${turnoExistente.cliente}
-
                                 </span>
-
-
                                 <span style="
                                     color:#c5a059;
                                     font-size:13px;
                                     font-weight:bold;
                                 ">
-
                                     ✂️ Servicio:
                                     ${turnoExistente.servicio}
-
                                 </span>
-
                             </div>
-
                         `;
-
                     }
-
-
-
-                    /* ===========================
-                       VENCIDO
-                       =========================== */
-
                     else if (
                         estaVencido
                     ) {
-
                         vencidos++;
-
-
                         htmlAgenda += `
-
                             <div style="
                                 background:rgba(
                                     213,
@@ -3034,36 +1519,19 @@
                                 border-radius:8px;
                                 opacity:0.65;
                             ">
-
                                 <span style="
                                     color:#ff4d4d;
                                     font-weight:800;
                                     font-size:15px;
                                 ">
-
                                     ${hora} - VENCIDO
-
                                 </span>
-
                             </div>
-
                         `;
-
                     }
-
-
-
-                    /* ===========================
-                       LIBRE
-                       =========================== */
-
                     else {
-
                         libres++;
-
-
                         htmlAgenda += `
-
                             <div style="
                                 background:rgba(
                                     46,
@@ -3076,30 +1544,19 @@
                                 padding:12px;
                                 border-radius:8px;
                             ">
-
                                 <span style="
                                     color:#2ecc71;
                                     font-weight:800;
                                     font-size:15px;
                                 ">
-
                                     ${hora} - LIBRE (Disponible)
-
                                 </span>
-
                             </div>
-
                         `;
-
                     }
-
                 }
             );
-
-
-
             contResumen.innerHTML = `
-
                 <div style="
                     flex:1;
                     background:rgba(
@@ -3116,12 +1573,8 @@
                     font-size:12px;
                     border:2px solid #2ecc71;
                 ">
-
                     🟩 ${libres} LIBRES
-
                 </div>
-
-
                 <div style="
                     flex:1;
                     background:rgba(
@@ -3138,12 +1591,8 @@
                     font-size:12px;
                     border:2px solid #d52b1e;
                 ">
-
                     🟥 ${ocupados} OCUPADOS
-
                 </div>
-
-
                 <div style="
                     flex:1;
                     background:rgba(
@@ -3160,174 +1609,105 @@
                     font-size:12px;
                     border:2px solid #8c2118;
                 ">
-
                     ⏱ ${vencidos} VENCIDOS
-
                 </div>
-
             `;
-
-
             contTurnos.innerHTML =
                 htmlAgenda;
-
         }
-
-
-
-        /* =================================================
-           GUARDAR PRECIO
-           ================================================= */
-
         async function guardarPrecio(
             id
         ) {
-
             const val =
                 document
                     .getElementById(
                         `precio_${id}`
                     )
                     .value;
-
-
             await fetch(
                 `/api/servicios/${id}`,
                 {
                     method:
                         'PUT',
-
                     headers: {
                         'Content-Type':
                             'application/json'
                     },
-
                     body:
                         JSON.stringify({
                             precio: val
                         })
                 }
             );
-
-
             alert(
                 "Precio guardado."
             );
-
         }
-
-
-
-        /* =================================================
-           BLOQUEAR DÍA
-           ================================================= */
-
         async function bloquearDia() {
-
             const fecha =
                 document
                     .getElementById(
                         'fechaBloqueo'
                     )
                     .value;
-
-
             if (!fecha) {
-
                 alert(
                     "Primero selecciona una fecha."
                 );
-
                 return;
             }
-
-
             try {
-
                 const res =
                     await fetch(
                         '/api/dias-bloqueados',
                         {
                             method:
                                 'POST',
-
                             headers: {
                                 'Content-Type':
                                     'application/json'
                             },
-
                             body:
                                 JSON.stringify({
                                     fecha: fecha
                                 })
                         }
                     );
-
-
                 if (!res.ok) {
-
                     throw new Error(
                         "No se pudo bloquear el día."
                     );
                 }
-
-
                 alert(
                     `Has INHABILITADO el día ${fecha}.`
                 );
-
-
                 await fetchTurnosGlobales();
-
-
                 cargarAgendaBarbero();
-
             }
-
             catch (err) {
-
                 console.error(
                     err
                 );
-
-
                 alert(
                     "Fallo al bloquear."
                 );
-
             }
-
         }
-
-
-
-        /* =================================================
-           NOTIFICACIONES
-           ================================================= */
-
         function revisarNotificaciones() {
-
             const turnosActuales =
                 todosLosTurnos.length;
-
-
             const nuevos =
                 turnosActuales -
                 cantidadTurnosLeidos;
-
-
             if (
                 nuevos > 0
             ) {
-
                 document
                     .getElementById(
                         'badgeNoti'
                     )
                     .innerText =
                     nuevos;
-
-
                 document
                     .getElementById(
                         'badgeNoti'
@@ -3336,25 +1716,15 @@
                     .remove(
                         'hidden'
                     );
-
             }
-
         }
-
-
-
         function verNotificaciones() {
-
             cantidadTurnosLeidos =
                 todosLosTurnos.length;
-
-
             localStorage.setItem(
                 'turnosLeidos',
                 cantidadTurnosLeidos
             );
-
-
             document
                 .getElementById(
                     'badgeNoti'
@@ -3363,47 +1733,25 @@
                 .add(
                     'hidden'
                 );
-
-
             alert(
                 "¡Agenda revisada!"
             );
-
         }
-
-
-
-        /* =================================================
-           CERRAR SESIÓN
-           ================================================= */
-
         function cerrarSesion() {
-
             if (
                 intervaloTiempoReal
             ) {
-
                 clearInterval(
                     intervaloTiempoReal
                 );
-
                 intervaloTiempoReal =
                     null;
             }
-
-
             localStorage.removeItem(
                 'usuarioActivo'
             );
-
-
             window.location.reload();
-
         }
-
     </script>
-
-
 </body>
-
 </html>
