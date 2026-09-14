@@ -2,12 +2,15 @@ const express = require('express');
 const { Pool } = require('pg');
 const path = require('path');
 const https = require('https');
-const querystring = require('querystring'); // Añadido para el formato exacto de Google
+const querystring = require('querystring');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Configuración de la base de datos PostgreSQL en la nube
+// Limpieza automática de espacios invisibles en las llaves de Render
+const CLIENT_ID = process.env.GOOGLE_CLIENT_ID ? process.env.GOOGLE_CLIENT_ID.trim() : '';
+const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET ? process.env.GOOGLE_CLIENT_SECRET.trim() : '';
+
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
@@ -23,7 +26,6 @@ app.use((req, res, next) => {
     next();
 });
 
-// Carpeta estática
 app.use(express.static(path.join(__dirname)));
 
 app.get('/', (req, res) => {
@@ -51,24 +53,22 @@ app.post('/api/login', async (req, res) => {
 
 // 2. Ruta a Google OAuth
 app.get('/auth/google', (req, res) => {
-    const clientId = process.env.GOOGLE_CLIENT_ID;
     const redirectUri = 'https://barberia-exelencia.onrender.com/auth/google/callback';
-    const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=email%20profile`;
+    const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=email%20profile`;
     res.redirect(googleAuthUrl);
 });
 
-// 3. Callback Oficial de Google (Actualizado a Form-UrlEncoded)
+// 3. Callback Oficial de Google
 app.get('/auth/google/callback', async (req, res) => {
     const code = req.query.code;
     if (!code) {
         return res.status(400).send('Falta el código de Google.');
     }
 
-    // Convertir los datos al formato exacto que pide Google
     const tokenData = querystring.stringify({
         code: code,
-        client_id: process.env.GOOGLE_CLIENT_ID,
-        client_secret: process.env.GOOGLE_CLIENT_SECRET,
+        client_id: CLIENT_ID,
+        client_secret: CLIENT_SECRET,
         redirect_uri: 'https://barberia-exelencia.onrender.com/auth/google/callback',
         grant_type: 'authorization_code'
     });
@@ -89,9 +89,17 @@ app.get('/auth/google/callback', async (req, res) => {
                 const tokenJson = JSON.parse(responseBody);
                 const accessToken = tokenJson.access_token;
 
+                // Si Google rechaza la llave, mostramos el error exacto en pantalla
                 if (!accessToken) {
-                    console.log("Error de token:", tokenJson); // Para rastreo en Render
-                    return res.send('<script>alert("Error de Google. Por favor intenta iniciar sesión de nuevo."); window.location.href="/";</script>');
+                    return res.send(`
+                        <div style="background:#0b0b0b; color:#f4f4f4; padding: 40px; font-family: sans-serif; text-align: center;">
+                            <h2 style="color:#d52b1e;">Error de Autenticación de Google</h2>
+                            <p>Google rechazó la conexión. Detalle técnico:</p>
+                            <pre style="background:#1f1f1f; padding: 15px; color:#c5a059; border-radius: 8px; display: inline-block; text-align: left;">${JSON.stringify(tokenJson, null, 2)}</pre>
+                            <br><br>
+                            <a href="/" style="color:#ffffff; text-decoration: none; padding: 10px 20px; background:#c5a059; color:#000; border-radius: 5px;">Volver a intentar</a>
+                        </div>
+                    `);
                 }
 
                 // Obtener datos del usuario
@@ -116,7 +124,6 @@ app.get('/auth/google/callback', async (req, res) => {
                                 usuarioFinal = nuevoUsuario.rows[0];
                             }
 
-                            // Redirigir al inicio con sesión activa
                             res.send(`
                                 <script>
                                     localStorage.setItem('usuarioActivo', JSON.stringify(${JSON.stringify(usuarioFinal)}));
