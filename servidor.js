@@ -83,7 +83,6 @@ app.get('/auth/google/callback', async (req, res) => {
         const email = googleUser.email;
         const nombre = googleUser.name;
 
-        // AQUÍ ES DONDE ESTÁ OCURRIENDO EL ERROR AHORA (PostgreSQL)
         let usuarioExistente = await pool.query('SELECT * FROM clientes WHERE email = $1', [email]);
         let usuarioFinal;
         
@@ -104,13 +103,13 @@ app.get('/auth/google/callback', async (req, res) => {
             </script>
         `);
     } catch (err) {
-        // AHORA NOS MOSTRARÁ EL ERROR REAL DE LA BASE DE DATOS
+        // FORZAMOS LA CONVERSIÓN A TEXTO PLANO
+        const errorMensaje = err && err.stack ? err.stack : (err.message ? err.message : String(err));
+        
         res.status(500).send(`
             <div style="background:#0b0b0b; color:#f4f4f4; padding: 40px; font-family: sans-serif; text-align: center;">
-                <h2 style="color:#c5a059;">¡Conexión con Google Exitosa!</h2>
-                <p>Google nos dio tus datos perfectamente, pero la base de datos de la barbería rechazó guardarlos.</p>
-                <p>El error de PostgreSQL es el siguiente:</p>
-                <pre style="background:#1f1f1f; padding: 15px; color:#d52b1e; border-radius: 8px; display: inline-block; text-align: left; font-size: 16px;">${err.message}</pre>
+                <h2 style="color:#c5a059;">¡Atrapado! Este es el error real:</h2>
+                <pre style="background:#1f1f1f; padding: 20px; color:#d52b1e; border-radius: 8px; display: inline-block; text-align: left; font-size: 15px; white-space: pre-wrap;">${errorMensaje}</pre>
                 <br><br><a href="/" style="color:#000; text-decoration: none; padding: 10px 20px; background:#c5a059; border-radius: 5px;">Volver al inicio</a>
             </div>
         `);
