@@ -13,6 +13,51 @@ const pool = new Pool({
     ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
 
+// FUNCIÓN AUTOMÁTICA: Crea las tablas en PostgreSQL al encender el servidor
+async function inicializarBaseDeDatos() {
+    try {
+        await pool.query(`
+            CREATE TABLE IF NOT EXISTS clientes (
+                id SERIAL PRIMARY KEY,
+                nombre VARCHAR(255),
+                email VARCHAR(255) UNIQUE,
+                rol VARCHAR(50)
+            );
+
+            CREATE TABLE IF NOT EXISTS servicios (
+                id SERIAL PRIMARY KEY,
+                nombre VARCHAR(255),
+                precio NUMERIC
+            );
+
+            CREATE TABLE IF NOT EXISTS turnos (
+                id SERIAL PRIMARY KEY,
+                clientes_id INT REFERENCES clientes(id),
+                servicios_id INT REFERENCES servicios(id),
+                fecha_hora TIMESTAMP,
+                estado VARCHAR(50)
+            );
+        `);
+
+        // Insertar servicios de ejemplo si la tabla está vacía
+        const resServicios = await pool.query('SELECT COUNT(*) FROM servicios');
+        if (parseInt(resServicios.rows[0].count) === 0) {
+            await pool.query(`
+                INSERT INTO servicios (nombre, precio) VALUES 
+                ('Corte Clásico "Excelencia"', 8000),
+                ('Perfilado de Barba de Autor', 5000),
+                ('Combo Completo (Corte + Barba)', 12000);
+            `);
+        }
+        console.log("¡Tablas y base de datos listas y operativas!");
+    } catch (err) {
+        console.error("Error al auto-inicializar la base de datos:", err);
+    }
+}
+
+// Ejecutar la inicialización al arrancar
+inicializarBaseDeDatos();
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -103,16 +148,7 @@ app.get('/auth/google/callback', async (req, res) => {
             </script>
         `);
     } catch (err) {
-        // FORZAMOS LA CONVERSIÓN A TEXTO PLANO
-        const errorMensaje = err && err.stack ? err.stack : (err.message ? err.message : String(err));
-        
-        res.status(500).send(`
-            <div style="background:#0b0b0b; color:#f4f4f4; padding: 40px; font-family: sans-serif; text-align: center;">
-                <h2 style="color:#c5a059;">¡Atrapado! Este es el error real:</h2>
-                <pre style="background:#1f1f1f; padding: 20px; color:#d52b1e; border-radius: 8px; display: inline-block; text-align: left; font-size: 15px; white-space: pre-wrap;">${errorMensaje}</pre>
-                <br><br><a href="/" style="color:#000; text-decoration: none; padding: 10px 20px; background:#c5a059; border-radius: 5px;">Volver al inicio</a>
-            </div>
-        `);
+        res.status(500).send(`Error interno procesando la autenticación: ${err.message}`);
     }
 });
 
