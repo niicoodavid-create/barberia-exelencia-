@@ -1,6 +1,7 @@
 const express=require('express');
 const {Pool}=require('pg');
 const path=require('path');
+
 const app=express();
 const port=process.env.PORT||3000;
 const ARGENTINA_TIME_ZONE='America/Argentina/Buenos_Aires';
@@ -11,12 +12,10 @@ const pool=new Pool({
     connectionString:process.env.DATABASE_URL,
     ssl:process.env.DATABASE_URL?{rejectUnauthorized:false}:false
 });
+
 const CORREO_BARBERO='gamarramartin1995@gmail.com';
 const DIRECCION_BARBERIA='Paraguay 176';
-const HORAS_LABORALES=[
-    '09:00','10:00','11:00','12:00','13:00','14:00',
-    '15:00','16:00','17:00','18:00','19:00','20:00'
-];
+const HORAS_LABORALES=['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
 
 function fechaHoraArgentina(){
     const partes=new Intl.DateTimeFormat('sv-SE',{
@@ -28,11 +27,7 @@ function fechaHoraArgentina(){
         minute:'2-digit',
         hourCycle:'h23'
     }).formatToParts(new Date());
-    const datos=Object.fromEntries(
-        partes
-            .filter(p=>p.type!=='literal')
-            .map(p=>[p.type,p.value])
-    );
+    const datos=Object.fromEntries(partes.filter(p=>p.type!=='literal').map(p=>[p.type,p.value]));
     return `${datos.year}-${datos.month}-${datos.day} ${datos.hour}:${datos.minute}`;
 }
 
@@ -93,25 +88,26 @@ async function inicializarBaseDeDatos(){
             `);
         }
 
+        await pool.query('DROP INDEX IF EXISTS idx_turnos_fecha_hora_unica');
+
         try{
             await pool.query(`
-                CREATE UNIQUE INDEX IF NOT EXISTS
-                idx_turnos_fecha_hora_confirmado
+                CREATE UNIQUE INDEX IF NOT EXISTS idx_turnos_fecha_hora_confirmado
                 ON turnos(fecha_hora)
                 WHERE estado='confirmado';
             `);
         }catch(error){
             if(error.code!=='23505'){
-                console.error('No se pudo crear la protección única de turnos:',error.message);
+                console.error('No se pudo crear el índice de turnos:',error.message);
             }
         }
     }catch(error){
-        console.error('Error al auto-inicializar la base de datos:',error);
+        console.error('Error al inicializar la base de datos:',error);
+        throw error;
     }
 }
 
 app.disable('etag');
-
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
 
@@ -172,11 +168,11 @@ app.post('/api/login',async(req,res)=>{
 
 app.get('/auth/google',(req,res)=>{
     const url=
-        `https://accounts.google.com/o/oauth2/v2/auth`+
+        'https://accounts.google.com/o/oauth2/v2/auth'+
         `?client_id=${CLIENT_ID}`+
         `&redirect_uri=${encodeURIComponent(GOOGLE_REDIRECT_URI)}`+
-        `&response_type=code`+
-        `&scope=email%20profile`;
+        '&response_type=code'+
+        '&scope=email%20profile';
 
     res.redirect(url);
 });
@@ -194,8 +190,7 @@ app.get('/auth/google/callback',async(req,res)=>{
             {
                 method:'POST',
                 headers:{
-                    'Content-Type':
-                        'application/x-www-form-urlencoded'
+                    'Content-Type':'application/x-www-form-urlencoded'
                 },
                 body:new URLSearchParams({
                     code,
@@ -266,12 +261,25 @@ app.get('/auth/google/callback',async(req,res)=>{
     }
 });
 
+app.get('/api/clientes',async(req,res)=>{
+    try{
+        const resultado=await pool.query(
+            'SELECT id,nombre,email,rol FROM clientes ORDER BY nombre ASC'
+        );
+        res.json(resultado.rows);
+    }catch(error){
+        console.error(error);
+        res.status(500).json({
+            error:'Error al obtener clientes'
+        });
+    }
+});
+
 app.get('/api/servicios',async(req,res)=>{
     try{
         const resultado=await pool.query(
             'SELECT * FROM servicios ORDER BY id ASC'
         );
-
         res.json(resultado.rows);
     }catch(error){
         console.error(error);
@@ -281,42 +289,103 @@ app.get('/api/servicios',async(req,res)=>{
     }
 });
 
-app.put('/api/servicios/:id',async(req,res)=>{
-    const {id}=req.params;
-    const {precio}=req.body;
+app.post('/api/servicios',async(req,res)=>{
+    const {nombre,precio}=req.body;
 
-    if(precio===undefined||precio===''){
+    if(!nombre||String(nombre).trim()===''||precio===undefined||precio===''){
         return res.status(400).json({
-            error:'Debe indicar un precio.'
+            error:'Debe indicar nombre y precio.'
         });
     }
 
-    if(Number.isNaN(Number(precio))||Number(precio)<0){
+    const precioNumero=Number(precio);
+
+    if(!Number.isFinite(precioNumero)||precioNumero<0){
         return res.status(400).json({
             error:'Precio inválido.'
         });
     }
 
     try{
-        const actualizado=await pool.query(
-            'UPDATE servicios SET precio=$1 WHERE id=$2 RETURNING *',
-            [precio,id]
+        const nuevo=await pool.query(
+            `INSERT INTO servicios(nombre,precio)
+             VALUES($1,$2)
+             RETURNING *`,
+            [String(nombre).trim(),precioNumero]
         );
 
-        if(!actualizado.rows.length){
+        res.status(201).json({
+            mensaje:'Servicio creado correctamente',
+            servicio:nuevo.rows[0]
+        });
+    }catch(error){
+        console.error(error);
+        res.status(500).json({
+            error:'Error al crear el servicio'
+        });
+    }
+});
+
+app.put('/api/servicios/:id',async(req,res)=>{
+    const {id}=req.params;
+    const {nombre,precio}=req.body;
+
+    if(nombre===undefined&&precio===undefined){
+        return res.status(400).json({
+            error:'No hay datos para actualizar.'
+        });
+    }
+
+    try{
+        const existente=await pool.query(
+            'SELECT * FROM servicios WHERE id=$1',
+            [id]
+        );
+
+        if(!existente.rows.length){
             return res.status(404).json({
                 error:'Servicio no encontrado.'
             });
         }
 
+        const servicioActual=existente.rows[0];
+        const nuevoNombre=
+            nombre===undefined
+                ? servicioActual.nombre
+                : String(nombre).trim();
+        const nuevoPrecio=
+            precio===undefined
+                ? servicioActual.precio
+                : Number(precio);
+
+        if(!nuevoNombre){
+            return res.status(400).json({
+                error:'El nombre del servicio no puede estar vacío.'
+            });
+        }
+
+        if(!Number.isFinite(Number(nuevoPrecio))||Number(nuevoPrecio)<0){
+            return res.status(400).json({
+                error:'Precio inválido.'
+            });
+        }
+
+        const actualizado=await pool.query(
+            `UPDATE servicios
+             SET nombre=$1,precio=$2
+             WHERE id=$3
+             RETURNING *`,
+            [nuevoNombre,nuevoPrecio,id]
+        );
+
         res.json({
-            mensaje:'Precio actualizado con éxito',
+            mensaje:'Servicio actualizado correctamente',
             servicio:actualizado.rows[0]
         });
     }catch(error){
         console.error(error);
         res.status(500).json({
-            error:'Error al actualizar el precio'
+            error:'Error al actualizar el servicio'
         });
     }
 });
@@ -333,10 +402,8 @@ app.get('/api/turnos',async(req,res)=>{
                 clientes.nombre AS cliente,
                 servicios.nombre AS servicio
             FROM turnos
-            JOIN clientes
-                ON turnos.clientes_id=clientes.id
-            JOIN servicios
-                ON turnos.servicios_id=servicios.id
+            JOIN clientes ON turnos.clientes_id=clientes.id
+            JOIN servicios ON turnos.servicios_id=servicios.id
             ORDER BY turnos.fecha_hora ASC
         `);
 
@@ -388,6 +455,7 @@ app.post('/api/turnos',async(req,res)=>{
 
     try{
         await client.query('BEGIN');
+
         await client.query(
             'SELECT pg_advisory_xact_lock(hashtext($1))',
             [fecha_hora]
@@ -434,7 +502,7 @@ app.post('/api/turnos',async(req,res)=>{
              FROM turnos
              WHERE fecha_hora=$1
              AND estado='confirmado'
-             FOR UPDATE`,
+             LIMIT 1`,
             [fecha_hora]
         );
 
@@ -452,13 +520,12 @@ app.post('/api/turnos',async(req,res)=>{
                 fecha_hora,
                 estado
             )
-            VALUES($1,$2,$3,$4)
+            VALUES($1,$2,$3,'confirmado')
             RETURNING *`,
             [
                 cliente_id,
                 servicios_id,
-                fecha_hora,
-                'confirmado'
+                fecha_hora
             ]
         );
 
@@ -489,15 +556,188 @@ app.post('/api/turnos',async(req,res)=>{
     }
 });
 
+app.put('/api/turnos/:id',async(req,res)=>{
+    const {id}=req.params;
+    const {
+        cliente_id,
+        servicios_id,
+        fecha_hora
+    }=req.body;
+
+    if(!cliente_id||!servicios_id||!fecha_hora){
+        return res.status(400).json({
+            error:'Faltan datos para editar el turno.'
+        });
+    }
+
+    if(!esFechaHoraValida(fecha_hora)){
+        return res.status(400).json({
+            error:'Fecha u horario inválido.'
+        });
+    }
+
+    if(fecha_hora<=fechaHoraArgentina()){
+        return res.status(400).json({
+            error:'No se puede asignar un horario que ya pasó.'
+        });
+    }
+
+    const fecha=fecha_hora.slice(0,10);
+    const client=await pool.connect();
+
+    try{
+        await client.query('BEGIN');
+
+        await client.query(
+            'SELECT pg_advisory_xact_lock(hashtext($1))',
+            [fecha_hora]
+        );
+
+        const turno=await client.query(
+            'SELECT * FROM turnos WHERE id=$1 FOR UPDATE',
+            [id]
+        );
+
+        if(!turno.rows.length){
+            await client.query('ROLLBACK');
+            return res.status(404).json({
+                error:'Turno no encontrado.'
+            });
+        }
+
+        const bloqueado=await client.query(
+            'SELECT id FROM dias_bloqueados WHERE fecha=$1',
+            [fecha]
+        );
+
+        if(bloqueado.rows.length){
+            await client.query('ROLLBACK');
+            return res.status(400).json({
+                error:'La barbería no atiende ese día.'
+            });
+        }
+
+        const cliente=await client.query(
+            'SELECT id FROM clientes WHERE id=$1',
+            [cliente_id]
+        );
+
+        if(!cliente.rows.length){
+            await client.query('ROLLBACK');
+            return res.status(404).json({
+                error:'Cliente no encontrado.'
+            });
+        }
+
+        const servicio=await client.query(
+            'SELECT id FROM servicios WHERE id=$1',
+            [servicios_id]
+        );
+
+        if(!servicio.rows.length){
+            await client.query('ROLLBACK');
+            return res.status(404).json({
+                error:'Servicio no encontrado.'
+            });
+        }
+
+        const ocupado=await client.query(
+            `SELECT id
+             FROM turnos
+             WHERE fecha_hora=$1
+             AND estado='confirmado'
+             AND id<>$2
+             LIMIT 1`,
+            [fecha_hora,id]
+        );
+
+        if(ocupado.rows.length){
+            await client.query('ROLLBACK');
+            return res.status(409).json({
+                error:'El nuevo horario ya está ocupado.'
+            });
+        }
+
+        const actualizado=await client.query(
+            `UPDATE turnos
+             SET clientes_id=$1,
+                 servicios_id=$2,
+                 fecha_hora=$3,
+                 estado='confirmado'
+             WHERE id=$4
+             RETURNING *`,
+            [
+                cliente_id,
+                servicios_id,
+                fecha_hora,
+                id
+            ]
+        );
+
+        await client.query('COMMIT');
+
+        res.json({
+            mensaje:'Turno actualizado correctamente',
+            turno:actualizado.rows[0]
+        });
+    }catch(error){
+        try{
+            await client.query('ROLLBACK');
+        }catch{}
+
+        console.error('Error al editar turno:',error);
+
+        if(error.code==='23505'){
+            return res.status(409).json({
+                error:'El nuevo horario ya está ocupado.'
+            });
+        }
+
+        res.status(500).json({
+            error:'Error al editar el turno'
+        });
+    }finally{
+        client.release();
+    }
+});
+
+app.delete('/api/turnos/:id',async(req,res)=>{
+    const {id}=req.params;
+
+    try{
+        const resultado=await pool.query(
+            `UPDATE turnos
+             SET estado='cancelado'
+             WHERE id=$1
+             RETURNING *`,
+            [id]
+        );
+
+        if(!resultado.rows.length){
+            return res.status(404).json({
+                error:'Turno no encontrado.'
+            });
+        }
+
+        res.json({
+            mensaje:'Turno cancelado correctamente',
+            turno:resultado.rows[0]
+        });
+    }catch(error){
+        console.error(error);
+        res.status(500).json({
+            error:'Error al cancelar el turno'
+        });
+    }
+});
+
 app.get('/api/dias-bloqueados',async(req,res)=>{
     try{
         const resultado=await pool.query(
             'SELECT fecha FROM dias_bloqueados ORDER BY fecha ASC'
         );
 
-        res.json(
-            resultado.rows.map(row=>row.fecha)
-        );
+        res.json(resultado.rows.map(row=>row.fecha));
     }catch(error){
         console.error(error);
         res.status(500).json({
@@ -541,14 +781,44 @@ app.post('/api/dias-bloqueados',async(req,res)=>{
     }
 });
 
+app.delete('/api/dias-bloqueados/:fecha',async(req,res)=>{
+    const {fecha}=req.params;
+
+    if(!esFechaValida(fecha)){
+        return res.status(400).json({
+            error:'Fecha inválida.'
+        });
+    }
+
+    try{
+        const resultado=await pool.query(
+            'DELETE FROM dias_bloqueados WHERE fecha=$1 RETURNING *',
+            [fecha]
+        );
+
+        if(!resultado.rows.length){
+            return res.status(404).json({
+                error:'Ese día no estaba bloqueado.'
+            });
+        }
+
+        res.json({
+            mensaje:'Día habilitado nuevamente',
+            fecha
+        });
+    }catch(error){
+        console.error(error);
+        res.status(500).json({
+            error:'Error al habilitar el día'
+        });
+    }
+});
+
 inicializarBaseDeDatos()
     .then(()=>{
-        app.listen(
-            port,
-            ()=>console.log(
-                `Servidor de Excelencia corriendo en el puerto ${port}`
-            )
-        );
+        app.listen(port,()=>{
+            console.log(`Servidor de Excelencia corriendo en el puerto ${port}`);
+        });
     })
     .catch(error=>{
         console.error(error);
