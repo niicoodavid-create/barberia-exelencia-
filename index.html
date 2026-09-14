@@ -171,7 +171,7 @@
         }
         .btn-servicio.seleccionado small { color: #c5a059; }
 
-        /* HORARIOS (GRILLA DE TURNOS) */
+        /* HORARIOS (GRILLA DE TURNOS CLIENTE) */
         .horarios-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -190,7 +190,6 @@
             font-family: 'Outfit', sans-serif;
         }
         
-        /* Estilos de Disponibilidad (Libre = Verde / Ocupado = Rojo Tachado) */
         .hora-disponible { 
             background: rgba(46, 204, 113, 0.08); 
             color: #2ecc71; 
@@ -206,10 +205,10 @@
             background: rgba(213, 43, 30, 0.1); 
             color: #d52b1e; 
             border-color: rgba(213, 43, 30, 0.3); 
-            text-decoration: line-through; /* ESTO ES LO QUE LO TACHA */
+            text-decoration: line-through; 
             cursor: not-allowed; 
             opacity: 0.5; 
-            pointer-events: none; /* BLOQUEA CUALQUIER CLIC */
+            pointer-events: none; 
         }
         
         .admin-section { background: #111; padding: 20px; border-radius: 16px; border-top: 3px solid #c5a059; margin-bottom: 20px; }
@@ -294,24 +293,33 @@
             <!-- SECCIÓN BARBERO ADMIN -->
             <div id="seccionBarbero" class="hidden">
                 <div class="admin-section">
-                    <label style="color:#c5a059; font-size:14px;">GESTIÓN DE PRECIOS</label>
-                    <div id="listaPreciosAdmin" style="margin-top:10px; display:flex; flex-direction:column; gap:10px;"></div>
+                    <label style="color:#c5a059; font-size:14px; display:block; margin-bottom:10px; font-weight:800; letter-spacing:1px;">GESTIÓN DE PRECIOS</label>
+                    <div id="listaPreciosAdmin" style="display:flex; flex-direction:column; gap:10px;"></div>
                 </div>
                 
                 <div class="admin-section">
-                    <label style="color:#c5a059; font-size:14px;">AGENDA DE HOY</label>
-                    <div id="listaTurnosAdmin" style="margin-top:10px; font-size:13px; color:#aaa;">Cargando turnos...</div>
+                    <label style="color:#c5a059; font-size:14px; display:block; font-weight:800; letter-spacing:1px; margin-bottom:5px;">AGENDA DETALLADA</label>
+                    <p style="font-size:11px; color:#aaa; margin-bottom:12px;">Revisa las horas Libres (Verde) y Ocupadas (Rojo) de cualquier día.</p>
+                    <input type="date" id="fechaAgendaAdmin" onchange="cargarAgendaBarbero()" style="width:100%; padding:12px; border-radius:8px; border:none; background:#222; color:#fff; font-family:'Outfit'; text-transform:uppercase; margin-bottom:15px;">
+                    
+                    <!-- Resumen de Libres/Ocupados -->
+                    <div id="resumenAgenda" style="display:flex; gap:10px; margin-bottom:15px;"></div>
+                    
+                    <!-- Lista de las 12 horas -->
+                    <div id="listaTurnosAdmin" style="display:flex; flex-direction:column; gap:10px;">
+                        <!-- Se llena con JS -->
+                    </div>
                 </div>
 
                 <div class="admin-section" style="border-top: 3px solid #d52b1e;">
-                    <label style="color:#d52b1e; font-size:14px;">BLOQUEAR UN DÍA</label>
-                    <p style="font-size:11px; color:#888; margin-bottom:10px;">Selecciona una fecha en la que no atenderás en la barbería.</p>
-                    <input type="date" id="fechaBloqueo" style="width:100%; padding:10px; border-radius:8px; border:none; margin-bottom:10px; background:#222; color:#fff;">
-                    <button class="btn-primary" style="background:#d52b1e; box-shadow:none; padding:10px;" onclick="bloquearDia()">Inhabilitar Día</button>
+                    <label style="color:#d52b1e; font-size:14px; font-weight:800; letter-spacing:1px;">BLOQUEAR UN DÍA</label>
+                    <p style="font-size:11px; color:#888; margin-bottom:10px; margin-top:5px;">Selecciona una fecha en la que no atenderás en el salón para que nadie reserve.</p>
+                    <input type="date" id="fechaBloqueo" style="width:100%; padding:12px; border-radius:8px; border:none; margin-bottom:12px; background:#222; color:#fff; font-family:'Outfit';">
+                    <button class="btn-primary" style="background:#d52b1e; box-shadow:none; padding:12px;" onclick="bloquearDia()">Inhabilitar Día Seleccionado</button>
                 </div>
             </div>
 
-            <button onclick="cerrarSesion()" style="width:100%; background:transparent; border:1px solid #444; color:#888; padding:12px; border-radius:12px; margin-top:15px; cursor:pointer; font-family:'Outfit'; font-weight:600; text-transform:uppercase; letter-spacing:1px;">Cerrar Sesión</button>
+            <button onclick="cerrarSesion()" style="width:100%; background:transparent; border:1px solid #444; color:#888; padding:12px; border-radius:12px; margin-top:15px; cursor:pointer; font-family:'Outfit'; font-weight:600; text-transform:uppercase; letter-spacing:1px;">Cerrar Sesión Segura</button>
         </div>
 
         <div class="firma-naicky">by naicky</div>
@@ -329,12 +337,10 @@
         const HORAS_LABORALES = ["09:00", "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00", "19:00", "20:00"];
 
         window.onload = async function() {
-            // Restringir fechas anteriores a hoy en el calendario
+            // Restringir fechas anteriores a hoy en todos los calendarios
             const hoy = new Date().toISOString().split('T')[0];
             document.getElementById('fechaInput').setAttribute('min', hoy);
-            
-            const adminInput = document.getElementById('fechaBloqueo');
-            if(adminInput) adminInput.setAttribute('min', hoy);
+            document.getElementById('fechaBloqueo').setAttribute('min', hoy);
 
             const userStored = localStorage.getItem('usuarioActivo');
             if (userStored) {
@@ -346,12 +352,13 @@
 
         async function fetchTurnosGlobales() {
             try {
-                // Traemos los turnos de la base de datos
-                const resTurnos = await fetch('/api/turnos');
+                // EVITAR CACHÉ (Agregamos un TIMESTAMP para asegurar datos frescos al instante)
+                const ts = new Date().getTime();
+                
+                const resTurnos = await fetch(`/api/turnos?t=${ts}`);
                 todosLosTurnos = await resTurnos.json();
                 
-                // Traemos los días bloqueados de la base de datos
-                const resDias = await fetch('/api/dias-bloqueados');
+                const resDias = await fetch(`/api/dias-bloqueados?t=${ts}`);
                 diasBloqueados = await resDias.json();
             } catch (err) { console.error("Error trayendo datos de Excelencia"); }
         }
@@ -359,7 +366,7 @@
         async function loginTradicional() {
             const email = document.getElementById('emailInput').value.trim();
             const nombre = document.getElementById('nombreInput').value.trim();
-            if (!email || !nombre) { alert("Por favor, completa tus datos para ingresar."); return; }
+            if (!email || !nombre) { alert("Por favor, completa tus credenciales."); return; }
 
             try {
                 const res = await fetch('/api/login', {
@@ -374,7 +381,7 @@
                     await fetchTurnosGlobales();
                     mostrarDashboard(data);
                 }
-            } catch (err) { alert("Error al conectar con el servidor."); }
+            } catch (err) { alert("Error al conectar con la Barbería."); }
         }
 
         async function mostrarDashboard(user) {
@@ -388,6 +395,13 @@
                 document.getElementById('seccionCliente').classList.add('hidden');
                 document.getElementById('seccionBarbero').classList.remove('hidden');
                 document.getElementById('btnNotificaciones').classList.remove('hidden');
+                
+                // Configurar agenda barbero al día de hoy por defecto
+                const adminInput = document.getElementById('fechaAgendaAdmin');
+                if (!adminInput.value) {
+                    adminInput.value = new Date().toISOString().split('T')[0];
+                }
+
                 cargarPanelBarbero();
                 revisarNotificaciones();
             } else {
@@ -427,7 +441,7 @@
             grilla.innerHTML = '';
             horaSeleccionada = null;
 
-            // Verificar si el barbero bloqueó el día
+            // Bloqueo de día completo
             if (diasBloqueados.includes(fecha)) {
                 grilla.innerHTML = '<div style="grid-column: span 3; text-align:center; color:#d52b1e; font-size:14px; font-weight:bold; padding:20px 0; border: 1px solid #d52b1e; border-radius: 8px; background: rgba(213, 43, 30, 0.1);">El Maestro Barbero no atenderá este día.</div>';
                 return;
@@ -439,10 +453,8 @@
 
                 const btn = document.createElement('div');
                 
-                // Si está ocupado, la clase "hora-ocupada" lo pinta de rojo, lo tacha y le pone pointer-events: none; (no se puede clickear)
+                // Si ocupado: clase 'hora-ocupada' lo pinta ROJO, lo TACHA y BLOQUEA clics
                 btn.className = `btn-hora ${estaOcupado ? 'hora-ocupada' : 'hora-disponible'}`;
-                
-                // Siempre muestra la hora. El CSS se encarga de tacharlo si está ocupado.
                 btn.innerText = hora; 
 
                 if (!estaOcupado) {
@@ -459,13 +471,13 @@
         async function reservarTurno() {
             const fecha = document.getElementById('fechaInput').value;
             if (!fecha || !horaSeleccionada || !servicioSeleccionadoId) {
-                alert("Por favor, selecciona una fecha y luego presiona sobre un horario disponible (verde).");
+                alert("Por favor, selecciona una fecha y luego un horario Verde.");
                 return;
             }
 
             const fechaHora = `${fecha} ${horaSeleccionada}`;
             const botonReserva = document.querySelector('.btn-primary');
-            botonReserva.innerText = "Procesando...";
+            botonReserva.innerText = "Confirmando...";
 
             try {
                 const res = await fetch('/api/turnos', {
@@ -478,19 +490,22 @@
                     })
                 });
                 if (res.ok) {
-                    alert("¡Reserva confirmada en Excelencia! Te esperamos.");
+                    alert("¡Reserva confirmada con Éxito en Excelencia!");
+                    
+                    // Actualizar memoria para tachar de inmediato
                     await fetchTurnosGlobales();
-                    cargarHorarios(); // Refresca los botones inmediatamente
+                    cargarHorarios(); 
                 } else {
-                    alert("Lo sentimos, alguien acaba de reservar este turno. Por favor elige otro.");
+                    alert("Lo sentimos, este turno acaba de ser tomado.");
                 }
-            } catch (err) { alert("Error de conexión. Intenta nuevamente."); }
+            } catch (err) { alert("Error de red. Intenta nuevamente."); }
             
             botonReserva.innerText = "Confirmar Reserva";
         }
 
         /* --- FUNCIONES EXCLUSIVAS DEL BARBERO --- */
         async function cargarPanelBarbero() {
+            // Carga lista de precios para editar
             const res = await fetch('/api/servicios');
             const servicios = await res.json();
             const contPrecios = document.getElementById('listaPreciosAdmin');
@@ -499,23 +514,68 @@
             servicios.forEach(s => {
                 contPrecios.innerHTML += `
                     <div style="display:flex; gap:10px; align-items:center;">
-                        <span style="flex:1; font-size:14px; font-weight:800; font-family:'Outfit'; text-transform:uppercase;">${s.nombre}</span>
-                        <input type="number" id="precio_${s.id}" value="${s.precio}" style="width:90px; padding:8px; border-radius:6px; border:none; background:#222; color:#c5a059; font-weight:bold; font-family:'Outfit';">
+                        <span style="flex:1; font-size:13px; font-weight:800; text-transform:uppercase;">${s.nombre}</span>
+                        <input type="number" id="precio_${s.id}" value="${s.precio}" style="width:85px; padding:8px; border-radius:6px; border:none; background:#222; color:#c5a059; font-weight:bold; font-family:'Outfit';">
                         <button onclick="guardarPrecio(${s.id})" style="padding:8px 12px; background:#c5a059; border:none; border-radius:6px; font-weight:bold; color:#000; cursor:pointer;">OK</button>
                     </div>`;
             });
 
+            // Carga la agenda específica del día seleccionado
+            cargarAgendaBarbero();
+        }
+
+        function cargarAgendaBarbero() {
+            const fecha = document.getElementById('fechaAgendaAdmin').value;
+            const contResumen = document.getElementById('resumenAgenda');
             const contTurnos = document.getElementById('listaTurnosAdmin');
-            if (todosLosTurnos.length === 0) {
-                contTurnos.innerHTML = "Tu agenda está vacía por ahora.";
-            } else {
-                contTurnos.innerHTML = todosLosTurnos.map(t => 
-                    `<div style="background:#222; padding:10px; border-radius:8px; margin-bottom:8px; border-left:3px solid #c5a059;">
-                        <strong style="color:#fff;">${t.cliente}</strong> - <span style="color:#c5a059; font-weight:bold;">${t.servicio}</span><br>
-                        <span style="color:#aaa;">📅 ${t.fecha_hora}</span>
-                    </div>`
-                ).join('');
+
+            if (!fecha) {
+                contTurnos.innerHTML = "<p style='color:#777; font-size:13px;'>Selecciona una fecha arriba.</p>";
+                return;
             }
+
+            if (diasBloqueados.includes(fecha)) {
+                contResumen.innerHTML = "";
+                contTurnos.innerHTML = `<div style="text-align:center; padding:15px; color:#d52b1e; border:1px solid #d52b1e; border-radius:8px; background: rgba(213, 43, 30, 0.1); font-weight:bold;">¡Atención! Este día ha sido bloqueado por ti.</div>`;
+                return;
+            }
+
+            let ocupados = 0;
+            let libres = 0;
+            let htmlAgenda = "";
+
+            // Mapeamos TODAS las 12 horas del día seleccionado
+            HORAS_LABORALES.forEach(hora => {
+                const fechaHoraExacta = `${fecha} ${hora}`;
+                // Buscamos si existe un turno reservado para esa hora exacta
+                const turnoExistente = todosLosTurnos.find(t => t.fecha_hora === fechaHoraExacta);
+
+                if (turnoExistente) {
+                    ocupados++;
+                    htmlAgenda += `
+                        <div style="background:rgba(213, 43, 30, 0.08); border-left:4px solid #d52b1e; padding:12px; border-radius:8px;">
+                            <span style="color:#d52b1e; font-weight:800; font-size:15px;">${hora} - OCUPADO</span><br>
+                            <span style="color:#fff; font-size:15px; font-weight:600; display:block; margin-top:4px;">👤 ${turnoExistente.cliente}</span>
+                            <span style="color:#c5a059; font-size:13px; font-weight:bold;">✂️ ${turnoExistente.servicio}</span>
+                        </div>
+                    `;
+                } else {
+                    libres++;
+                    htmlAgenda += `
+                        <div style="background:rgba(46, 204, 113, 0.05); border-left:4px solid #2ecc71; padding:12px; border-radius:8px;">
+                            <span style="color:#2ecc71; font-weight:800; font-size:15px;">${hora} - LIBRE</span>
+                        </div>
+                    `;
+                }
+            });
+
+            // Pintar resumen numérico Arriba
+            contResumen.innerHTML = `
+                <div style="flex:1; background:rgba(46, 204, 113, 0.1); color:#2ecc71; text-align:center; padding:10px; border-radius:8px; font-weight:800; font-size:14px; border:1px solid rgba(46, 204, 113, 0.3);">🟩 Libres: ${libres}</div>
+                <div style="flex:1; background:rgba(213, 43, 30, 0.1); color:#d52b1e; text-align:center; padding:10px; border-radius:8px; font-weight:800; font-size:14px; border:1px solid rgba(213, 43, 30, 0.3);">🟥 Ocupados: ${ocupados}</div>
+            `;
+            
+            contTurnos.innerHTML = htmlAgenda;
         }
 
         async function guardarPrecio(id) {
@@ -525,13 +585,13 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ precio: val })
             });
-            alert("Precio actualizado correctamente en la base de datos.");
+            alert("Precio actualizado exitosamente en la nube.");
         }
 
         async function bloquearDia() {
             const fecha = document.getElementById('fechaBloqueo').value;
             if (!fecha) {
-                alert("Selecciona una fecha en el calendario para inhabilitarla.");
+                alert("Primero selecciona una fecha en el calendario.");
                 return;
             }
             
@@ -541,10 +601,11 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ fecha: fecha })
                 });
-                alert(`Has inhabilitado el día ${fecha}. Los clientes no podrán reservar en esta fecha.`);
-                await fetchTurnosGlobales(); // Actualiza la lista en memoria
+                alert(`Has INHABILITADO el día ${fecha}.`);
+                await fetchTurnosGlobales(); 
+                cargarAgendaBarbero(); // Actualizamos la vista de agenda
             } catch (err) {
-                alert("Hubo un problema al inhabilitar el día.");
+                alert("Fallo al bloquear. Intenta nuevamente.");
             }
         }
 
@@ -561,7 +622,7 @@
             cantidadTurnosLeidos = todosLosTurnos.length;
             localStorage.setItem('turnosLeidos', cantidadTurnosLeidos);
             document.getElementById('badgeNoti').classList.add('hidden');
-            alert("Has revisado tu agenda. Todo al día Maestro.");
+            alert("¡Agenda revisada, Maestro!");
         }
 
         function cerrarSesion() {
