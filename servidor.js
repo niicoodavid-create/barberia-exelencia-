@@ -2,6 +2,7 @@ const express = require('express');
 const { Pool } = require('pg');
 const path = require('path');
 const https = require('https');
+const querystring = require('querystring'); // Añadido para el formato exacto de Google
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -22,15 +23,14 @@ app.use((req, res, next) => {
     next();
 });
 
-// Configurar carpeta estática para servir el index.html
+// Carpeta estática
 app.use(express.static(path.join(__dirname)));
 
-// Ruta principal para evitar el error "Cannot GET /"
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// 1. Ruta de Inicio de Sesión Institucional por Correo (Tradicional)
+// 1. Ruta Institucional
 app.post('/api/login', async (req, res) => {
     const { email, nombre } = req.body;
     try {
@@ -45,11 +45,11 @@ app.post('/api/login', async (req, res) => {
             res.json(nuevoUsuario.rows[0]);
         }
     } catch (error) {
-        res.status(500).json({ error: 'Error en el inicio de sesión' });
+        res.status(500).json({ error: 'Error en inicio de sesión' });
     }
 });
 
-// 2. Ruta Oficial de Redirección a Google OAuth
+// 2. Ruta a Google OAuth
 app.get('/auth/google', (req, res) => {
     const clientId = process.env.GOOGLE_CLIENT_ID;
     const redirectUri = 'https://barberia-exelencia.onrender.com/auth/google/callback';
@@ -57,15 +57,15 @@ app.get('/auth/google', (req, res) => {
     res.redirect(googleAuthUrl);
 });
 
-// 3. Callback Oficial de Google (Procesa el retorno seguro de Google)
+// 3. Callback Oficial de Google (Actualizado a Form-UrlEncoded)
 app.get('/auth/google/callback', async (req, res) => {
     const code = req.query.code;
     if (!code) {
-        return res.status(400).send('Error: Falta el código de autorización de Google.');
+        return res.status(400).send('Falta el código de Google.');
     }
 
-    // Intercambiar el código por el Token de acceso de Google usando HTTPS nativo
-    const tokenData = JSON.stringify({
+    // Convertir los datos al formato exacto que pide Google
+    const tokenData = querystring.stringify({
         code: code,
         client_id: process.env.GOOGLE_CLIENT_ID,
         client_secret: process.env.GOOGLE_CLIENT_SECRET,
@@ -78,7 +78,7 @@ app.get('/auth/google/callback', async (req, res) => {
         path: '/token',
         method: 'POST',
         headers: {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
             'Content-Length': tokenData.length
         }
     }, (tokenRes) => {
@@ -90,10 +90,11 @@ app.get('/auth/google/callback', async (req, res) => {
                 const accessToken = tokenJson.access_token;
 
                 if (!accessToken) {
-                    return res.status(400).send('Error al obtener el token de acceso de Google.');
+                    console.log("Error de token:", tokenJson); // Para rastreo en Render
+                    return res.send('<script>alert("Error de Google. Por favor intenta iniciar sesión de nuevo."); window.location.href="/";</script>');
                 }
 
-                // Obtener los datos del usuario real desde la API de Google
+                // Obtener datos del usuario
                 https.get(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${accessToken}`, (userInfoRes) => {
                     let userBody = '';
                     userInfoRes.on('data', (chunk) => { userBody += chunk; });
@@ -103,7 +104,6 @@ app.get('/auth/google/callback', async (req, res) => {
                             const email = googleUser.email;
                             const nombre = googleUser.name;
 
-                            // Verificar o registrar el usuario automáticamente en PostgreSQL
                             let usuarioExistente = await pool.query('SELECT * FROM clientes WHERE email = $1', [email]);
                             let usuarioFinal;
                             if (usuarioExistente.rows.length > 0) {
@@ -116,7 +116,7 @@ app.get('/auth/google/callback', async (req, res) => {
                                 usuarioFinal = nuevoUsuario.rows[0];
                             }
 
-                            // Redirigir de vuelta a la página principal con la sesión exitosa
+                            // Redirigir al inicio con sesión activa
                             res.send(`
                                 <script>
                                     localStorage.setItem('usuarioActivo', JSON.stringify(${JSON.stringify(usuarioFinal)}));
@@ -124,28 +124,22 @@ app.get('/auth/google/callback', async (req, res) => {
                                 </script>
                             `);
                         } catch (err) {
-                            res.status(500).send('Error procesando el perfil de usuario de Google.');
+                            res.status(500).send('Error procesando el perfil.');
                         }
                     });
-                }).on('error', () => {
-                    res.status(500).send('Error conectando con los servicios de Google.');
-                });
-
+                }).on('error', () => { res.status(500).send('Error conectando con Google.'); });
             } catch (err) {
-                res.status(500).send('Error al procesar la respuesta de autenticación.');
+                res.status(500).send('Error procesando respuesta de autenticación.');
             }
         });
     });
 
-    tokenReq.on('error', () => {
-        res.status(500).send('Error en la solicitud de token a Google.');
-    });
-
+    tokenReq.on('error', () => { res.status(500).send('Error solicitando token.'); });
     tokenReq.write(tokenData);
     tokenReq.end();
 });
 
-// 4. Catálogo de servicios desde PostgreSQL
+// 4. Servicios
 app.get('/api/servicios', async (req, res) => {
     try {
         const resultado = await pool.query('SELECT * FROM servicios;');
@@ -155,7 +149,7 @@ app.get('/api/servicios', async (req, res) => {
     }
 });
 
-// 5. Guardar un nuevo turno/cita
+// 5. Turnos
 app.post('/api/turnos', async (req, res) => {
     const { cliente_id, servicios_id, fecha_hora } = req.body;
     try {
@@ -163,12 +157,12 @@ app.post('/api/turnos', async (req, res) => {
             'INSERT INTO turnos (clientes_id, servicios_id, fecha_hora, estado) VALUES ($1, $2, $3, $4) RETURNING *',
             [cliente_id, servicios_id, fecha_hora, 'pendiente']
         );
-        res.json({ mensaje: '¡Turno reservado con éxito!', turno: nuevoTurno.rows });
+        res.json({ mensaje: '¡Turno reservado!', turno: nuevoTurno.rows });
     } catch (error) {
         res.status(500).json({ error: 'Error al reservar el turno' });
     }
 });
 
 app.listen(port, () => {
-    console.log(`Servidor de "Excelencia" corriendo en el puerto ${port}`);
+    console.log(`Servidor de Excelencia corriendo en el puerto ${port}`);
 });
