@@ -13,7 +13,7 @@ const pool = new Pool({
     ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
 
-// FUNCIÓN AUTOMÁTICA: Crea las tablas en PostgreSQL al encender el servidor
+// FUNCIÓN AUTOMÁTICA: Crea las tablas y precarga los servicios de la barbería
 async function inicializarBaseDeDatos() {
     try {
         await pool.query(`
@@ -34,22 +34,23 @@ async function inicializarBaseDeDatos() {
                 id SERIAL PRIMARY KEY,
                 clientes_id INT REFERENCES clientes(id),
                 servicios_id INT REFERENCES servicios(id),
-                fecha_hora TIMESTAMP,
+                fecha_hora VARCHAR(100),
                 estado VARCHAR(50)
             );
         `);
 
-        // Insertar servicios de ejemplo si la tabla está vacía
+        // Insertar los servicios solicitados si la tabla está vacía
         const resServicios = await pool.query('SELECT COUNT(*) FROM servicios');
         if (parseInt(resServicios.rows[0].count) === 0) {
             await pool.query(`
                 INSERT INTO servicios (nombre, precio) VALUES 
-                ('Corte Clásico "Excelencia"', 8000),
-                ('Perfilado de Barba de Autor', 5000),
-                ('Combo Completo (Corte + Barba)', 12000);
+                ('Global', 50000),
+                ('Mechas', 45000),
+                ('Corte', 14000),
+                ('Corte y Barba', 15000);
             `);
         }
-        console.log("¡Tablas y base de datos listas y operativas!");
+        console.log("¡Tablas y base de datos de Excelencia listas y operativas!");
     } catch (err) {
         console.error("Error al auto-inicializar la base de datos:", err);
     }
@@ -64,7 +65,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Headers', 'Origin, Content-Type, Accept');
-    res.header('Access-Control-Allow-Methods', 'GET, POST');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT');
     next();
 });
 
@@ -74,6 +75,7 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// 1. Ruta de Inicio de Sesión
 app.post('/api/login', async (req, res) => {
     const { email, nombre } = req.body;
     try {
@@ -92,6 +94,7 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
+// 2. Autenticación Google OAuth
 app.get('/auth/google', (req, res) => {
     const redirectUri = 'https://barberia-exelencia.onrender.com/auth/google/callback';
     const googleAuthUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=email%20profile`;
@@ -152,23 +155,62 @@ app.get('/auth/google/callback', async (req, res) => {
     }
 });
 
+// 3. Obtener Catálogo de Servicios
 app.get('/api/servicios', async (req, res) => {
     try {
-        const resultado = await pool.query('SELECT * FROM servicios;');
+        const resultado = await pool.query('SELECT * FROM servicios ORDER BY id ASC;');
         res.json(resultado.rows);
     } catch (error) {
         res.status(500).json({ error: 'Error al obtener servicios' });
     }
 });
 
+// 4. Actualizar Precios (Panel del Barbero Admin)
+app.put('/api/servicios/:id', async (req, res) => {
+    const { id } = req.params;
+    const { precio } = req.body;
+    try {
+        const actualizado = await pool.query(
+            'UPDATE servicios SET precio = $1 WHERE id = $2 RETURNING *',
+            [precio, id]
+        );
+        res.json({ mensaje: 'Precio actualizado con éxito', servicio: actualizado.rows[0] });
+    } catch (error) {
+        res.status(500).json({ error: 'Error al actualizar el precio' });
+    }
+});
+
+// 5. Obtener Turnos Registrados (Para el Administrador)
+app.get('/api/turnos', async (req, res) => {
+    try {
+        const resultado = await pool.query(`
+            SELECT turnos.id, turnos.fecha_hora, turnos.estado, clientes.nombre as cliente, servicios.nombre as servicio 
+            FROM turnos 
+            JOIN clientes ON turnos.clientes_id = clientes.id 
+            JOIN servicios ON turnos.servicios_id = servicios.id
+            ORDER BY turnos.fecha_hora ASC;
+        `);
+        res.json(resultado.rows);
+    } catch (error) {
+        res.status(500).json({ error: 'Error al obtener turnos' });
+    }
+});
+
+// 6. Registrar un Nuevo Turno
 app.post('/api/turnos', async (req, res) => {
     const { cliente_id, servicios_id, fecha_hora } = req.body;
     try {
+        // Evitar solapamiento de horarios exactos
+        const ocupado = await pool.query('SELECT * FROM turnos WHERE fecha_hora = $1', [fecha_hora]);
+        if (ocupado.rows.length > 0) {
+            return res.status(400).json({ error: 'Este horario ya se encuentra reservado.' });
+        }
+
         const nuevoTurno = await pool.query(
             'INSERT INTO turnos (clientes_id, servicios_id, fecha_hora, estado) VALUES ($1, $2, $3, $4) RETURNING *',
-            [cliente_id, servicios_id, fecha_hora, 'pendiente']
+            [cliente_id, servicios_id, fecha_hora, 'confirmado']
         );
-        res.json({ mensaje: '¡Turno reservado con éxito!', turno: nuevoTurno.rows });
+        res.json({ mensaje: '¡Turno reservado con éxito!', turno: nuevoTurno.rows[0] });
     } catch (error) {
         res.status(500).json({ error: 'Error al reservar el turno' });
     }
