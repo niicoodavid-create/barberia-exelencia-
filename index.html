@@ -4,101 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Excelencia - Barbería de Autor</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23050505'/%3E%3Cpath d='M40 20h20v60H40z' fill='%23fff'/%3E%3Cpath d='M50 20h10v60H50z' fill='%230033a0'/%3E%3Cpath d='M30 20h10v60H30z' fill='%23d52b1e'/%3E%3Ctext x='50' y='62' font-family='serif' font-size='42' font-weight='bold' fill='%23c5a059' text-anchor='middle'%3EE%3C/text%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Allura&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:radial-gradient(circle at top,#1b1b1b 0,#070707 48%,#030303 100%);color:#f5f5f5;font-family:Inter,Arial,sans-serif;min-height:100vh;padding:18px}
-.frame{position:fixed;inset:0;pointer-events:none;z-index:100;border:5px solid transparent;background:linear-gradient(135deg,#0047FF,#f4f4f4,#c9463e,#f4f4f4,#0047FF);background-size:300% 300%;animation:moveFrame 9s ease infinite;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
-@keyframes moveFrame{0%,100%{background-position:0 50%}50%{background-position:100% 50%}}
-@keyframes allBorders{0%,100%{background-position:0 0,0 50%}50%{background-position:0 0,100% 50%}}
-.app{position:relative;z-index:2;width:100%;max-width:1080px;margin:auto;background:rgba(10,10,10,.97);border:1px solid transparent;border-radius:28px;box-shadow:0 30px 80px #000;padding:28px;background-image:linear-gradient(rgba(10,10,10,.97),rgba(10,10,10,.97)),linear-gradient(135deg,#0047FF,#f4f4f4,#c9463e,#f4f4f4,#0047FF);background-origin:border-box;background-clip:padding-box,border-box;background-size:100% 100%,300% 300%;animation:allBorders 9s ease infinite}
-.brand{text-align:center;margin-bottom:22px}
-.brand h1{font-family:Allura,cursive;font-size:68px;line-height:.9;color:#d1ae67;text-shadow:0 5px 24px rgba(209,174,103,.2)}
-.brand .by{font-size:13px;color:#8f8f8f;letter-spacing:2px;margin-top:5px}
-.brand .address{font-size:14px;color:#b9b9b9;margin-top:6px}
-.topbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:20px}
-.welcome{font-family:Allura,cursive;font-size:33px;color:#d1ae67}
-.muted{color:#8a8a8a;font-size:12px}
-.btn,.icon-btn,input,select{font-family:Inter,Arial,sans-serif}
-.btn{border:0;border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;cursor:pointer;transition:.2s}
-.btn:disabled{opacity:.5;cursor:not-allowed}
-.btn-primary{background:linear-gradient(135deg,#d1ae67,#9f7726);color:#080808}
-.btn-secondary{background:linear-gradient(#171717,#171717) padding-box,linear-gradient(135deg,#0047FF,#f4f4f4,#c9463e,#f4f4f4,#0047FF) border-box;border:1px solid transparent;color:#eee;background-size:100% 100%,300% 300%;animation:allBorders 9s ease infinite}
-.btn-danger{background:#8e2620;color:#fff}
-.btn-success{background:#176f40;color:#fff}
-.hidden{display:none!important}
-.login-box{max-width:430px;margin:0 auto}
-.divider{display:flex;align-items:center;gap:10px;color:#666;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:16px 0}
-.divider:before,.divider:after{content:"";height:1px;background:#292929;flex:1}
-.field{margin-bottom:14px}
-.field label{display:block;color:#bca36d;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px}
-.field input,.field select,.modal input,.modal select{width:100%;background:linear-gradient(#0d0d0d,#0d0d0d) padding-box,linear-gradient(135deg,#0047FF,#f4f4f4,#c9463e,#f4f4f4,#0047FF) border-box;color:#f2f2f2;border:1px solid transparent;border-radius:11px;padding:12px 13px;font-size:13px;outline:none;background-size:100% 100%,300% 300%;animation:allBorders 9s ease infinite}
-.field input:focus,.field select:focus,.modal input:focus,.modal select:focus{border-color:#b99650}
-.layout{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}
-.panel{background:linear-gradient(#0d0d0d,#0d0d0d) padding-box,linear-gradient(135deg,#0047FF,#f4f4f4,#c9463e,#f4f4f4,#0047FF) border-box;border:1px solid transparent;border-radius:19px;padding:18px;background-size:100% 100%,300% 300%;animation:allBorders 9s ease infinite}
-.panel h2,.panel h3{margin-bottom:12px}
-.panel h2{font-size:18px}
-.panel h3{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:#bfa265}
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.step{background:linear-gradient(#131313,#131313) padding-box,linear-gradient(135deg,#0047FF,#f4f4f4,#c9463e,#f4f4f4,#0047FF) border-box;border:1px solid transparent;border-radius:12px;padding:10px;font-size:11px;color:#888;text-align:center;background-size:100% 100%,300% 300%;animation:allBorders 9s ease infinite}
-.step.active{border-color:#b99650;color:#e0c98f}
-.services{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.service-card{border:1px solid transparent;background:linear-gradient(#131313,#131313) padding-box,linear-gradient(135deg,#0047FF,#f4f4f4,#c9463e,#f4f4f4,#0047FF) border-box;border-radius:15px;padding:14px;text-align:left;cursor:pointer;transition:.2s;background-size:100% 100%,300% 300%;animation:allBorders 9s ease infinite}
-.service-card.selected{border-color:#d1ae67;background:rgba(209,174,103,.08);box-shadow:0 0 20px rgba(209,174,103,.08)}
-.service-name{font-size:13px;font-weight:700;color:#efefef;min-height:32px}
-.service-price{font-family:Allura,cursive;font-size:27px;color:#d1ae67;margin-top:3px}
-.calendar-shell{border:1px solid transparent;border-radius:18px;padding:13px;background:linear-gradient(#101010,#101010) padding-box,linear-gradient(135deg,#0047FF,#f4f4f4,#c9463e,#f4f4f4,#0047FF) border-box;background-size:300% 300%;animation:moveFrame 9s ease infinite}
-.calendar-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.calendar-title{font-family:Allura,cursive;font-size:31px;color:#d1ae67}
-.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
-.weekday{font-size:10px;font-weight:800;color:#666;text-align:center;padding:5px 0}
-.day,.admin-day{min-height:69px;border-radius:12px;background:#121212;border:1px solid #292929;color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
-.day.available,.admin-day.available{border-color:#2e8c59}
-.day.blocked,.admin-day.blocked{border-color:#96342f;color:#df625b;background:rgba(150,52,47,.1)}
-.day.selected,.admin-day.selected{border-color:#d1ae67!important;box-shadow:0 0 18px rgba(209,174,103,.18)}
-.day-name{font-size:9px;color:#666;font-weight:800}
-.day-num{font-size:23px;font-weight:800}
-.day-state{font-size:9px;text-transform:uppercase;font-weight:800;letter-spacing:.7px;color:#54bd80}
-.day.blocked .day-state,.admin-day.blocked .day-state{color:#df625b}
-.blank{min-height:69px}
-.legend{display:flex;justify-content:center;gap:17px;color:#707070;font-size:10px;margin-top:9px}
-.hours-shell{margin-top:10px}
-.hours-shell .calendar-title{color:#d7b56d}
-.hours-shell .muted{color:#9a9a9a}
-.hours{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
-.hour{min-height:60px;border-radius:11px;border:2px solid transparent;font-weight:800;font-size:13px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;transition:0.2s;}
-.hour small{font-size:9px;letter-spacing:1px;font-weight:bold;}
-.free{border-color:#2ecc71;color:#2ecc71;background:rgba(46,204,113,0.07);cursor:pointer}
-.free.locked{cursor:not-allowed;opacity:0.6;}
-.free.selected{background:#d1ae67;border-color:#bfa265;color:#050505;box-shadow:0 0 16px rgba(209,174,103,.5)}
-.busy,.past{border-color:#555;color:#aaa;background:#1e1e1e;cursor:not-allowed;opacity:.8}
-.status-box{margin-top:12px;padding:11px 12px;border-radius:11px;background:linear-gradient(#111,#111) padding-box,linear-gradient(135deg,#0047FF,#f4f4f4,#c9463e,#f4f4f4,#0047FF) border-box;border:1px solid transparent;color:#9f9f9f;font-size:11px;background-size:100% 100%,300% 300%;animation:allBorders 9s ease infinite}
-.reservation-card{margin-top:14px;padding:18px;border-radius:19px;background:linear-gradient(#0d0d0d,#0d0d0d) padding-box,linear-gradient(135deg,#0047FF,#f4f4f4,#c9463e,#f4f4f4,#0047FF) border-box;border:1px solid transparent;background-size:100% 100%,300% 300%;animation:allBorders 9s ease infinite}
-.reservation-card .title{font-size:12px;font-weight:800;color:#c4c4c4;letter-spacing:1px}
-.reservation-card .main{font-family:Allura,cursive;font-size:38px;color:#d1ae67;margin-top:5px;line-height:1}
-.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.admin-card{background:linear-gradient(#131313,#131313) padding-box,linear-gradient(135deg,#0047FF,#f4f4f4,#c9463e,#f4f4f4,#0047FF) border-box;border:1px solid transparent;border-radius:15px;padding:13px;margin-bottom:9px;background-size:100% 100%,300% 300%;animation:allBorders 9s ease infinite}
-.admin-row{display:flex;justify-content:space-between;align-items:center;gap:10px}
-.admin-main{font-size:13px;font-weight:800}
-.admin-sub{font-size:10px;color:#797979;margin-top:4px}
-.admin-actions{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}
-.icon-btn{width:34px;height:34px;border-radius:10px;background:linear-gradient(#1a1a1a,#1a1a1a) padding-box,linear-gradient(135deg,#0047FF,#f4f4f4,#c9463e,#f4f4f4,#0047FF) border-box;color:#d1ae67;border:1px solid transparent;cursor:pointer;font-size:15px;background-size:100% 100%,300% 300%;animation:allBorders 9s ease infinite}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}
-.stat{padding:12px;border-radius:13px;background:linear-gradient(#121212,#121212) padding-box,linear-gradient(135deg,#0047FF,#f4f4f4,#c9463e,#f4f4f4,#0047FF) border-box;border:1px solid transparent;background-size:100% 100%,300% 300%;animation:allBorders 9s ease infinite}
-.stat strong{display:block;font-size:22px;color:#d1ae67}
-.stat span{display:block;font-size:9px;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-top:3px}
-.admin-calendar .admin-day{min-height:72px}
-.client-list-search{display:flex;gap:8px;margin-bottom:10px}
-.client-list-search input{flex:1;background:linear-gradient(#0d0d0d,#0d0d0d) padding-box,linear-gradient(135deg,#0047FF,#f4f4f4,#c9463e,#f4f4f4,#0047FF) border-box;border:1px solid transparent;color:#eee;border-radius:10px;padding:10px 12px;font-size:12px;background-size:100% 100%,300% 300%;animation:allBorders 9s ease infinite}
-.notice{padding:11px 12px;border-radius:12px;background:linear-gradient(#171717,#171717) padding-box,linear-gradient(135deg,#0047FF,#f4f4f4,#c9463e,#f4f4f4,#0047FF) border-box;border:1px solid transparent;margin-bottom:8px;font-size:11px;background-size:100% 100%,300% 300%;animation:allBorders 9s ease infinite}
-.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;display:flex;align-items:center;justify-content:center;padding:15px}
-.modal{width:100%;max-width:470px;background:#101010;border:1px solid #333;border-radius:18px;padding:18px;box-shadow:0 30px 80px #000}
-.modal h3{color:#d1ae67;font-family:Allura,cursive;font-size:34px;margin-bottom:14px}
-.modal-actions{display:flex;gap:8px;margin-top:14px}
-.modal-actions .btn{flex:1}
-.footer{margin-top:24px;text-align:center;font-family:Allura,cursive;font-size:26px;color:#5a5a5a}
-@media(max-width:900px){.layout,.admin-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:600px){body{padding:0}.app{border-radius:0;min-height:100vh;padding:18px}.brand h1{font-size:55px}.topbar{align-items:flex-start}.services{grid-template-columns:1fr 1fr}.calendar-grid{gap:4px}.day,.admin-day{min-height:61px}.blank{min-height:61px}.day-num{font-size:21px}.hours{grid-template-columns:repeat(3,1fr)}.panel{padding:14px}}
+*{box-sizing:border-box;margin:0;padding:0}body{background:radial-gradient(circle at top,#1b1b1b 0,#070707 48%,#030303 100%);color:#f5f5f5;font-family:Inter,Arial,sans-serif;min-height:100vh;padding:18px}.frame{position:fixed;inset:0;pointer-events:none;z-index:100;border:5px solid transparent;background:linear-gradient(135deg,#3158a8,#f4f4f4,#bd4a43,#f4f4f4,#3158a8);background-size:300% 300%;animation:moveFrame 9s ease infinite;-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude}@keyframes moveFrame{0%,100%{background-position:0 50%}50%{background-position:100% 50%}}.app{position:relative;z-index:2;width:100%;max-width:1080px;margin:auto;background:rgba(10,10,10,.97);border:1px solid #242424;border-radius:28px;box-shadow:0 30px 80px #000;padding:28px}.brand{text-align:center;margin-bottom:22px}.brand h1{font-family:Allura,cursive;font-size:68px;line-height:.9;color:#d1ae67;text-shadow:0 5px 24px rgba(209,174,103,.2)}.brand .by{font-size:13px;color:#8f8f8f;letter-spacing:2px;margin-top:5px}.brand .address{font-size:14px;color:#b9b9b9;margin-top:6px}.topbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:20px}.welcome{font-family:Allura,cursive;font-size:33px;color:#d1ae67}.muted{color:#8a8a8a;font-size:12px}.btn,.icon-btn,input,select{font-family:Inter,Arial,sans-serif}.btn{border:0;border-radius:12px;padding:12px 16px;font-size:13px;font-weight:800;cursor:pointer;transition:.2s}.btn:disabled{opacity:.5;cursor:not-allowed}.btn-primary{background:linear-gradient(135deg,#d1ae67,#9f7726);color:#080808}.btn-secondary{background:#171717;border:1px solid #303030;color:#eee}.btn-danger{background:#8e2620;color:#fff}.btn-success{background:#176f40;color:#fff}.btn-google{width:100%;background:#fff;color:#111;margin-bottom:15px;display:flex;justify-content:center;align-items:center;gap:10px}.hidden{display:none!important}.login-box{max-width:430px;margin:0 auto}.divider{display:flex;align-items:center;gap:10px;color:#666;font-size:11px;text-transform:uppercase;letter-spacing:1px;margin:16px 0}.divider:before,.divider:after{content:"";height:1px;background:#292929;flex:1}.field{margin-bottom:14px}.field label{display:block;color:#bca36d;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;margin-bottom:7px}.field input,.field select,.modal input,.modal select{width:100%;background:#0d0d0d;color:#f2f2f2;border:1px solid #303030;border-radius:11px;padding:12px 13px;font-size:13px;outline:none}.field input:focus,.field select:focus,.modal input:focus,.modal select:focus{border-color:#b99650}.layout{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}.panel{background:#0d0d0d;border:1px solid #252525;border-radius:19px;padding:18px}.panel h2,.panel h3{margin-bottom:12px}.panel h2{font-size:18px}.panel h3{font-size:12px;text-transform:uppercase;letter-spacing:1.5px;color:#bfa265}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}.step{background:#131313;border:1px solid #262626;border-radius:12px;padding:10px;font-size:11px;color:#888;text-align:center}.step.active{border-color:#b99650;color:#e0c98f}.services{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.service-card{border:1px solid #2b2b2b;background:#131313;border-radius:15px;padding:14px;text-align:left;cursor:pointer;transition:.2s}.service-card:hover{transform:translateY(-1px);border-color:#5a4930}.service-card.selected{border-color:#d1ae67;background:rgba(209,174,103,.08);box-shadow:0 0 20px rgba(209,174,103,.08)}.service-name{font-size:13px;font-weight:700;color:#efefef;min-height:32px}.service-price{font-family:Allura,cursive;font-size:27px;color:#d1ae67;margin-top:3px}.calendar-shell{border:1px solid transparent;border-radius:18px;padding:13px;background:linear-gradient(#101010,#101010) padding-box,linear-gradient(135deg,#3158a8,#f4f4f4,#bd4a43,#f4f4f4,#3158a8) border-box;background-size:300% 300%;animation:moveFrame 9s ease infinite}.calendar-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.calendar-title{font-family:Allura,cursive;font-size:31px;color:#d1ae67}.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}.weekday{font-size:10px;font-weight:800;color:#666;text-align:center;padding:5px 0}.day,.admin-day{min-height:69px;border-radius:12px;background:#121212;border:1px solid #292929;color:#fff;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}.day.available,.admin-day.available{border-color:#2e8c59}.day.available:hover,.admin-day.available:hover{background:rgba(46,140,89,.12)}.day.blocked,.admin-day.blocked{border-color:#96342f;color:#df625b;background:rgba(150,52,47,.1)}.day.selected,.admin-day.selected{border-color:#d1ae67!important;box-shadow:0 0 18px rgba(209,174,103,.18)}.day-name{font-size:9px;color:#666;font-weight:800}.day-num{font-size:23px;font-weight:800}.day-state{font-size:9px;text-transform:uppercase;font-weight:800;letter-spacing:.7px;color:#54bd80}.day.blocked .day-state,.admin-day.blocked .day-state{color:#df625b}.blank{min-height:69px}.legend{display:flex;justify-content:center;gap:17px;color:#707070;font-size:10px;margin-top:9px}.legend b:first-child{color:#54bd80}.legend b:last-child{color:#df625b}.hours{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px}.hour{min-height:60px;border-radius:11px;border:1px solid #313131;background:#141414;font-weight:800;font-size:13px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px}.hour small{font-size:9px;letter-spacing:.7px}.free{border-color:#32a565;color:#5fd694;cursor:pointer}.free:hover,.free.selected{background:#2b9b60;color:#07100b;box-shadow:0 0 15px rgba(50,165,101,.25)}.busy,.past,.closed{border-color:#8c302b;color:#e45f57;cursor:not-allowed;opacity:.85}.status-box{margin-top:12px;padding:11px 12px;border-radius:11px;background:#111;border:1px solid #272727;color:#9f9f9f;font-size:11px}.status-box strong{color:#ddd}.reservation-card{margin-top:14px;padding:14px;border-radius:14px;background:#131313;border:1px solid #2d2d2d}.reservation-card .title{font-size:12px;font-weight:800;color:#c4c4c4}.reservation-card .main{font-family:Allura,cursive;font-size:30px;color:#d1ae67;margin-top:3px}.reservation-card .meta{font-size:11px;color:#858585;margin-top:3px}.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.admin-card{background:#131313;border:1px solid #292929;border-radius:15px;padding:13px;margin-bottom:9px}.admin-row{display:flex;justify-content:space-between;align-items:center;gap:10px}.admin-main{font-size:13px;font-weight:800}.admin-sub{font-size:10px;color:#797979;margin-top:4px}.admin-actions{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}.icon-btn{width:34px;height:34px;border-radius:10px;background:#1a1a1a;color:#d1ae67;border:1px solid #3a3a3a;cursor:pointer;font-size:15px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px}.stat{padding:12px;border-radius:13px;background:#121212;border:1px solid #292929}.stat strong{display:block;font-size:22px;color:#d1ae67}.stat span{display:block;font-size:9px;color:#737373;text-transform:uppercase;letter-spacing:1px;margin-top:3px}.admin-calendar .admin-day{min-height:72px}.client-list-search{display:flex;gap:8px;margin-bottom:10px}.client-list-search input{flex:1;background:#0d0d0d;border:1px solid #303030;color:#eee;border-radius:10px;padding:10px 12px;font-size:12px}.notice{padding:11px 12px;border-radius:12px;background:#171717;border:1px solid #2d2d2d;margin-bottom:8px;font-size:11px}.notice b{color:#d1ae67}.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;display:flex;align-items:center;justify-content:center;padding:15px}.modal{width:100%;max-width:470px;background:#101010;border:1px solid #333;border-radius:18px;padding:18px;box-shadow:0 30px 80px #000}.modal h3{color:#d1ae67;font-family:Allura,cursive;font-size:34px;margin-bottom:14px}.modal-actions{display:flex;gap:8px;margin-top:14px}.modal-actions .btn{flex:1}.footer{margin-top:24px;text-align:center;font-family:Allura,cursive;font-size:26px;color:#5a5a5a}@media(max-width:900px){.layout,.admin-grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}}@media(max-width:600px){body{padding:0}.app{border-radius:0;min-height:100vh;padding:18px}.brand h1{font-size:55px}.topbar{align-items:flex-start}.welcome{font-size:28px}.services{grid-template-columns:1fr 1fr}.calendar-grid{gap:4px}.day,.admin-day{min-height:61px}.blank{min-height:61px}.day-num{font-size:21px}.hours{grid-template-columns:repeat(3,1fr)}.panel{padding:14px}}
 </style>
 </head>
 <body>
@@ -106,8 +15,10 @@ body{background:radial-gradient(circle at top,#1b1b1b 0,#070707 48%,#030303 100%
 <main class="app">
 <header class="brand"><h1>Excelencia</h1><div class="by">por martin g</div><div class="address">📍 Paraguay 176</div></header>
 <section id="loginView" class="login-box">
-<div class="field"><label>Correo electrónico</label><input id="emailInput" type="email" placeholder="tuemail@gmail.com"></div>
-<div class="field"><label>Nombre</label><input id="nombreInput" type="text" placeholder="Tu nombre"></div>
+<button class="btn btn-google" onclick="location.href='/auth/google'"><span>G</span> Ingresar con Google</button>
+<div class="divider">o registro manual</div>
+<div class="field"><label>Correo electrónico</label><input id="emailInput" type="email" autocomplete="email" placeholder="tuemail@gmail.com"></div>
+<div class="field"><label>Nombre</label><input id="nombreInput" type="text" autocomplete="name" placeholder="Tu nombre"></div>
 <button class="btn btn-primary" style="width:100%" onclick="loginTradicional()">Entrar al salón</button>
 </section>
 <section id="dashboardView" class="hidden">
@@ -118,10 +29,11 @@ body{background:radial-gradient(circle at top,#1b1b1b 0,#070707 48%,#030303 100%
 <div class="steps"><div id="step1" class="step active">1 · Servicio</div><div id="step2" class="step">2 · Día</div><div id="step3" class="step">3 · Horario</div></div>
 <h2>Elegí tu servicio</h2><div id="contenedorServicios" class="services"></div>
 <div style="height:16px"></div><h2>Elegí el día</h2>
-<div class="calendar-shell"><div class="calendar-head"><div id="clientCalendarTitle" class="calendar-title"></div><span class="muted">Próximos 15 días</span></div><div class="calendar-grid" id="clientWeekdays"></div><div class="calendar-grid" id="clientCalendar"></div></div>
+<div class="calendar-shell"><div class="calendar-head"><div id="clientCalendarTitle" class="calendar-title"></div><span class="muted">Próximos 15 días</span></div><div class="calendar-grid" id="clientWeekdays"></div><div class="calendar-grid" id="clientCalendar"></div><div class="legend"><b>● LIBRE</b><b>● CERRADO</b></div></div>
+<div id="clientDateStatus" class="status-box">Seleccioná un día disponible.</div>
 </div>
 <div class="panel">
-<h2>Elegir un horario</h2><div id="hoursBox" class="hours"></div>
+<h2>Elegir un horario libre</h2><div id="hoursBox" class="hours"></div><div id="bookingStatus" class="status-box">La agenda se actualiza automáticamente.</div>
 <div id="myTurnBox" class="reservation-card hidden"></div>
 <button id="reserveButton" class="btn btn-primary" style="width:100%;margin-top:12px" onclick="reservarTurno()">Solicitar turno</button>
 </div>
@@ -133,374 +45,71 @@ body{background:radial-gradient(circle at top,#1b1b1b 0,#070707 48%,#030303 100%
 <div class="panel"><h2>Notificaciones</h2><div id="notificationsBox"></div></div>
 <div class="panel"><h2>Clientes</h2><div class="client-list-search"><input id="clientSearch" placeholder="Buscar por nombre o email" oninput="renderClientesAdmin()"></div><div id="clientsList"></div></div>
 <div class="panel"><h2>Servicios</h2><div id="servicesAdminList"></div><button class="btn btn-primary" style="width:100%;margin-top:6px" onclick="abrirServicioModal()">＋ Agregar servicio</button></div>
-<div class="panel"><h2>Calendario del barbero</h2><div class="calendar-shell admin-calendar"><div class="calendar-head"><div id="adminCalendarTitle" class="calendar-title"></div><span class="muted">Abrir / cerrar</span></div><div class="calendar-grid" id="adminCalendarWeekdays"></div><div class="calendar-grid" id="adminCalendar"></div></div></div>
+<div class="panel"><h2>Calendario del barbero</h2><div class="calendar-shell admin-calendar"><div class="calendar-head"><div id="adminCalendarTitle" class="calendar-title"></div><span class="muted">Abrir / cerrar</span></div><div class="calendar-grid" id="adminCalendarWeekdays"></div><div class="calendar-grid" id="adminCalendar"></div><div class="legend"><b>● ABIERTO</b><b>● CERRADO</b></div></div></div>
 <div class="panel" style="grid-column:1/-1"><div class="admin-row"><div><h2 style="margin-bottom:2px">Agenda del día</h2><div id="agendaDayLabel" class="muted"></div></div><button class="btn btn-primary" onclick="abrirTurnoModal()">＋ Dar turno</button></div><div style="height:12px"></div><div id="agendaList"></div></div>
 </div>
 </div>
 </section>
 <footer class="footer">By Naicky</footer>
 </main>
-<div id="serviceModal" class="modal-backdrop hidden"><div class="modal"><h3 id="serviceModalTitle">Servicio</h3><div class="field"><label>Nombre del servicio</label><input id="serviceName"></div><div class="field"><label>Precio</label><input id="servicePrice" type="number"></div><div class="modal-actions"><button class="btn btn-secondary" onclick="cerrarModal('serviceModal')">Cancelar</button><button class="btn btn-primary" onclick="guardarServicio()">Guardar</button></div></div></div>
+<div id="serviceModal" class="modal-backdrop hidden"><div class="modal"><h3 id="serviceModalTitle">Servicio</h3><div class="field"><label>Nombre del servicio</label><input id="serviceName"></div><div class="field"><label>Precio</label><input id="servicePrice" type="number" min="0" step="1"></div><div class="modal-actions"><button class="btn btn-secondary" onclick="cerrarModal('serviceModal')">Cancelar</button><button class="btn btn-primary" onclick="guardarServicio()">Guardar</button></div></div></div>
 <div id="clientModal" class="modal-backdrop hidden"><div class="modal"><h3>Editar cliente</h3><input type="hidden" id="editClientId"><div class="field"><label>Nombre</label><input id="editClientName"></div><div class="field"><label>Correo</label><input id="editClientEmail" type="email"></div><div class="modal-actions"><button class="btn btn-secondary" onclick="cerrarModal('clientModal')">Cancelar</button><button class="btn btn-primary" onclick="guardarCliente()">Guardar</button></div></div></div>
 <div id="turnModal" class="modal-backdrop hidden"><div class="modal"><h3 id="turnModalTitle">Dar turno</h3><div class="field"><label>Cliente</label><select id="turnClient"></select></div><div class="field"><label>Servicio</label><select id="turnService"></select></div><div class="field"><label>Fecha</label><input id="turnDate" type="date"></div><div class="field"><label>Hora</label><select id="turnHour"></select></div><div class="modal-actions"><button class="btn btn-secondary" onclick="cerrarModal('turnModal')">Cancelar</button><button class="btn btn-primary" onclick="guardarTurnoAdmin()">Guardar</button></div></div></div>
 <div id="editTurnModal" class="modal-backdrop hidden"><div class="modal"><h3>Editar turno</h3><input type="hidden" id="editTurnId"><div class="field"><label>Cliente</label><select id="editTurnClient"></select></div><div class="field"><label>Servicio</label><select id="editTurnService"></select></div><div class="field"><label>Fecha</label><input id="editTurnDate" type="date"></div><div class="field"><label>Hora</label><select id="editTurnHour"></select></div><div class="modal-actions"><button class="btn btn-secondary" onclick="cerrarModal('editTurnModal')">Cancelar</button><button class="btn btn-primary" onclick="guardarEdicionTurno()">Guardar</button></div><button class="btn btn-danger" style="width:100%;margin-top:8px" onclick="cancelarTurnoDesdeModal()">Cancelar turno</button></div></div>
 <script>
 const HORAS=['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
 const ADMIN_EMAIL='gamarramartin1995@gmail.com';
+let usuario=null,servicios=[],turnos=[],clientes=[],diasCerrados=[],fechaCliente='',horaCliente='',fechaAdmin='',turnoEditando=null,timer=null;
 const weekdays=['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
-let usuario=null,servicios=[],turnos=[],clientes=[],diasCerrados=[],fechaCliente='',horaCliente='',fechaAdmin='',timer=null;
-function capitalizarPrimera(v){v=String(v||'').trim();return v?v.charAt(0).toUpperCase()+v.slice(1):'Cliente';}
-function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
-function getFechaHoraAr(){
-const d=new Date(new Date().toLocaleString("en-US",{timeZone:"America/Argentina/Buenos_Aires"}));
-return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
-function hoy(){return getFechaHoraAr().substring(0,10);}
-function fechaMasDias(n){
-const base=new Date(new Date().toLocaleString("en-US",{timeZone:"America/Argentina/Buenos_Aires"}));
-base.setDate(base.getDate()+n);
-return `${base.getFullYear()}-${String(base.getMonth()+1).padStart(2,'0')}-${String(base.getDate()).padStart(2,'0')}`;}
-function horaPaso(f,h){return `${f} ${h}`<=getFechaHoraAr();}
-function normalizarFH(v){if(!v)return '';return String(v).slice(0,16);}
-function esAdmin(){return usuario&&usuario.email&&usuario.email.toLowerCase()===ADMIN_EMAIL&&usuario.rol==='barbero';}
-async function api(url,options={}){
-const r=await fetch(url,{...options,cache:'no-store'});
-let d={};
-try{d=await r.json();}catch(e){}
-if(!r.ok)throw new Error(d.error||'Error de servidor.');
-return d;}
-async function cargarDatos(){
-const [s,t,d]=await Promise.all([api('/api/servicios?t='+Date.now()),api('/api/turnos?t='+Date.now()),api('/api/dias-bloqueados?t='+Date.now())]);
-servicios=s;
-turnos=t.map(x=>({...x,fecha_hora:normalizarFH(x.fecha_hora)}));
-diasCerrados=d;}
-async function loginTradicional(){
-const email=document.getElementById('emailInput').value.trim().toLowerCase();
-const nombre=capitalizarPrimera(document.getElementById('nombreInput').value);
-if(!email||!nombre)return alert('Completar nombre y correo.');
-try{
-usuario=await api('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,nombre})});
-localStorage.setItem('usuarioActivo',JSON.stringify(usuario));
-await entrarDashboard();
-}catch(e){alert(e.message);}}
-async function entrarDashboard(){
-document.getElementById('loginView').classList.add('hidden');
-document.getElementById('dashboardView').classList.remove('hidden');
-const admin=esAdmin();
-document.getElementById('welcomeUser').textContent=admin?`Barbero: ${capitalizarPrimera(usuario.nombre)}`:`Cliente: ${capitalizarPrimera(usuario.nombre)}`;
-document.getElementById('roleText').textContent=admin?'Acceso total':'Solicitá un turno por vez';
-document.getElementById('clientView').classList.toggle('hidden',admin);
-document.getElementById('adminView').classList.toggle('hidden',!admin);
-await cargarDatos();
-if(admin)await cargarAdmin();else await cargarCliente();
-clearInterval(timer);
-timer=setInterval(actualizacionTiempoReal,5000);}
-async function actualizacionTiempoReal(){
-try{await cargarDatos();if(esAdmin())await cargarAdmin(true);else await cargarCliente(true);}catch(e){}}
-function pintarWeekdays(id){document.getElementById(id).innerHTML=weekdays.map(x=>`<div class="weekday">${x}</div>`).join('');}
-function renderClientCalendar(){
-const c=document.getElementById('clientCalendar');
-const title=document.getElementById('clientCalendarTitle');
-const base=new Date(new Date().toLocaleString("en-US",{timeZone:"America/Argentina/Buenos_Aires"}));
-const months=['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
-title.textContent=months[base.getMonth()]+' '+base.getFullYear();
-c.innerHTML='';
-for(let i=0;i<base.getDay();i++)c.innerHTML+='<div class="blank"></div>';
-for(let i=0;i<15;i++){
-const d=new Date(base);
-d.setDate(base.getDate()+i);
-const f=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-const closed=diasCerrados.includes(f);
-const futureHours=HORAS.filter(h=>!horaPaso(f,h));
-const freeCount=futureHours.filter(h=>!turnos.some(t=>t.estado==='confirmado'&&normalizarFH(t.fecha_hora)===`${f} ${h}`)).length;
-const b=document.createElement('button');
-b.type='button';
-b.className=`day ${closed?'blocked':'available'} ${fechaCliente===f?'selected':''}`;
-b.innerHTML=`<span class="day-name">${weekdays[d.getDay()]}</span><span class="day-num">${d.getDate()}</span><span class="day-state">${closed?'CERRADO':freeCount?'DISPONIBLE':'COMPLETO'}</span>`;
-b.disabled=closed||!freeCount;
-b.onclick=()=>{if(closed||!freeCount)return;seleccionarFechaCliente(f);};
-c.appendChild(b);}}
-function seleccionarFechaCliente(f){
-fechaCliente=f;
-horaCliente='';
-renderClientCalendar();
-renderHours();
-actualizarSteps();}
-function renderHours(){
-const box=document.getElementById('hoursBox');
-box.innerHTML='';
-if(!fechaCliente){box.innerHTML='<div class="status-box">Seleccioná un día.</div>';return;}
-const shell=document.createElement('div');
-shell.className='calendar-shell hours-shell';
-const head=document.createElement('div');
-head.className='calendar-head';
-head.innerHTML=`<div class="calendar-title">Horarios</div><div class="muted">${fechaCliente.split('-').reverse().join('/')}</div>`;
-shell.appendChild(head);
-if(diasCerrados.includes(fechaCliente)){
-const msg=document.createElement('div');
-msg.className='status-box';
-msg.innerHTML='<strong>Día cerrado.</strong>';
-shell.appendChild(msg);
-box.appendChild(shell);
-return;}
-const active=turnos.find(t=>t.clientes_id===usuario.id&&t.estado==='confirmado'&&!horaPaso(t.fecha_hora.slice(0,10),t.fecha_hora.slice(11,16)));
-const grid=document.createElement('div');
-grid.className='hours';
-HORAS.forEach(h=>{
-const past=horaPaso(fechaCliente,h);
-const occupied=turnos.some(t=>t.estado==='confirmado'&&normalizarFH(t.fecha_hora)===`${fechaCliente} ${h}`);
-const selected=horaCliente===h&&!occupied&&!past;
-const btn=document.createElement('button');
-btn.type='button';
-if(past){
-btn.className='hour past';
-btn.innerHTML=`${h}<small>PASADO</small>`;
-}else if(occupied){
-btn.className='hour busy';
-btn.innerHTML=`${h}<small>OCUPADO</small>`;
-}else{
-btn.className=`hour free${selected?' selected':''}${active?' locked':''}`;
-btn.innerHTML=`${h}<small>${selected?'SELECCIONADO':'LIBRE'}</small>`;
-btn.onclick=()=>{
-if(active)return alert('Ya tienes un turno activo.');
-horaCliente=horaCliente===h?'':h;
-renderHours();
-actualizarSteps();};}
-grid.appendChild(btn);});
-shell.appendChild(grid);
-const legend=document.createElement('div');
-legend.className='legend';
-legend.innerHTML='<b style="color:#2ecc71">● Libre (Verde)</b><b style="color:#aaa">● Ocupado/Pasado (Gris)</b>';
-shell.appendChild(legend);
-box.appendChild(shell);}
-function actualizarSteps(){
-document.getElementById('step1').classList.toggle('active',!!servicioSeleccionado());
-document.getElementById('step2').classList.toggle('active',!!fechaCliente);
-document.getElementById('step3').classList.toggle('active',!!horaCliente);}
-function servicioSeleccionado(){return document.querySelector('.service-card.selected')?.dataset.id||'';}
-function renderServicesClient(){
-const c=document.getElementById('contenedorServicios');
-c.innerHTML='';
-servicios.forEach(s=>{
-const b=document.createElement('button');
-b.className='service-card'+(Number(servicioSeleccionado())===s.id?' selected':'');
-b.dataset.id=s.id;
-b.type='button';
-b.innerHTML=`<div class="service-name">${escapeHtml(s.nombre)}</div><div class="service-price">$${Number(s.precio).toLocaleString('es-AR')}</div>`;
-b.onclick=()=>{document.querySelectorAll('.service-card').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');actualizarSteps();};
-c.appendChild(b);});}
-async function cargarCliente(silencio=false){
-pintarWeekdays('clientWeekdays');
-renderServicesClient();
-renderClientCalendar();
-renderHours();
-const active=turnos.find(t=>t.clientes_id===usuario.id&&t.estado==='confirmado'&&!horaPaso(normalizarFH(t.fecha_hora).slice(0,10),normalizarFH(t.fecha_hora).slice(11,16)));
-const box=document.getElementById('myTurnBox');
-if(active){
-const s=servicios.find(x=>x.id===active.servicios_id);
-box.classList.remove('hidden');
-box.innerHTML=`<div class="title">TU TURNO ACTIVO</div><div class="main">${normalizarFH(active.fecha_hora).replace(' ',' · ')}</div><div class="meta">${escapeHtml(s?.nombre||active.servicio||'Servicio')} · $${Number(s?.precio??active.precio??0).toLocaleString('es-AR')}</div>`;
-document.getElementById('reserveButton').disabled=true;
-}else{
-box.classList.add('hidden');
-document.getElementById('reserveButton').disabled=false;}}
-async function reservarTurno(){
-const sid=Number(servicioSeleccionado());
-const fecha=fechaCliente;
-const hora=horaCliente;
-if(!sid||!fecha||!hora)return alert('Seleccioná todo.');
-const active=turnos.find(t=>t.clientes_id===usuario.id&&t.estado==='confirmado'&&!horaPaso(t.fecha_hora.slice(0,10),t.fecha_hora.slice(11,16)));
-if(active)return alert('Ya tenés turno.');
-const b=document.getElementById('reserveButton');
-b.disabled=true;
-b.textContent='Enviando...';
-try{
-await api('/api/turnos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cliente_id:usuario.id,servicios_id:sid,fecha_hora:`${fecha} ${hora}`})});
-alert('¡Turno confirmado!');
-horaCliente='';
-await cargarDatos();
-await cargarCliente();
-}catch(e){alert(e.message);await cargarDatos();await cargarCliente();}
-finally{b.textContent='Solicitar turno';}}
-async function cargarAdmin(silencio=false){
-pintarWeekdays('adminCalendarWeekdays');
-renderAdminCalendar();
-renderStats();
-renderNotifications();
-renderServicesAdmin();
-await cargarClientesData();
-renderClientesAdmin();
-renderAgendaAdmin();}
-async function cargarClientesData(){try{clientes=await api('/api/clientes?t='+Date.now());}catch(e){}}
-function renderStats(){
-const active=turnos.filter(t=>t.estado==='confirmado'&&!horaPaso(t.fecha_hora.slice(0,10),t.fecha_hora.slice(11,16))).length;
-const todayCount=turnos.filter(t=>t.estado==='confirmado'&&normalizarFH(t.fecha_hora).slice(0,10)===hoy()).length;
-document.getElementById('adminStats').innerHTML=`<div class="stat"><strong>${clientes.length}</strong><span>Clientes</span></div><div class="stat"><strong>${active}</strong><span>Activos</span></div><div class="stat"><strong>${todayCount}</strong><span>Hoy</span></div><div class="stat"><strong>${diasCerrados.filter(x=>x>=hoy()&&x<=fechaMasDias(14)).length}</strong><span>Cerrados</span></div>`;}
-function renderNotifications(){
-const c=document.getElementById('notificationsBox');
-const now=hoy();
-const today=turnos.filter(t=>t.estado==='confirmado'&&normalizarFH(t.fecha_hora).slice(0,10)===now);
-c.innerHTML=`<div class="notice"><b>${today.length}</b> turno(s) hoy.</div>`;}
-function renderServicesAdmin(){
-const c=document.getElementById('servicesAdminList');
-c.innerHTML=servicios.map(s=>`<div class="admin-card"><div class="admin-row"><div><div class="admin-main">${escapeHtml(s.nombre)}</div><div class="admin-sub">$${Number(s.precio).toLocaleString('es-AR')}</div></div><button class="icon-btn" onclick="editarServicio(${s.id})">✎</button></div></div>`).join('');}
-function renderAdminCalendar(){
-const c=document.getElementById('adminCalendar');
-const title=document.getElementById('adminCalendarTitle');
-const base=new Date(new Date().toLocaleString("en-US",{timeZone:"America/Argentina/Buenos_Aires"}));
-const months=['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];
-title.textContent=months[base.getMonth()]+' '+base.getFullYear();
-c.innerHTML='';
-for(let i=0;i<base.getDay();i++)c.innerHTML+='<div class="blank"></div>';
-for(let i=0;i<15;i++){
-const d=new Date(base);
-d.setDate(base.getDate()+i);
-const f=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-const closed=diasCerrados.includes(f);
-const b=document.createElement('button');
-b.type='button';
-b.className=`admin-day ${closed?'blocked':'available'} ${fechaAdmin===f?'selected':''}`;
-b.innerHTML=`<span class="day-name">${weekdays[d.getDay()]}</span><span class="day-num">${d.getDate()}</span><span class="day-state">${closed?'CERRADO':'ABIERTO'}</span>`;
-b.onclick=()=>toggleDia(f,closed);
-c.appendChild(b);}}
-async function toggleDia(f,closed){
-try{
-if(closed)await api(`/api/admin/dias-bloqueados/${encodeURIComponent(f)}`,{method:'DELETE'});
-else await api('/api/admin/dias-bloqueados',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fecha:f})});
-fechaAdmin=f;
-await cargarDatos();
-if(esAdmin())await cargarAdmin();
-}catch(e){alert(e.message);}}
-function renderClientesAdmin(){
-const term=document.getElementById('clientSearch').value.trim().toLowerCase();
-const c=document.getElementById('clientsList');
-const rows=clientes.filter(x=>`${x.nombre} ${x.email}`.toLowerCase().includes(term));
-c.innerHTML=rows.map(x=>`<div class="admin-card"><div class="admin-row"><div><div class="admin-main">${escapeHtml(x.nombre)}</div><div class="admin-sub">${escapeHtml(x.email)}</div></div><button class="icon-btn" onclick="editarCliente(${x.id})">✎</button></div></div>`).join('');}
-function seleccionarDiaAdmin(f){
-fechaAdmin=f;
-renderAdminCalendar();
-renderAgendaAdmin();}
-function renderAgendaAdmin(){
-const f=fechaAdmin||hoy();
-fechaAdmin=f;
-document.getElementById('agendaDayLabel').textContent=`${f.split('-').reverse().join('/')}`;
-const c=document.getElementById('agendaList');
-c.innerHTML='';
-if(diasCerrados.includes(f)){c.innerHTML='<div class="notice">Día cerrado.</div>';return;}
-HORAS.forEach(h=>{
-const t=turnos.find(x=>x.estado==='confirmado'&&normalizarFH(x.fecha_hora)===`${f} ${h}`);
-const past=horaPaso(f,h);
-const card=document.createElement('div');
-card.className='admin-card';
-if(t){
-card.innerHTML=`<div class="admin-row"><div><div class="admin-main">${h} · ${escapeHtml(t.cliente||'Cliente')}</div><div class="admin-sub">${escapeHtml(t.servicio||'Servicio')}</div></div><div style="display:flex;gap:6px"><button class="icon-btn" onclick="editarTurno(${t.id})">✎</button><button class="icon-btn" onclick="cancelarTurno(${t.id})">X</button></div></div>`;
-}else{
-card.innerHTML=`<div class="admin-row"><div><div class="admin-main" style="color:${past?'#7d403d':'#54bd80'}">${h} · ${past?'VENCIDO':'LIBRE'}</div></div>${past?'':`<button class="icon-btn" onclick="abrirTurnoModal('${f}','${h}')">＋</button>`}</div>`;}
-c.appendChild(card);});}
-function abrirServicioModal(id=null){
-window.editandoServicio=id;
-document.getElementById('serviceModalTitle').textContent=id?'Editar servicio':'Nuevo servicio';
-if(id){
-const s=servicios.find(x=>x.id===id);
-document.getElementById('serviceName').value=s?.nombre||'';
-document.getElementById('servicePrice').value=s?.precio??'';
-}else{document.getElementById('serviceName').value='';document.getElementById('servicePrice').value='';}
-document.getElementById('serviceModal').classList.remove('hidden');}
-function editarServicio(id){abrirServicioModal(id);}
-async function guardarServicio(){
-const id=window.editandoServicio;
-const nombre=document.getElementById('serviceName').value.trim();
-const precio=Number(document.getElementById('servicePrice').value);
-if(!nombre||!Number.isFinite(precio)||precio<0)return alert('Completar todo.');
-try{
-await api(id?`/api/admin/servicios/${id}`:'/api/admin/servicios',{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre,precio})});
-cerrarModal('serviceModal');
-await cargarDatos();
-await cargarAdmin();
-}catch(e){alert(e.message);}}
-async function eliminarServicio(id){
-if(!confirm('¿Eliminar?'))return;
-try{await api(`/api/admin/servicios/${id}`,{method:'DELETE'});await cargarDatos();await cargarAdmin();}catch(e){alert(e.message);}}
-function editarCliente(id){
-const c=clientes.find(x=>x.id===id);
-if(!c)return;
-document.getElementById('editClientId').value=id;
-document.getElementById('editClientName').value=c.nombre;
-document.getElementById('editClientEmail').value=c.email;
-document.getElementById('clientModal').classList.remove('hidden');}
-async function guardarCliente(){
-const id=document.getElementById('editClientId').value;
-const nombre=capitalizarPrimera(document.getElementById('editClientName').value);
-const email=document.getElementById('editClientEmail').value.trim().toLowerCase();
-try{
-await api(`/api/admin/clientes/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre,email})});
-cerrarModal('clientModal');
-await cargarAdmin();
-}catch(e){alert(e.message);}}
-async function prepararTurnoSelectors(){
-document.getElementById('turnClient').innerHTML=clientes.filter(c=>c.rol==='cliente').map(c=>`<option value="${c.id}">${escapeHtml(c.nombre)}</option>`).join('');
-document.getElementById('turnService').innerHTML=servicios.map(s=>`<option value="${s.id}">${escapeHtml(s.nombre)}</option>`).join('');
-document.getElementById('turnHour').innerHTML=HORAS.map(h=>`<option value="${h}">${h}</option>`).join('');}
-async function abrirTurnoModal(f=fechaAdmin||hoy(),h='09:00'){
-await prepararTurnoSelectors();
-document.getElementById('turnDate').value=f;
-document.getElementById('turnHour').value=h;
-document.getElementById('turnModal').classList.remove('hidden');}
-async function guardarTurnoAdmin(){
-const payload={cliente_id:Number(document.getElementById('turnClient').value),servicios_id:Number(document.getElementById('turnService').value),fecha_hora:`${document.getElementById('turnDate').value} ${document.getElementById('turnHour').value}`};
-try{
-await api('/api/admin/turnos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-cerrarModal('turnModal');
-await cargarDatos();
-await cargarAdmin();
-}catch(e){alert(e.message);}}
-async function editarTurno(id){
-const t=turnos.find(x=>x.id===id);
-if(!t)return;
-document.getElementById('editTurnClient').innerHTML=clientes.filter(c=>c.rol==='cliente').map(c=>`<option value="${c.id}">${escapeHtml(c.nombre)}</option>`).join('');
-document.getElementById('editTurnService').innerHTML=servicios.map(s=>`<option value="${s.id}">${escapeHtml(s.nombre)}</option>`).join('');
-document.getElementById('editTurnHour').innerHTML=HORAS.map(h=>`<option value="${h}">${h}</option>`).join('');
-const fh=normalizarFH(t.fecha_hora);
-document.getElementById('editTurnId').value=t.id;
-document.getElementById('editTurnClient').value=t.clientes_id;
-document.getElementById('editTurnService').value=t.servicios_id;
-document.getElementById('editTurnDate').value=fh.slice(0,10);
-document.getElementById('editTurnHour').value=fh.slice(11,16);
-document.getElementById('editTurnModal').classList.remove('hidden');}
-async function guardarEdicionTurno(){
-const id=document.getElementById('editTurnId').value;
-const payload={cliente_id:Number(document.getElementById('editTurnClient').value),servicios_id:Number(document.getElementById('editTurnService').value),fecha_hora:`${document.getElementById('editTurnDate').value} ${document.getElementById('editTurnHour').value}`};
-try{
-await api(`/api/admin/turnos/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-cerrarModal('editTurnModal');
-await cargarDatos();
-await cargarAdmin();
-}catch(e){alert(e.message);}}
-async function cancelarTurnoDesdeModal(){
-const id=document.getElementById('editTurnId').value;
-if(!confirm('¿Cancelar este turno?'))return;
-try{
-await api(`/api/admin/turnos/${id}`,{method:'DELETE'});
-cerrarModal('editTurnModal');
-await cargarDatos();
-await cargarAdmin();
-}catch(e){alert(e.message);}}
-async function cancelarTurno(id){
-if(!confirm('¿Cancelar?'))return;
-try{await api(`/api/admin/turnos/${id}`,{method:'DELETE'});await cargarDatos();await cargarAdmin();}catch(e){alert(e.message);}}
-function cerrarModal(id){document.getElementById(id).classList.add('hidden');}
-async function cerrarSesion(){
-clearInterval(timer);
-try{await fetch('/api/logout-admin',{method:'POST'});}catch(e){}
-usuario=null;
-localStorage.removeItem('usuarioActivo');
-location.reload();}
-window.addEventListener('load',async()=>{
-try{
-const raw=localStorage.getItem('usuarioActivo');
-if(raw&&raw!=="null"){
-usuario=JSON.parse(raw);
-if(usuario&&usuario.nombre)await entrarDashboard();}
-}catch(e){localStorage.removeItem('usuarioActivo');}});
+function capitalizarPrimera(v){v=String(v||'').trim();return v?v.charAt(0).toUpperCase()+v.slice(1):'Cliente'}
+function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function hoy(){return new Intl.DateTimeFormat('en-CA',{timeZone:'America/Argentina/Buenos_Aires'}).format(new Date())}
+function fechaMasDias(n){const d=new Date(hoy()+'T00:00:00');d.setDate(d.getDate()+n);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`}
+function dentroVentana(f){return f>=hoy()&&f<=fechaMasDias(14)}
+function horaPaso(f,h){const ahora=new Intl.DateTimeFormat('sv-SE',{timeZone:'America/Argentina/Buenos_Aires',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date()).replace('T',' ');return `${f} ${h}`<=ahora}
+function normalizarFH(v){if(!v)return '';if(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(v))return v;const d=new Date(v);if(Number.isNaN(d.getTime()))return String(v).slice(0,16);return new Intl.DateTimeFormat('sv-SE',{timeZone:'America/Argentina/Buenos_Aires',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(d).replace('T',' ')}
+function esAdmin(){return usuario&&usuario.email&&usuario.email.toLowerCase()===ADMIN_EMAIL&&usuario.rol==='barbero'}
+async function api(url,options={}){const r=await fetch(url,{...options,cache:'no-store'});let d={};try{d=await r.json()}catch{}if(!r.ok)throw new Error(d.error||'No se pudo completar la operación.');return d}
+async function cargarDatos(){const [s,t,d]=await Promise.all([api('/api/servicios?t='+Date.now()),api('/api/turnos?t='+Date.now()),api('/api/dias-bloqueados?t='+Date.now())]);servicios=s;turnos=t.map(x=>({...x,fecha_hora:normalizarFH(x.fecha_hora)}));diasCerrados=d;}
+async function loginTradicional(){const email=document.getElementById('emailInput').value.trim().toLowerCase(),nombre=capitalizarPrimera(document.getElementById('nombreInput').value);if(!email||!nombre)return alert('Completá nombre y correo.');try{usuario=await api('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,nombre})});localStorage.setItem('usuarioActivo',JSON.stringify(usuario));await entrarDashboard()}catch(e){alert(e.message)}}
+async function entrarDashboard(){document.getElementById('loginView').classList.add('hidden');document.getElementById('dashboardView').classList.remove('hidden');const admin=esAdmin();document.getElementById('welcomeUser').textContent=admin?`Barbero: ${capitalizarPrimera(usuario.nombre)}`:`Cliente: ${capitalizarPrimera(usuario.nombre)}`;document.getElementById('roleText').textContent=admin?'Administrador con acceso total':'Solicitá un solo turno activo por cuenta';document.getElementById('clientView').classList.toggle('hidden',admin);document.getElementById('adminView').classList.toggle('hidden',!admin);await cargarDatos();if(admin)await cargarAdmin();else await cargarCliente();clearInterval(timer);timer=setInterval(actualizacionTiempoReal,5000)}
+async function actualizacionTiempoReal(){try{await cargarDatos();if(esAdmin())await cargarAdmin(true);else await cargarCliente(true)}catch(e){console.error(e)}}
+function pintarWeekdays(id){const c=document.getElementById(id);c.innerHTML=weekdays.map(x=>`<div class="weekday">${x}</div>`).join('')}
+function renderClientCalendar(){const c=document.getElementById('clientCalendar'),title=document.getElementById('clientCalendarTitle'),base=new Date(hoy()+'T00:00:00'),months=['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];title.textContent=months[base.getMonth()]+' '+base.getFullYear();c.innerHTML='';for(let i=0;i<base.getDay();i++)c.innerHTML+='<div class="blank"></div>';for(let i=0;i<15;i++){const d=new Date(base);d.setDate(base.getDate()+i);const f=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,closed=diasCerrados.includes(f),b=document.createElement('button');b.type='button';b.className=`day ${closed?'blocked':'available'} ${fechaCliente===f?'selected':''}`;b.innerHTML=`<span class="day-name">${weekdays[d.getDay()]}</span><span class="day-num">${d.getDate()}</span><span class="day-state">${closed?'CERRADO':'LIBRE'}</span>`;b.onclick=()=>{if(closed)return;seleccionarFechaCliente(f)};c.appendChild(b)}}
+function seleccionarFechaCliente(f){fechaCliente=f;horaCliente='';document.getElementById('clientDateStatus').innerHTML=`Día seleccionado: <strong>${f.split('-').reverse().join('/')}</strong>`;renderClientCalendar();renderHours();actualizarSteps()}
+function renderHours(){const box=document.getElementById('hoursBox');box.innerHTML='';if(!fechaCliente){box.innerHTML='<div class="status-box" style="grid-column:1/-1">Primero seleccioná un día.</div>';return}if(diasCerrados.includes(fechaCliente)){box.innerHTML='<div class="status-box" style="grid-column:1/-1">El barbero mantiene este día cerrado. No se pueden solicitar turnos.</div>';return}const active=turnos.find(t=>t.clientes_id===usuario.id&&t.estado==='confirmado');if(active){box.innerHTML='<div class="status-box" style="grid-column:1/-1">Ya tenés un turno activo. No podés solicitar otro hasta que ese turno quede cancelado.</div>';return}HORAS.forEach(h=>{const occupied=turnos.some(t=>normalizarFH(t.fecha_hora)===`${fechaCliente} ${h}`&&t.estado==='confirmado'),past=horaPaso(fechaCliente,h),b=document.createElement('button');b.type='button';b.className='hour '+(occupied?'busy':past?'past':'free')+(horaCliente===h?' selected':'');b.innerHTML=`${h}<small>${occupied?'OCUPADO':past?'VENCIDO':'LIBRE'}</small>`;if(!occupied&&!past)b.onclick=()=>{horaCliente=h;renderHours();actualizarSteps()};box.appendChild(b)})}
+function actualizarSteps(){document.getElementById('step1').classList.toggle('active',!!servicioSeleccionado());document.getElementById('step2').classList.toggle('active',!!fechaCliente);document.getElementById('step3').classList.toggle('active',!!horaCliente)}
+function servicioSeleccionado(){return document.querySelector('.service-card.selected')?.dataset.id||''}
+function renderServicesClient(){const c=document.getElementById('contenedorServicios');c.innerHTML='';servicios.forEach(s=>{const b=document.createElement('button');b.className='service-card'+(Number(servicioSeleccionado())===s.id?' selected':'');b.dataset.id=s.id;b.type='button';b.innerHTML=`<div class="service-name">${escapeHtml(s.nombre)}</div><div class="service-price">$${Number(s.precio).toLocaleString('es-AR')}</div>`;b.onclick=()=>{document.querySelectorAll('.service-card').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');actualizarSteps()};c.appendChild(b)})}
+async function cargarCliente(silencio=false){pintarWeekdays('clientWeekdays');renderServicesClient();renderClientCalendar();renderHours();const active=turnos.find(t=>t.clientes_id===usuario.id&&t.estado==='confirmado');const box=document.getElementById('myTurnBox');if(active){const s=servicios.find(x=>x.id===active.servicios_id);box.classList.remove('hidden');box.innerHTML=`<div class="title">TU TURNO ACTIVO</div><div class="main">${normalizarFH(active.fecha_hora).replace(' ',' · ')}</div><div class="meta">${escapeHtml(s?.nombre||active.servicio||'Servicio')} · $${Number(s?.precio??active.precio??0).toLocaleString('es-AR')}</div><div class="meta" style="margin-top:6px">No podés sacar otro turno mientras éste permanezca confirmado.</div>`;document.getElementById('reserveButton').disabled=true}else{box.classList.add('hidden');document.getElementById('reserveButton').disabled=false}}
+async function reservarTurno(){const sid=Number(servicioSeleccionado()),fecha=fechaCliente,hora=horaCliente;if(!sid||!fecha||!hora)return alert('Seleccioná servicio, día y horario libre.');const b=document.getElementById('reserveButton');b.disabled=true;b.textContent='Verificando...';try{await api('/api/turnos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({servicios_id:sid,fecha_hora:`${fecha} ${hora}`})});alert('Turno confirmado en Excelencia.');horaCliente='';await cargarDatos();await cargarCliente()}catch(e){alert(e.message);await cargarDatos();await cargarCliente()}finally{b.textContent='Solicitar turno'}}
+async function cargarAdmin(silencio=false){pintarWeekdays('adminCalendarWeekdays');renderAdminCalendar();renderStats();renderNotifications();renderServicesAdmin();await cargarClientesData();renderClientesAdmin();renderAgendaAdmin()}
+async function cargarClientesData(){try{clientes=await api('/api/clientes?t='+Date.now())}catch(e){if(esAdmin())console.error(e)}}
+function renderStats(){const active=turnos.filter(t=>t.estado==='confirmado').length,todayCount=turnos.filter(t=>t.estado==='confirmado'&&normalizarFH(t.fecha_hora).slice(0,10)===hoy()).length;document.getElementById('adminStats').innerHTML=`<div class="stat"><strong>${clientes.length}</strong><span>Clientes</span></div><div class="stat"><strong>${active}</strong><span>Turnos activos</span></div><div class="stat"><strong>${todayCount}</strong><span>Hoy</span></div><div class="stat"><strong>${diasCerrados.filter(x=>x>=hoy()&&x<=fechaMasDias(14)).length}</strong><span>Días cerrados</span></div>`}
+function renderNotifications(){const c=document.getElementById('notificationsBox'),now=hoy(),today=turnos.filter(t=>t.estado==='confirmado'&&normalizarFH(t.fecha_hora).slice(0,10)===now),recent=turnos.filter(t=>t.estado==='confirmado').sort((a,b)=>normalizarFH(b.fecha_hora).localeCompare(normalizarFH(a.fecha_hora))).slice(0,5);c.innerHTML=`<div class="notice"><b>${today.length}</b> turno(s) confirmado(s) para hoy.</div><div class="notice"><b>${turnos.filter(t=>t.estado==='confirmado').length}</b> turno(s) activo(s) en total.</div>`+(recent.length?recent.map(t=>`<div class="notice">${escapeHtml(t.cliente||'Cliente')} · ${escapeHtml(t.servicio||'Servicio')} · ${normalizarFH(t.fecha_hora)}</div>`).join(''):'<div class="notice">No hay reservas confirmadas.</div>')}
+function renderServicesAdmin(){const c=document.getElementById('servicesAdminList');c.innerHTML=servicios.map(s=>`<div class="admin-card"><div class="admin-row"><div><div class="admin-main">${escapeHtml(s.nombre)}</div><div class="admin-sub">Precio actual: <span style="color:#d1ae67;font-family:Allura,cursive;font-size:25px">$${Number(s.precio).toLocaleString('es-AR')}</span></div></div><button class="icon-btn" title="Editar servicio" onclick="editarServicio(${s.id})">✎</button></div><div class="admin-actions"><button class="btn btn-secondary" onclick="editarServicio(${s.id})">✎ Editar</button><button class="btn btn-danger" onclick="eliminarServicio(${s.id})">Eliminar</button></div></div>`).join('')||'<div class="notice">No hay servicios cargados.</div>'}
+function renderAdminCalendar(){const c=document.getElementById('adminCalendar'),title=document.getElementById('adminCalendarTitle'),base=new Date(hoy()+'T00:00:00'),months=['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];title.textContent=months[base.getMonth()]+' '+base.getFullYear();c.innerHTML='';for(let i=0;i<base.getDay();i++)c.innerHTML+='<div class="blank"></div>';for(let i=0;i<15;i++){const d=new Date(base);d.setDate(base.getDate()+i);const f=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,closed=diasCerrados.includes(f),b=document.createElement('button');b.type='button';b.className=`admin-day ${closed?'blocked':'available'} ${fechaAdmin===f?'selected':''}`;b.innerHTML=`<span class="day-name">${weekdays[d.getDay()]}</span><span class="day-num">${d.getDate()}</span><span class="day-state">${closed?'CERRADO':'ABIERTO'}</span>`;b.onclick=()=>toggleDia(f,closed);c.appendChild(b)}}
+async function toggleDia(f,closed){try{if(closed){await api(`/api/admin/dias-bloqueados/${encodeURIComponent(f)}`,{method:'DELETE'})}else{await api('/api/admin/dias-bloqueados',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({fecha:f})})}fechaAdmin=f;await cargarDatos();if(esAdmin())await cargarAdmin()}catch(e){alert(e.message)}}
+function renderClientesAdmin(){const term=document.getElementById('clientSearch').value.trim().toLowerCase(),c=document.getElementById('clientsList'),rows=clientes.filter(x=>`${x.nombre} ${x.email}`.toLowerCase().includes(term));c.innerHTML=rows.map(x=>`<div class="admin-card"><div class="admin-row"><div><div class="admin-main">${escapeHtml(x.nombre)}</div><div class="admin-sub">${escapeHtml(x.email)}</div></div><button class="icon-btn" title="Editar cliente" onclick="editarCliente(${x.id})">✎</button></div><div class="admin-actions"><span class="muted">Turnos: ${x.turnos_activos}/${x.turnos_total}</span><button class="btn btn-secondary" onclick="editarCliente(${x.id})">✎ Editar</button>${x.rol==='cliente'?`<button class="btn btn-danger" onclick="eliminarCliente(${x.id},'${encodeURIComponent(x.nombre)}')">Eliminar</button>`:''}</div></div>`).join('')||'<div class="notice">No se encontraron clientes.</div>'}
+function seleccionarDiaAdmin(f){fechaAdmin=f;renderAdminCalendar();renderAgendaAdmin()}
+function renderAgendaAdmin(){const f=fechaAdmin||hoy();fechaAdmin=f;document.getElementById('agendaDayLabel').textContent=`Fecha: ${f.split('-').reverse().join('/')}`;const c=document.getElementById('agendaList');c.innerHTML='';if(diasCerrados.includes(f)){c.innerHTML='<div class="notice"><b>Día cerrado.</b> No se pueden otorgar nuevos turnos mientras esté cerrado.</div>';return}HORAS.forEach(h=>{const t=turnos.find(x=>x.estado==='confirmado'&&normalizarFH(x.fecha_hora)===`${f} ${h}`),past=horaPaso(f,h),card=document.createElement('div');card.className='admin-card';if(t){card.innerHTML=`<div class="admin-row"><div><div class="admin-main">${h} · ${escapeHtml(t.cliente||'Cliente')}</div><div class="admin-sub">${escapeHtml(t.cliente_email||'')} · ${escapeHtml(t.servicio||'Servicio')}</div></div><button class="icon-btn" title="Editar turno" onclick="editarTurno(${t.id})">✎</button></div><div class="admin-actions"><button class="btn btn-secondary" onclick="editarTurno(${t.id})">✎ Editar</button><button class="btn btn-danger" onclick="cancelarTurno(${t.id})">Cancelar</button></div>`}else{card.innerHTML=`<div class="admin-row"><div><div class="admin-main" style="color:${past?'#7d403d':'#54bd80'}">${h} · ${past?'VENCIDO':'LIBRE'}</div><div class="admin-sub">${past?'Horario pasado':'Disponible para otorgar turno'}</div></div>${past?'':`<button class="icon-btn" title="Dar turno" onclick="abrirTurnoModal('${f}','${h}')">＋</button>`}</div>`}c.appendChild(card)})}
+function abrirServicioModal(id=null){window.editandoServicio=id;document.getElementById('serviceModalTitle').textContent=id?'Editar servicio':'Nuevo servicio';if(id){const s=servicios.find(x=>x.id===id);document.getElementById('serviceName').value=s?.nombre||'';document.getElementById('servicePrice').value=s?.precio??''}else{document.getElementById('serviceName').value='';document.getElementById('servicePrice').value=''}document.getElementById('serviceModal').classList.remove('hidden')}
+function editarServicio(id){abrirServicioModal(id)}
+async function guardarServicio(){const id=window.editandoServicio,nombre=document.getElementById('serviceName').value.trim(),precio=Number(document.getElementById('servicePrice').value);if(!nombre||!Number.isFinite(precio)||precio<0)return alert('Completá nombre y precio.');try{await api(id?`/api/admin/servicios/${id}`:'/api/admin/servicios',{method:id?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre,precio})});cerrarModal('serviceModal');await cargarDatos();await cargarAdmin()}catch(e){alert(e.message)}}
+async function eliminarServicio(id){if(!confirm('¿Eliminar este servicio?'))return;try{await api(`/api/admin/servicios/${id}`,{method:'DELETE'});await cargarDatos();await cargarAdmin()}catch(e){alert(e.message)}}
+function editarCliente(id){const c=clientes.find(x=>x.id===id);if(!c)return;document.getElementById('editClientId').value=id;document.getElementById('editClientName').value=c.nombre;document.getElementById('editClientEmail').value=c.email;document.getElementById('clientModal').classList.remove('hidden')}
+async function guardarCliente(){const id=document.getElementById('editClientId').value,nombre=capitalizarPrimera(document.getElementById('editClientName').value),email=document.getElementById('editClientEmail').value.trim().toLowerCase();try{await api(`/api/admin/clientes/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre,email})});cerrarModal('clientModal');await cargarAdmin()}catch(e){alert(e.message)}}
+async function eliminarCliente(id,nombre){if(!confirm(`¿Eliminar a ${decodeURIComponent(nombre)}? Solo se permitirá si no tiene historial de turnos.`))return;try{await api(`/api/admin/clientes/${id}`,{method:'DELETE'});await cargarAdmin()}catch(e){alert(e.message)}}
+async function prepararTurnoSelectors(){document.getElementById('turnClient').innerHTML=clientes.filter(c=>c.rol==='cliente').map(c=>`<option value="${c.id}">${escapeHtml(c.nombre)} · ${escapeHtml(c.email)}</option>`).join('');document.getElementById('turnService').innerHTML=servicios.map(s=>`<option value="${s.id}">${escapeHtml(s.nombre)} · $${Number(s.precio).toLocaleString('es-AR')}</option>`).join('');document.getElementById('turnHour').innerHTML=HORAS.map(h=>`<option value="${h}">${h}</option>`).join('');document.getElementById('editTurnClient').innerHTML=document.getElementById('turnClient').innerHTML;document.getElementById('editTurnService').innerHTML=document.getElementById('turnService').innerHTML;document.getElementById('editTurnHour').innerHTML=document.getElementById('turnHour').innerHTML}
+async function abrirTurnoModal(f=fechaAdmin||hoy(),h='09:00'){await prepararTurnoSelectors();document.getElementById('turnDate').value=f;document.getElementById('turnHour').value=h;document.getElementById('turnModal').classList.remove('hidden')}
+async function guardarTurnoAdmin(){const payload={cliente_id:Number(document.getElementById('turnClient').value),servicios_id:Number(document.getElementById('turnService').value),fecha_hora:`${document.getElementById('turnDate').value} ${document.getElementById('turnHour').value}`};try{await api('/api/admin/turnos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});cerrarModal('turnModal');await cargarDatos();await cargarAdmin()}catch(e){alert(e.message)}}
+async function editarTurno(id){const t=turnos.find(x=>x.id===id);if(!t)return;turnoEditando=id;await prepararTurnoSelectors();document.getElementById('editTurnId').value=id;document.getElementById('editTurnClient').value=t.clientes_id;document.getElementById('editTurnService').value=t.servicios_id;document.getElementById('editTurnDate').value=normalizarFH(t.fecha_hora).slice(0,10);document.getElementById('editTurnHour').value=normalizarFH(t.fecha_hora).slice(11,16);document.getElementById('editTurnModal').classList.remove('hidden')}
+async function guardarEdicionTurno(){const id=Number(document.getElementById('editTurnId').value),payload={cliente_id:Number(document.getElementById('editTurnClient').value),servicios_id:Number(document.getElementById('editTurnService').value),fecha_hora:`${document.getElementById('editTurnDate').value} ${document.getElementById('editTurnHour').value}`};try{await api(`/api/admin/turnos/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});cerrarModal('editTurnModal');await cargarDatos();await cargarAdmin()}catch(e){alert(e.message)}}
+function cancelarTurnoDesdeModal(){const id=Number(document.getElementById('editTurnId').value);cerrarModal('editTurnModal');cancelarTurno(id)}
+async function cancelarTurno(id){if(!confirm('¿Cancelar este turno? El cliente quedará habilitado para solicitar otro.'))return;try{await api(`/api/admin/turnos/${id}`,{method:'DELETE'});await cargarDatos();await cargarAdmin()}catch(e){alert(e.message)}}
+function cerrarModal(id){document.getElementById(id).classList.add('hidden')}
+async function cerrarSesion(){clearInterval(timer);try{await fetch('/api/logout-admin',{method:'POST'})}catch{}usuario=null;localStorage.removeItem('usuarioActivo');location.reload()}
+window.addEventListener('load',async()=>{try{const raw=localStorage.getItem('usuarioActivo');if(raw){usuario=JSON.parse(raw);await entrarDashboard()}}catch(e){localStorage.removeItem('usuarioActivo');console.error(e)}})
 </script>
 </body>
 </html>
