@@ -2,35 +2,26 @@ const express=require('express');
 const {Pool}=require('pg');
 const path=require('path');
 const crypto=require('crypto');
-
 const app=express();
 const port=process.env.PORT||3000;
-
 const ARGENTINA_TIME_ZONE='America/Argentina/Buenos_Aires';
 const HORAS_LABORALES=['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
 const ADMIN_EMAIL='gamarramartin1995@gmail.com';
 const GOOGLE_REDIRECT_URI='https://barberia-exelencia.onrender.com/auth/google/callback';
-
 const CLIENT_ID=(process.env.GOOGLE_CLIENT_ID||'').trim();
 const CLIENT_SECRET=(process.env.GOOGLE_CLIENT_SECRET||'').trim();
 const ADMIN_SESSION_SECRET=(process.env.ADMIN_SESSION_SECRET||CLIENT_SECRET||'excelencia-admin-secret').trim();
-
-const pool=new Pool({
- connectionString:process.env.DATABASE_URL,
- ssl:process.env.DATABASE_URL?{rejectUnauthorized:false}:false
-});
+const pool=new Pool({connectionString:process.env.DATABASE_URL,ssl:process.env.DATABASE_URL?{rejectUnauthorized:false}:false});
 
 app.disable('x-powered-by');
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
-
 app.use((req,res,next)=>{
  res.setHeader('Cache-Control','no-store,no-cache,must-revalidate,proxy-revalidate');
  res.setHeader('Pragma','no-cache');
  res.setHeader('Expires','0');
  next();
 });
-
 app.use(express.static(__dirname));
 
 function fechaHoraArgentina(){
@@ -43,11 +34,7 @@ function fechaHoraArgentina(){
   minute:'2-digit',
   hourCycle:'h23'
  }).formatToParts(new Date());
-
- const o=Object.fromEntries(
-  p.filter(x=>x.type!=='literal').map(x=>[x.type,x.value])
- );
-
+ const o=Object.fromEntries(p.filter(x=>x.type!=='literal').map(x=>[x.type,x.value]));
  return `${o.year}-${o.month}-${o.day} ${o.hour}:${o.minute}`;
 }
 
@@ -58,29 +45,20 @@ function fechaArgentina(){
 function fechaMasDias(n){
  const d=new Date(`${fechaArgentina()}T00:00:00`);
  d.setDate(d.getDate()+n);
-
  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
 function esFechaValida(f){
  if(typeof f!=='string'||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(f))return false;
-
  const[a,m,d]=f.split('-').map(Number);
  const x=new Date(Date.UTC(a,m-1,d));
-
- return x.getUTCFullYear()===a&&
- x.getUTCMonth()===m-1&&
- x.getUTCDate()===d;
+ return x.getUTCFullYear()===a&&x.getUTCMonth()===m-1&&x.getUTCDate()===d;
 }
 
 function esFechaHoraValida(v){
  if(typeof v!=='string')return false;
-
  const m=v.match(/^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2})$/);
-
- return !!m&&
- esFechaValida(m[1])&&
- HORAS_LABORALES.includes(m[2]);
+ return !!m&&esFechaValida(m[1])&&HORAS_LABORALES.includes(m[2]);
 }
 
 function turnoVencido(v){
@@ -89,9 +67,7 @@ function turnoVencido(v){
 
 function nombreCapitalizado(nombre){
  const v=String(nombre||'').trim().replace(/\s+/g,' ');
-
  if(!v)return 'Cliente';
-
  return v.charAt(0).toUpperCase()+v.slice(1).toLowerCase();
 }
 
@@ -99,7 +75,6 @@ function firmarAdmin(){
  const exp=Math.floor(Date.now()/1000)+43200;
  const raw=`${ADMIN_EMAIL}.${exp}`;
  const sig=crypto.createHmac('sha256',ADMIN_SESSION_SECRET).update(raw).digest('hex');
-
  return `${ADMIN_EMAIL}.${exp}.${sig}`;
 }
 
@@ -107,7 +82,6 @@ function firmarUsuario(id){
  const exp=Math.floor(Date.now()/1000)+2592000;
  const raw=`${id}.${exp}`;
  const sig=crypto.createHmac('sha256',ADMIN_SESSION_SECRET).update(raw).digest('hex');
-
  return `${id}.${exp}.${sig}`;
 }
 
@@ -118,37 +92,21 @@ function cookieCliente(id){
 function usuarioIdDeCookie(req){
  const c=req.headers.cookie||'';
  const m=c.match(/(?:^|;\s*)cliente_session=([^;]+)/);
-
  if(!m)return null;
-
  const p=decodeURIComponent(m[1]).split('.');
-
  if(p.length!==3)return null;
-
  const[id,exp,sig]=p;
-
- if(!/^\d+$/.test(id))return null;
-
- if(Number(exp)<Math.floor(Date.now()/1000))return null;
-
- const expected=crypto.createHmac('sha256',ADMIN_SESSION_SECRET).update(`${id}.${exp}`).digest('hex');
-
- if(sig.length!==expected.length)return null;
-
- if(!crypto.timingSafeEqual(Buffer.from(sig),Buffer.from(expected)))return null;
-
+ if(!/^\d+$/.test(id)||Number(exp)<Math.floor(Date.now()/1000))return null;
+ const e=crypto.createHmac('sha256',ADMIN_SESSION_SECRET).update(`${id}.${exp}`).digest('hex');
+ if(sig.length!==e.length||!crypto.timingSafeEqual(Buffer.from(sig),Buffer.from(e)))return null;
  return Number(id);
 }
 
 function requiereCliente(req,res,next){
  const id=usuarioIdDeCookie(req);
-
  if(!id){
-  return res.status(401).json({
-   error:'La sesión no es válida. Ingresá nuevamente.'
-  });
+  return res.status(401).json({error:'La sesión no es válida. Ingresá nuevamente.'});
  }
-
  req.clienteId=id;
  next();
 }
@@ -156,37 +114,33 @@ function requiereCliente(req,res,next){
 function verificarAdmin(req){
  const c=req.headers.cookie||'';
  const match=c.match(/(?:^|;\s*)admin_session=([^;]+)/);
-
  if(!match)return false;
-
  const parts=decodeURIComponent(match[1]).split('.');
-
  if(parts.length!==3)return false;
-
  const[email,exp,sig]=parts;
-
- if(email!==ADMIN_EMAIL)return false;
-
- if(Number(exp)<Math.floor(Date.now()/1000))return false;
-
+ if(email!==ADMIN_EMAIL||Number(exp)<Math.floor(Date.now()/1000))return false;
  const expected=crypto.createHmac('sha256',ADMIN_SESSION_SECRET).update(`${email}.${exp}`).digest('hex');
-
- if(sig.length!==expected.length)return false;
-
- return crypto.timingSafeEqual(
-  Buffer.from(sig),
-  Buffer.from(expected)
- );
+ return sig.length===expected.length&&crypto.timingSafeEqual(Buffer.from(sig),Buffer.from(expected));
 }
 
 function requiereAdmin(req,res,next){
  if(!verificarAdmin(req)){
-  return res.status(403).json({
-   error:'Acceso exclusivo del barbero administrador.'
-  });
+  return res.status(403).json({error:'Acceso exclusivo del barbero administrador.'});
  }
-
  next();
+}
+
+async function marcarTurnosVencidos(){
+ try{
+  await pool.query(`
+   UPDATE turnos
+   SET estado='vencido'
+   WHERE estado='confirmado'
+   AND fecha_hora<$1
+  `,[fechaHoraArgentina()]);
+ }catch(e){
+  console.error('Error actualizando turnos vencidos:',e);
+ }
 }
 
 async function iniciarBD(){
@@ -224,9 +178,7 @@ async function iniciarBD(){
   )
  `);
 
- const s=await pool.query(
-  'SELECT COUNT(*)::int total FROM servicios'
- );
+ const s=await pool.query('SELECT COUNT(*)::int total FROM servicios');
 
  if(s.rows[0].total===0){
   await pool.query(`
@@ -241,6 +193,14 @@ async function iniciarBD(){
 
  try{
   await pool.query(`
+   DROP INDEX IF EXISTS idx_turnos_uno_por_cliente_confirmado
+  `);
+ }catch(e){
+  console.warn('No se pudo quitar el indice anterior:',e.message);
+ }
+
+ try{
+  await pool.query(`
    CREATE UNIQUE INDEX IF NOT EXISTS
    idx_turnos_fecha_hora_confirmado
    ON turnos(fecha_hora)
@@ -248,17 +208,6 @@ async function iniciarBD(){
   `);
  }catch(e){
   console.warn('Indice de horario no creado:',e.message);
- }
-
- try{
-  await pool.query(`
-   CREATE UNIQUE INDEX IF NOT EXISTS
-   idx_turnos_uno_por_cliente_confirmado
-   ON turnos(clientes_id)
-   WHERE estado='confirmado'
-  `);
- }catch(e){
-  console.warn('Indice de un turno por cliente no creado:',e.message);
  }
 
  const barber=await pool.query(
@@ -272,6 +221,8 @@ async function iniciarBD(){
    [barber.rows[0].id]
   );
  }
+
+ await marcarTurnosVencidos();
 
  console.log('Base de datos de Excelencia lista.');
 }
@@ -290,24 +241,15 @@ app.get('/api/configuracion',(req,res)=>{
 });
 
 app.post('/api/login',async(req,res)=>{
- const email=typeof req.body.email==='string'
-  ?req.body.email.trim().toLowerCase()
-  :'';
-
- const nombre=typeof req.body.nombre==='string'
-  ?nombreCapitalizado(req.body.nombre)
-  :'';
+ const email=typeof req.body.email==='string'?req.body.email.trim().toLowerCase():'';
+ const nombre=typeof req.body.nombre==='string'?nombreCapitalizado(req.body.nombre):'';
 
  if(!email||!nombre){
-  return res.status(400).json({
-   error:'Email y nombre son obligatorios.'
-  });
+  return res.status(400).json({error:'Email y nombre son obligatorios.'});
  }
 
  if(email===ADMIN_EMAIL){
-  return res.status(403).json({
-   error:'El barbero administrador debe ingresar con Google.'
-  });
+  return res.status(403).json({error:'El barbero administrador debe ingresar con Google.'});
  }
 
  try{
@@ -320,9 +262,7 @@ app.post('/api/login',async(req,res)=>{
    const u=ex.rows[0];
 
    if(u.rol==='barbero'){
-    return res.status(403).json({
-     error:'Cuenta reservada para el administrador.'
-    });
+    return res.status(403).json({error:'Cuenta reservada para el administrador.'});
    }
 
    await pool.query(
@@ -330,15 +270,9 @@ app.post('/api/login',async(req,res)=>{
     [nombre,u.id]
    );
 
-   const actualizado={
-    ...u,
-    nombre
-   };
+   const actualizado={...u,nombre};
 
-   res.setHeader(
-    'Set-Cookie',
-    cookieCliente(u.id)
-   );
+   res.setHeader('Set-Cookie',cookieCliente(u.id));
 
    return res.json(actualizado);
   }
@@ -349,19 +283,12 @@ app.post('/api/login',async(req,res)=>{
    RETURNING *
   `,[nombre,email]);
 
-  res.setHeader(
-   'Set-Cookie',
-   cookieCliente(n.rows[0].id)
-  );
-
+  res.setHeader('Set-Cookie',cookieCliente(n.rows[0].id));
   res.status(201).json(n.rows[0]);
 
  }catch(e){
   console.error(e);
-
-  res.status(500).json({
-   error:'No se pudo iniciar sesión.'
-  });
+  res.status(500).json({error:'No se pudo iniciar sesión.'});
  }
 });
 
@@ -370,15 +297,12 @@ app.post('/api/logout-admin',(req,res)=>{
   'admin_session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0',
   'cliente_session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0'
  ]);
-
  res.json({ok:true});
 });
 
 app.get('/auth/google',(req,res)=>{
  if(!CLIENT_ID||!CLIENT_SECRET){
-  return res.status(500).send(
-   'Google OAuth no está configurado.'
-  );
+  return res.status(500).send('Google OAuth no está configurado.');
  }
 
  const p=new URLSearchParams({
@@ -390,37 +314,21 @@ app.get('/auth/google',(req,res)=>{
   prompt:'select_account'
  });
 
- res.redirect(
-  `https://accounts.google.com/o/oauth2/v2/auth?${p}`
- );
+ res.redirect(`https://accounts.google.com/o/oauth2/v2/auth?${p}`);
 });
 
 app.get('/auth/google/callback',async(req,res)=>{
- const code=typeof req.query.code==='string'
-  ?req.query.code
-  :'';
+ const code=typeof req.query.code==='string'?req.query.code:'';
 
- if(!code){
-  return res.status(400).send(
-   'Código de Google no recibido.'
-  );
- }
-
- if(!CLIENT_ID||!CLIENT_SECRET){
-  return res.status(500).send(
-   'Google OAuth no está configurado.'
-  );
- }
+ if(!code)return res.status(400).send('Código de Google no recibido.');
+ if(!CLIENT_ID||!CLIENT_SECRET)return res.status(500).send('Google OAuth no está configurado.');
 
  try{
   const tr=await fetch(
    'https://oauth2.googleapis.com/token',
    {
     method:'POST',
-    headers:{
-     'Content-Type':
-      'application/x-www-form-urlencoded'
-    },
+    headers:{'Content-Type':'application/x-www-form-urlencoded'},
     body:new URLSearchParams({
      code,
      client_id:CLIENT_ID,
@@ -431,37 +339,26 @@ app.get('/auth/google/callback',async(req,res)=>{
    }
   );
 
-  if(!tr.ok){
-   throw new Error(`Google token ${tr.status}`);
-  }
+  if(!tr.ok)throw new Error(`Google token ${tr.status}`);
 
   const td=await tr.json();
 
   const ur=await fetch(
    'https://www.googleapis.com/oauth2/v2/userinfo',
    {
-    headers:{
-     Authorization:
-      `Bearer ${td.access_token}`
-    }
+    headers:{Authorization:`Bearer ${td.access_token}`}
    }
   );
 
-  if(!ur.ok){
-   throw new Error(`Google userinfo ${ur.status}`);
-  }
+  if(!ur.ok)throw new Error(`Google userinfo ${ur.status}`);
 
   const gu=await ur.json();
 
   const email=(gu.email||'').trim().toLowerCase();
-  const nombre=nombreCapitalizado(
-   gu.name||'Cliente'
-  );
+  const nombre=nombreCapitalizado(gu.name||'Cliente');
 
   if(!email){
-   return res.status(400).send(
-    'Google no devolvió un email válido.'
-   );
+   return res.status(400).send('Google no devolvió un email válido.');
   }
 
   let q=await pool.query(
@@ -484,9 +381,7 @@ app.get('/auth/google/callback',async(req,res)=>{
 
     usuario=q.rows[0];
    }else if(usuario.rol==='barbero'){
-    return res.status(403).send(
-     'Cuenta de administrador no válida.'
-    );
+    return res.status(403).send('Cuenta de administrador no válida.');
    }
   }else{
    q=await pool.query(`
@@ -502,9 +397,9 @@ app.get('/auth/google/callback',async(req,res)=>{
    usuario=q.rows[0];
   }
 
-  const cookies=[
-   cookieCliente(usuario.id)
-  ];
+  await marcarTurnosVencidos();
+
+  const cookies=[cookieCliente(usuario.id)];
 
   if(email===ADMIN_EMAIL){
    cookies.push(
@@ -539,10 +434,7 @@ app.get('/auth/google/callback',async(req,res)=>{
 
  }catch(e){
   console.error(e);
-
-  res.status(500).send(
-   'No se pudo completar el acceso con Google.'
-  );
+  res.status(500).send('No se pudo completar el acceso con Google.');
  }
 });
 
@@ -555,25 +447,15 @@ app.get('/api/servicios',async(req,res)=>{
   res.json(r.rows);
  }catch(e){
   console.error(e);
-
-  res.status(500).json({
-   error:'No se pudieron obtener los servicios.'
-  });
+  res.status(500).json({error:'No se pudieron obtener los servicios.'});
  }
 });
 
 app.post('/api/admin/servicios',requiereAdmin,async(req,res)=>{
- const nombre=String(
-  req.body.nombre||''
- ).trim();
-
+ const nombre=String(req.body.nombre||'').trim();
  const precio=Number(req.body.precio);
 
- if(
-  !nombre||
-  !Number.isFinite(precio)||
-  precio<0
- ){
+ if(!nombre||!Number.isFinite(precio)||precio<0){
   return res.status(400).json({
    error:'Nombre o precio inválido.'
   });
@@ -587,9 +469,9 @@ app.post('/api/admin/servicios',requiereAdmin,async(req,res)=>{
   `,[nombre,precio]);
 
   res.status(201).json(r.rows[0]);
+
  }catch(e){
   console.error(e);
-
   res.status(500).json({
    error:'No se pudo crear el servicio.'
   });
@@ -630,7 +512,6 @@ app.put('/api/admin/servicios/:id',requiereAdmin,async(req,res)=>{
 
  }catch(e){
   console.error(e);
-
   res.status(500).json({
    error:'No se pudo editar el servicio.'
   });
@@ -673,7 +554,6 @@ app.delete('/api/admin/servicios/:id',requiereAdmin,async(req,res)=>{
 
  }catch(e){
   console.error(e);
-
   res.status(500).json({
    error:'No se pudo eliminar el servicio.'
   });
@@ -682,6 +562,8 @@ app.delete('/api/admin/servicios/:id',requiereAdmin,async(req,res)=>{
 
 app.get('/api/turnos',async(req,res)=>{
  try{
+  await marcarTurnosVencidos();
+
   const r=await pool.query(`
    SELECT
    t.id,
@@ -694,10 +576,8 @@ app.get('/api/turnos',async(req,res)=>{
    s.nombre servicio,
    s.precio precio
    FROM turnos t
-   LEFT JOIN clientes c
-   ON t.clientes_id=c.id
-   LEFT JOIN servicios s
-   ON t.servicios_id=s.id
+   LEFT JOIN clientes c ON t.clientes_id=c.id
+   LEFT JOIN servicios s ON t.servicios_id=s.id
    ORDER BY t.fecha_hora
   `);
 
@@ -705,18 +585,15 @@ app.get('/api/turnos',async(req,res)=>{
 
  }catch(e){
   console.error(e);
-
   res.status(500).json({
    error:'No se pudieron obtener los turnos.'
   });
  }
 });
 
-async function crearTurno(
- clienteId,
- servicioId,
- fechaHora
-){
+async function crearTurno(clienteId,servicioId,fechaHora){
+ await marcarTurnosVencidos();
+
  if(
   !Number.isInteger(clienteId)||
   !Number.isInteger(servicioId)||
@@ -763,7 +640,6 @@ async function crearTurno(
 
   if(b.rows.length){
    await client.query('ROLLBACK');
-
    return {
     status:409,
     error:'Ese día está cerrado.'
@@ -777,7 +653,6 @@ async function crearTurno(
 
   if(!c.rows.length){
    await client.query('ROLLBACK');
-
    return {
     status:400,
     error:'El cliente no existe.'
@@ -791,7 +666,6 @@ async function crearTurno(
 
   if(!s.rows.length){
    await client.query('ROLLBACK');
-
    return {
     status:400,
     error:'El servicio no existe.'
@@ -799,7 +673,7 @@ async function crearTurno(
   }
 
   const own=await client.query(`
-   SELECT id,fecha_hora
+   SELECT id
    FROM turnos
    WHERE clientes_id=$1
    AND estado='confirmado'
@@ -809,7 +683,6 @@ async function crearTurno(
 
   if(own.rows.length){
    await client.query('ROLLBACK');
-
    return {
     status:409,
     error:'Ya tienes un turno activo. No puedes reservar otro.'
@@ -826,7 +699,6 @@ async function crearTurno(
 
   if(busy.rows.length){
    await client.query('ROLLBACK');
-
    return {
     status:409,
     error:'Ese horario ya está ocupado.'
@@ -857,16 +729,6 @@ async function crearTurno(
   }catch{}
 
   if(e.code==='23505'){
-   if(
-    e.constraint===
-    'idx_turnos_uno_por_cliente_confirmado'
-   ){
-    return {
-     status:409,
-     error:'Ya tienes un turno activo. No puedes reservar otro.'
-    };
-   }
-
    return {
     status:409,
     error:'Ese horario ya está ocupado.'
@@ -895,9 +757,7 @@ app.post('/api/turnos',requiereCliente,async(req,res)=>{
  );
 
  res.status(r.status).json(
-  r.status===201
-   ?r.row
-   :{error:r.error}
+  r.status===201?r.row:{error:r.error}
  );
 });
 
@@ -911,9 +771,7 @@ app.post('/api/admin/turnos',requiereAdmin,async(req,res)=>{
  );
 
  res.status(r.status).json(
-  r.status===201
-   ?r.row
-   :{error:r.error}
+  r.status===201?r.row:{error:r.error}
  );
 });
 
@@ -935,6 +793,8 @@ app.put('/api/admin/turnos/:id',requiereAdmin,async(req,res)=>{
    error:'Datos inválidos.'
   });
  }
+
+ await marcarTurnosVencidos();
 
  const client=await pool.connect();
 
@@ -959,7 +819,6 @@ app.put('/api/admin/turnos/:id',requiereAdmin,async(req,res)=>{
    turnoVencido(fechaHora)
   ){
    await client.query('ROLLBACK');
-
    return res.status(409).json({
     error:'Ese horario ya no está disponible.'
    });
@@ -972,7 +831,6 @@ app.put('/api/admin/turnos/:id',requiereAdmin,async(req,res)=>{
 
   if(b.rows.length){
    await client.query('ROLLBACK');
-
    return res.status(409).json({
     error:'Ese día está cerrado.'
    });
@@ -985,7 +843,6 @@ app.put('/api/admin/turnos/:id',requiereAdmin,async(req,res)=>{
 
   if(!existe.rows.length){
    await client.query('ROLLBACK');
-
    return res.status(404).json({
     error:'Turno no encontrado.'
    });
@@ -1002,7 +859,6 @@ app.put('/api/admin/turnos/:id',requiereAdmin,async(req,res)=>{
 
   if(busy.rows.length){
    await client.query('ROLLBACK');
-
    return res.status(409).json({
     error:'Ese horario ya está ocupado.'
    });
@@ -1020,7 +876,6 @@ app.put('/api/admin/turnos/:id',requiereAdmin,async(req,res)=>{
 
   if(own.rows.length){
    await client.query('ROLLBACK');
-
    return res.status(409).json({
     error:'Ese cliente ya tiene un turno activo.'
    });
@@ -1038,7 +893,6 @@ app.put('/api/admin/turnos/:id',requiereAdmin,async(req,res)=>{
 
   if(!c.rows.length||!s.rows.length){
    await client.query('ROLLBACK');
-
    return res.status(400).json({
     error:'Cliente o servicio inexistente.'
    });
@@ -1066,7 +920,7 @@ app.put('/api/admin/turnos/:id',requiereAdmin,async(req,res)=>{
 
   if(e.code==='23505'){
    return res.status(409).json({
-    error:'No fue posible guardar: horario o cliente ocupado.'
+    error:'No fue posible guardar: horario ocupado.'
    });
   }
 
@@ -1109,7 +963,6 @@ app.delete('/api/admin/turnos/:id',requiereAdmin,async(req,res)=>{
 
  }catch(e){
   console.error(e);
-
   res.status(500).json({
    error:'No se pudo cancelar el turno.'
   });
@@ -1118,6 +971,8 @@ app.delete('/api/admin/turnos/:id',requiereAdmin,async(req,res)=>{
 
 app.get('/api/clientes',requiereAdmin,async(req,res)=>{
  try{
+  await marcarTurnosVencidos();
+
   const r=await pool.query(`
    SELECT
    c.id,
@@ -1142,7 +997,6 @@ app.get('/api/clientes',requiereAdmin,async(req,res)=>{
 
  }catch(e){
   console.error(e);
-
   res.status(500).json({
    error:'No se pudieron obtener los clientes.'
   });
@@ -1206,7 +1060,6 @@ app.put('/api/admin/clientes/:id',requiereAdmin,async(req,res)=>{
 
  }catch(e){
   console.error(e);
-
   res.status(500).json({
    error:'No se pudo editar el cliente.'
   });
@@ -1260,7 +1113,6 @@ app.delete('/api/admin/clientes/:id',requiereAdmin,async(req,res)=>{
 
  }catch(e){
   console.error(e);
-
   res.status(500).json({
    error:'No se pudo eliminar el cliente.'
   });
@@ -1277,7 +1129,6 @@ app.get('/api/dias-bloqueados',async(req,res)=>{
 
  }catch(e){
   console.error(e);
-
   res.status(500).json({
    error:'No se pudieron obtener los días cerrados.'
   });
@@ -1312,7 +1163,6 @@ app.post('/api/admin/dias-bloqueados',requiereAdmin,async(req,res)=>{
 
  }catch(e){
   console.error(e);
-
   res.status(500).json({
    error:'No se pudo cerrar el día.'
   });
@@ -1347,7 +1197,6 @@ app.delete('/api/admin/dias-bloqueados/:fecha',requiereAdmin,async(req,res)=>{
 
  }catch(e){
   console.error(e);
-
   res.status(500).json({
    error:'No se pudo abrir el día.'
   });
@@ -1356,6 +1205,8 @@ app.delete('/api/admin/dias-bloqueados/:fecha',requiereAdmin,async(req,res)=>{
 
 app.get('/api/admin/estado',requiereAdmin,async(req,res)=>{
  try{
+  await marcarTurnosVencidos();
+
   const[c,t,s,d]=await Promise.all([
    pool.query(`
     SELECT COUNT(*)::int total
@@ -1389,7 +1240,6 @@ app.get('/api/admin/estado',requiereAdmin,async(req,res)=>{
 
  }catch(e){
   console.error(e);
-
   res.status(500).json({
    error:'No se pudo obtener el estado.'
   });
@@ -1399,15 +1249,10 @@ app.get('/api/admin/estado',requiereAdmin,async(req,res)=>{
 iniciarBD()
 .then(()=>{
  app.listen(port,()=>{
-  console.log(
-   `Servidor de Excelencia escuchando en ${port}`
-  );
+  console.log(`Servidor de Excelencia escuchando en ${port}`);
  });
 })
 .catch(e=>{
- console.error(
-  'Error inicializando la base:',
-  e
- );
+ console.error('Error inicializando la base:',e);
  process.exit(1);
 });
