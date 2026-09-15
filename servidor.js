@@ -1,17 +1,18 @@
 const express = require('express');
 const { Pool } = require('pg');
 const path = require('path');
+const cors = require('cors');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Configuración de PostgreSQL
+// Configuración Base de Datos PostgreSQL
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
     ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false
 });
 
-// Inicialización de la Base de Datos
+// Inicialización de Tablas
 async function inicializarBD() {
     try {
         await pool.query(`
@@ -29,6 +30,7 @@ async function inicializarBD() {
             );
         `);
 
+        // Insertar servicios por defecto si está vacío
         const resServicios = await pool.query('SELECT COUNT(*) FROM servicios');
         if (parseInt(resServicios.rows[0].count) === 0) {
             await pool.query(`
@@ -36,29 +38,36 @@ async function inicializarBD() {
                 ('Global', 50000), ('Mechas', 45000), ('Corte', 14000), ('Corte y Barba', 15000);
             `);
         }
-        console.log("Base de datos de Excelencia lista.");
-    } catch (err) { console.error("Error BD:", err); }
+        console.log("✅ Base de datos de Excelencia en línea.");
+    } catch (err) { console.error("❌ Error iniciando BD:", err); }
 }
 inicializarBD();
 
+// Middlewares (AUTORIZACIONES COMPLEMENTARIAS - CORS)
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    res.header('Access-Control-Allow-Origin', '*'); // Permite peticiones de cualquier origen
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+    }
     next();
 });
-app.use(express.static(path.join(__dirname)));
 
+// Servir la interfaz gráfica
+app.use(express.static(path.join(__dirname)));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-// Obtener hora actual en Argentina (Formato YYYY-MM-DD HH:mm)
+// Función: Hora Actual Exacta en Argentina
 function getHoraArgentina() {
     return new Date().toLocaleString("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" }).replace('T', ' ').substring(0, 16);
 }
 
-// 1. LOGIN
+// ---------------- ENDPOINTS CLIENTES ---------------- //
+
 app.post('/api/login', async (req, res) => {
     const { email, nombre } = req.body;
     try {
@@ -67,37 +76,40 @@ app.post('/api/login', async (req, res) => {
             user = await pool.query('INSERT INTO clientes (nombre, email, rol) VALUES ($1, $2, $3) RETURNING *', [nombre, email, 'cliente']);
         }
         res.json(user.rows[0]);
-    } catch (error) { res.status(500).json({ error: 'Error en login' }); }
+    } catch (error) { res.status(500).json({ error: 'Error en acceso' }); }
 });
 
-// 2. TURNOS (Cliente)
 app.post('/api/turnos', async (req, res) => {
-    const { servicios_id, fecha_hora, cliente_id } = req.body;
+    const { cliente_id, servicios_id, fecha_hora } = req.body;
     try {
         const ahora = getHoraArgentina();
 
-        // REGLA 1: Solo un turno activo por persona
-        const activo = await pool.query(`SELECT * FROM turnos WHERE clientes_id = $1 AND fecha_hora > $2 AND estado = 'confirmado'`, [cliente_id, ahora]);
-        if (activo.rows.length > 0) {
-            return res.status(400).json({ error: 'Ya tenés un turno activo. Debés esperar a que finalice para solicitar otro.' });
+        if (fecha_hora <= ahora) {
+            return res.status(400).json({ error: 'No puedes reservar en el pasado.' });
         }
 
-        // REGLA 2: Evitar superposición de turnos
+        // REGLA 1: Evitar doble reserva en el mismo horario (Rojo)
         const ocupado = await pool.query(`SELECT * FROM turnos WHERE fecha_hora = $1 AND estado = 'confirmado'`, [fecha_hora]);
         if (ocupado.rows.length > 0) {
-            return res.status(400).json({ error: 'El horario ya fue reservado por otra persona.' });
+            return res.status(400).json({ error: 'Este horario acaba de ser tomado por alguien más.' });
+        }
+
+        // REGLA 2: Solo un turno activo por persona (Se libera cuando pase la hora)
+        const activo = await pool.query(`SELECT * FROM turnos WHERE clientes_id = $1 AND fecha_hora >= $2 AND estado = 'confirmado'`, [cliente_id, ahora]);
+        if (activo.rows.length > 0) {
+            return res.status(400).json({ error: 'Ya tienes un turno activo. Podrás pedir otro cuando el actual termine.' });
         }
 
         const nuevoTurno = await pool.query('INSERT INTO turnos (clientes_id, servicios_id, fecha_hora, estado) VALUES ($1, $2, $3, $4) RETURNING *', [cliente_id, servicios_id, fecha_hora, 'confirmado']);
         res.json(nuevoTurno.rows[0]);
-    } catch (error) { res.status(500).json({ error: 'Error al reservar' }); }
+    } catch (error) { res.status(500).json({ error: 'Error interno de servidor al reservar' }); }
 });
 
-// 3. DATOS GENERALES
 app.get('/api/servicios', async (req, res) => {
     const r = await pool.query('SELECT * FROM servicios ORDER BY id ASC');
     res.json(r.rows);
 });
+
 app.get('/api/turnos', async (req, res) => {
     const r = await pool.query(`
         SELECT t.id, t.fecha_hora, t.estado, t.clientes_id, t.servicios_id, c.nombre as cliente, c.email as cliente_email, s.nombre as servicio, s.precio 
@@ -105,16 +117,26 @@ app.get('/api/turnos', async (req, res) => {
     `);
     res.json(r.rows);
 });
+
 app.get('/api/dias-bloqueados', async (req, res) => {
     const r = await pool.query('SELECT fecha FROM dias_bloqueados');
     res.json(r.rows.map(x => x.fecha));
 });
+
+// ---------------- ENDPOINTS ADMIN (BARBERO) ---------------- //
+
 app.get('/api/clientes', async (req, res) => {
-    const r = await pool.query('SELECT * FROM clientes ORDER BY nombre ASC');
+    // Calcula cuántos turnos activos tiene cada cliente para mostrarlo en el panel
+    const ahora = getHoraArgentina();
+    const r = await pool.query(`
+        SELECT c.*, 
+        (SELECT COUNT(*) FROM turnos t WHERE t.clientes_id = c.id) as turnos_total,
+        (SELECT COUNT(*) FROM turnos t WHERE t.clientes_id = c.id AND t.fecha_hora >= $1 AND t.estado = 'confirmado') as turnos_activos
+        FROM clientes c ORDER BY c.nombre ASC
+    `, [ahora]);
     res.json(r.rows);
 });
 
-// 4. RUTAS DE ADMINISTRADOR (Barbero)
 app.post('/api/admin/servicios', async (req, res) => {
     await pool.query('INSERT INTO servicios (nombre, precio) VALUES ($1, $2)', [req.body.nombre, req.body.precio]);
     res.json({ ok: true });
@@ -147,5 +169,14 @@ app.delete('/api/admin/turnos/:id', async (req, res) => {
     await pool.query('DELETE FROM turnos WHERE id=$1', [req.params.id]);
     res.json({ ok: true });
 });
+app.put('/api/admin/clientes/:id', async (req, res) => {
+    await pool.query('UPDATE clientes SET nombre=$1, email=$2 WHERE id=$3', [req.body.nombre, req.body.email, req.params.id]);
+    res.json({ ok: true });
+});
+app.delete('/api/admin/clientes/:id', async (req, res) => {
+    await pool.query('DELETE FROM clientes WHERE id=$1', [req.params.id]);
+    res.json({ ok: true });
+});
+app.post('/api/logout-admin', (req, res) => res.json({ ok: true }));
 
-app.listen(port, () => console.log(`Servidor Excelencia en puerto ${port}`));
+app.listen(port, () => console.log(`🚀 Servidor Excelencia operando en puerto ${port}`));
