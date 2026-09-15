@@ -1,7 +1,7 @@
 const express = require('express');
 const { Pool } = require('pg');
 const path = require('path');
-const cors = require('cors');
+const cors = require('cors'); // Autorizaciones complementarias
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -30,7 +30,7 @@ async function inicializarBD() {
             );
         `);
 
-        // Insertar servicios por defecto si está vacío
+        // Insertar servicios por defecto si la tabla está vacía
         const resServicios = await pool.query('SELECT COUNT(*) FROM servicios');
         if (parseInt(resServicios.rows[0].count) === 0) {
             await pool.query(`
@@ -43,12 +43,14 @@ async function inicializarBD() {
 }
 inicializarBD();
 
-// Middlewares (AUTORIZACIONES COMPLEMENTARIAS - CORS)
-app.use(cors());
+// ==========================================
+// MIDDLEWARES (AUTORIZACIONES Y SEGURIDAD)
+// ==========================================
+app.use(cors()); // Permite peticiones sin error de CORS
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*'); // Permite peticiones de cualquier origen
+    res.header('Access-Control-Allow-Origin', '*'); 
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
     if (req.method === 'OPTIONS') {
@@ -61,9 +63,15 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname)));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
-// Función: Hora Actual Exacta en Argentina
+// Función: Hora Actual Exacta en Argentina (Formato YYYY-MM-DD HH:mm)
 function getHoraArgentina() {
-    return new Date().toLocaleString("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" }).replace('T', ' ').substring(0, 16);
+    const arDate = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" }));
+    const y = arDate.getFullYear();
+    const m = String(arDate.getMonth() + 1).padStart(2, '0');
+    const d = String(arDate.getDate()).padStart(2, '0');
+    const h = String(arDate.getHours()).padStart(2, '0');
+    const min = String(arDate.getMinutes()).padStart(2, '0');
+    return `${y}-${m}-${d} ${h}:${min}`;
 }
 
 // ---------------- ENDPOINTS CLIENTES ---------------- //
@@ -88,13 +96,13 @@ app.post('/api/turnos', async (req, res) => {
             return res.status(400).json({ error: 'No puedes reservar en el pasado.' });
         }
 
-        // REGLA 1: Evitar doble reserva en el mismo horario (Rojo)
+        // REGLA 1: Evitar doble reserva en el mismo horario (Aparecerá Ocupado en Rojo)
         const ocupado = await pool.query(`SELECT * FROM turnos WHERE fecha_hora = $1 AND estado = 'confirmado'`, [fecha_hora]);
         if (ocupado.rows.length > 0) {
             return res.status(400).json({ error: 'Este horario acaba de ser tomado por alguien más.' });
         }
 
-        // REGLA 2: Solo un turno activo por persona (Se libera cuando pase la hora)
+        // REGLA 2: Solo un turno activo por persona
         const activo = await pool.query(`SELECT * FROM turnos WHERE clientes_id = $1 AND fecha_hora >= $2 AND estado = 'confirmado'`, [cliente_id, ahora]);
         if (activo.rows.length > 0) {
             return res.status(400).json({ error: 'Ya tienes un turno activo. Podrás pedir otro cuando el actual termine.' });
@@ -126,7 +134,6 @@ app.get('/api/dias-bloqueados', async (req, res) => {
 // ---------------- ENDPOINTS ADMIN (BARBERO) ---------------- //
 
 app.get('/api/clientes', async (req, res) => {
-    // Calcula cuántos turnos activos tiene cada cliente para mostrarlo en el panel
     const ahora = getHoraArgentina();
     const r = await pool.query(`
         SELECT c.*, 

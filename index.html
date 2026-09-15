@@ -80,12 +80,13 @@ body{background:radial-gradient(circle at top,#1b1b1b 0,#070707 48%,#030303 100%
 /* VERDE (Libre) */
 .free{border-color:#2ecc71;color:#2ecc71;background:rgba(46,204,113,0.07);cursor:pointer}
 .free:hover{background:#2ecc71;color:#050505;box-shadow:0 0 15px rgba(46,204,113,0.4)}
-.free.locked{cursor:not-allowed;opacity:.4;border-color:#555;color:#888;background:#1a1a1a;}
+/* Libre pero bloqueado porque ya tengo un turno (sigue viendose verde para indicar q esta libre en el local) */
+.free.locked{cursor:not-allowed;opacity:0.6;} 
 
 /* SELECCIONADO (Amarillo/Dorado) */
 .free.selected{background:#d1ae67;border-color:#bfa265;color:#050505;box-shadow:0 0 16px rgba(209,174,103,.5)}
 
-/* ROJO (Ocupado) */
+/* ROJO (Ocupado por cualquier persona) */
 .busy,.past,.closed{border-color:#e74c3c;color:#e74c3c;background:rgba(231,76,60,0.1);cursor:not-allowed;text-decoration:line-through;opacity:.9}
 /* -------------------------------------------------------- */
 
@@ -181,14 +182,21 @@ function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;',
 
 // HORA ESTRICTA EN ARGENTINA
 function getFechaHoraAr(){
-    const arDate = new Date().toLocaleString("sv-SE", { timeZone: "America/Argentina/Buenos_Aires" });
-    return arDate.replace('T', ' ').substring(0, 16);
+    const arDate = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" }));
+    const y = arDate.getFullYear();
+    const m = String(arDate.getMonth() + 1).padStart(2, '0');
+    const d = String(arDate.getDate()).padStart(2, '0');
+    const h = String(arDate.getHours()).padStart(2, '0');
+    const min = String(arDate.getMinutes()).padStart(2, '0');
+    return `${y}-${m}-${d} ${h}:${min}`;
 }
 function hoy(){ return getFechaHoraAr().substring(0, 10); } 
 function fechaMasDias(n){
     const base = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" }));
     base.setDate(base.getDate() + n);
-    return `${base.getFullYear()}-${String(base.getMonth()+1).padStart(2,'0')}-${String(base.getDate()).padStart(2,'0')}`;
+    const m = String(base.getMonth() + 1).padStart(2, '0');
+    const d = String(base.getDate()).padStart(2, '0');
+    return `${base.getFullYear()}-${m}-${d}`;
 }
 function horaPaso(f, h){
     const ahoraStr = getFechaHoraAr();
@@ -212,8 +220,47 @@ function renderClientCalendar(){const c=document.getElementById('clientCalendar'
 function seleccionarFechaCliente(f){fechaCliente=f;horaCliente='';document.getElementById('clientDateStatus').innerHTML=`Día seleccionado: <strong>${f.split('-').reverse().join('/')}</strong>`;renderClientCalendar();renderHours();actualizarSteps()}
 
 function renderHours(){const box=document.getElementById('hoursBox');box.innerHTML='';if(!fechaCliente){box.innerHTML='<div class="status-box">Primero seleccioná un día.</div>';return}const shell=document.createElement('div');shell.className='calendar-shell hours-shell';const head=document.createElement('div');head.className='calendar-head';head.innerHTML=`<div class="calendar-title">Horarios</div><div class="muted">${fechaCliente.split('-').reverse().join('/')}</div>`;shell.appendChild(head);if(diasCerrados.includes(fechaCliente)){const msg=document.createElement('div');msg.className='status-box';msg.innerHTML='<strong>Día cerrado.</strong> No se pueden solicitar turnos.';shell.appendChild(msg);box.appendChild(shell);return}
-const active=turnos.find(t=>t.clientes_id===usuario.id&&t.estado==='confirmado'&&!horaPaso(t.fecha_hora.slice(0,10),t.fecha_hora.slice(11,16)));const grid=document.createElement('div');grid.className='hours';let visibles=0,libres=0;
-HORAS.forEach(h=>{if(horaPaso(fechaCliente,h))return;visibles++;const occupied=turnos.some(t=>t.estado==='confirmado'&&normalizarFH(t.fecha_hora)===`${fechaCliente} ${h}`),selected=horaCliente===h&&!occupied,btn=document.createElement('button');btn.type='button';btn.className='hour '+(occupied?'busy':'free')+(selected?' selected':'');if(active&&!occupied)btn.classList.add('locked');btn.innerHTML=`${h}<small>${occupied?'OCUPADO':selected?'SELECCIONADO':active?'NO DISPONIBLE':'LIBRE'}</small>`;if(!occupied){libres++;if(!active){btn.onclick=()=>{horaCliente=horaCliente===h?'':h;renderHours();actualizarSteps()}}else{btn.onclick=()=>alert('Ya tenés un turno activo. Cuando termine podrás solicitar otro.')}}grid.appendChild(btn)});if(!visibles){const msg=document.createElement('div');msg.className='status-box';msg.innerHTML='<strong>Jornada finalizada.</strong> No quedan horarios para seleccionar hoy.';grid.appendChild(msg)}else if(!libres){const msg=document.createElement('div');msg.className='status-box';msg.innerHTML='<strong>No quedan horarios disponibles</strong> para este día.';grid.appendChild(msg)}shell.appendChild(grid);const legend=document.createElement('div');legend.className='legend';legend.innerHTML='<b style="color:#2ecc71">● Libre</b><b style="color:#e74c3c">● Ocupado</b>';shell.appendChild(legend);if(active){const info=document.createElement('div');info.className='status-box';info.innerHTML='<strong>Tenés un turno activo.</strong> Solo podrás solicitar otro cuando ese turno haya terminado.';shell.appendChild(info)}box.appendChild(shell)}
+const active=turnos.find(t=>t.clientes_id===usuario.id&&t.estado==='confirmado'&&!horaPaso(t.fecha_hora.slice(0,10),t.fecha_hora.slice(11,16)));
+const grid=document.createElement('div');grid.className='hours';let visibles=0,libres=0;
+
+HORAS.forEach(h=>{
+    if(horaPaso(fechaCliente,h))return;
+    visibles++;
+    
+    // Verifica si alguien ya tiene este turno (OCUPADO = ROJO)
+    const occupied = turnos.some(t=>t.estado==='confirmado' && normalizarFH(t.fecha_hora)===`${fechaCliente} ${h}`);
+    const selected = horaCliente===h && !occupied;
+    
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'hour ' + (occupied ? 'busy' : 'free') + (selected ? ' selected' : '');
+    
+    // Si no esta ocupado por nadie, pero el usuario actual ya tiene un turno
+    if(active && !occupied) {
+        btn.classList.add('locked');
+    }
+    
+    // El texto siempre dirá "LIBRE" si nadie lo tomó, y "OCUPADO" si alguien lo tomó
+    btn.innerHTML = `${h}<small>${occupied ? 'OCUPADO' : selected ? 'SELECCIONADO' : 'LIBRE'}</small>`;
+    
+    if(!occupied) {
+        libres++;
+        if(!active){
+            btn.onclick = () => {
+                horaCliente = horaCliente===h ? '' : h;
+                renderHours();
+                actualizarSteps();
+            }
+        } else {
+            // Si intenta clickear un libre, pero ya tiene un turno reservado
+            btn.onclick = () => alert('Ya tienes un turno activo. Cuando pase la hora de tu turno, podrás solicitar otro. Los demás horarios se ven verdes porque están libres para el barbero.');
+        }
+    }
+    grid.appendChild(btn);
+});
+
+if(!visibles){const msg=document.createElement('div');msg.className='status-box';msg.innerHTML='<strong>Jornada finalizada.</strong> No quedan horarios para seleccionar hoy.';grid.appendChild(msg)}else if(!libres){const msg=document.createElement('div');msg.className='status-box';msg.innerHTML='<strong>No quedan horarios disponibles</strong> para este día.';grid.appendChild(msg)}shell.appendChild(grid);const legend=document.createElement('div');legend.className='legend';legend.innerHTML='<b style="color:#2ecc71">● Libre</b><b style="color:#e74c3c">● Ocupado</b>';shell.appendChild(legend);if(active){const info=document.createElement('div');info.className='status-box';info.innerHTML='<strong>Ya tienes un turno activo.</strong> Puedes ver los demás horarios libres de la barbería, pero no podrás reservar hasta que finalice el tuyo.';shell.appendChild(info)}box.appendChild(shell)}
+
 function actualizarSteps(){document.getElementById('step1').classList.toggle('active',!!servicioSeleccionado());document.getElementById('step2').classList.toggle('active',!!fechaCliente);document.getElementById('step3').classList.toggle('active',!!horaCliente)}
 function servicioSeleccionado(){return document.querySelector('.service-card.selected')?.dataset.id||''}
 function renderServicesClient(){const c=document.getElementById('contenedorServicios');c.innerHTML='';servicios.forEach(s=>{const b=document.createElement('button');b.className='service-card'+(Number(servicioSeleccionado())===s.id?' selected':'');b.dataset.id=s.id;b.type='button';b.innerHTML=`<div class="service-name">${escapeHtml(s.nombre)}</div><div class="service-price">$${Number(s.precio).toLocaleString('es-AR')}</div>`;b.onclick=()=>{document.querySelectorAll('.service-card').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');actualizarSteps()};c.appendChild(b)})}
