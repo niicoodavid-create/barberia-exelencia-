@@ -68,10 +68,12 @@ body{background:radial-gradient(circle at top,#1b1b1b 0,#070707 48%,#030303 100%
 .hours{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
 .hour{min-height:60px;border-radius:11px;border:2px solid transparent;font-weight:800;font-size:13px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;transition:0.2s;}
 .hour small{font-size:9px;letter-spacing:1px;font-weight:bold;}
+/* VERDE (Disponible) */
 .free{border-color:#2ecc71;color:#2ecc71;background:rgba(46,204,113,0.07);cursor:pointer}
-.free.locked{cursor:not-allowed;opacity:0.5;}
+.free.locked{cursor:not-allowed;opacity:0.6;}
 .free.selected{background:#d1ae67;border-color:#bfa265;color:#050505;box-shadow:0 0 16px rgba(209,174,103,.5)}
-.busy,.past{border-color:#e74c3c;color:#e74c3c;background:rgba(231,76,60,0.1);cursor:not-allowed;text-decoration:line-through;opacity:.9}
+/* GRIS (Ocupado / Pasado) */
+.busy,.past{border-color:#555;color:#aaa;background:#1e1e1e;cursor:not-allowed;opacity:.8}
 .status-box{margin-top:12px;padding:11px 12px;border-radius:11px;background:linear-gradient(#111,#111) padding-box,linear-gradient(135deg,#0047FF,#f4f4f4,#c9463e,#f4f4f4,#0047FF) border-box;border:1px solid transparent;color:#9f9f9f;font-size:11px;background-size:100% 100%,300% 300%;animation:allBorders 9s ease infinite}
 .reservation-card{margin-top:14px;padding:18px;border-radius:19px;background:linear-gradient(#0d0d0d,#0d0d0d) padding-box,linear-gradient(135deg,#0047FF,#f4f4f4,#c9463e,#f4f4f4,#0047FF) border-box;border:1px solid transparent;background-size:100% 100%,300% 300%;animation:allBorders 9s ease infinite}
 .reservation-card .title{font-size:12px;font-weight:800;color:#c4c4c4;letter-spacing:1px}
@@ -121,7 +123,7 @@ body{background:radial-gradient(circle at top,#1b1b1b 0,#070707 48%,#030303 100%
 <div class="calendar-shell"><div class="calendar-head"><div id="clientCalendarTitle" class="calendar-title"></div><span class="muted">Próximos 15 días</span></div><div class="calendar-grid" id="clientWeekdays"></div><div class="calendar-grid" id="clientCalendar"></div></div>
 </div>
 <div class="panel">
-<h2>Elegir un horario libre</h2><div id="hoursBox" class="hours"></div>
+<h2>Elegir un horario</h2><div id="hoursBox" class="hours"></div>
 <div id="myTurnBox" class="reservation-card hidden"></div>
 <button id="reserveButton" class="btn btn-primary" style="width:100%;margin-top:12px" onclick="reservarTurno()">Solicitar turno</button>
 </div>
@@ -148,24 +150,17 @@ body{background:radial-gradient(circle at top,#1b1b1b 0,#070707 48%,#030303 100%
 const HORAS=['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
 const ADMIN_EMAIL='gamarramartin1995@gmail.com';
 const weekdays=['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
-let usuario=null,servicios=[],turnos=[],clientes=[],diasCerrados=[],fechaCliente='',horaCliente='',fechaAdmin='',turnoEditando=null,timer=null;
+let usuario=null,servicios=[],turnos=[],clientes=[],diasCerrados=[],fechaCliente='',horaCliente='',fechaAdmin='',timer=null;
 function capitalizarPrimera(v){v=String(v||'').trim();return v?v.charAt(0).toUpperCase()+v.slice(1):'Cliente';}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));}
 function getFechaHoraAr(){
-const arDate=new Date(new Date().toLocaleString("en-US",{timeZone:"America/Argentina/Buenos_Aires"}));
-const y=arDate.getFullYear();
-const m=String(arDate.getMonth()+1).padStart(2,'0');
-const d=String(arDate.getDate()).padStart(2,'0');
-const h=String(arDate.getHours()).padStart(2,'0');
-const min=String(arDate.getMinutes()).padStart(2,'0');
-return `${y}-${m}-${d} ${h}:${min}`;}
+const d=new Date(new Date().toLocaleString("en-US",{timeZone:"America/Argentina/Buenos_Aires"}));
+return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;}
 function hoy(){return getFechaHoraAr().substring(0,10);}
 function fechaMasDias(n){
 const base=new Date(new Date().toLocaleString("en-US",{timeZone:"America/Argentina/Buenos_Aires"}));
 base.setDate(base.getDate()+n);
-const m=String(base.getMonth()+1).padStart(2,'0');
-const d=String(base.getDate()).padStart(2,'0');
-return `${base.getFullYear()}-${m}-${d}`;}
+return `${base.getFullYear()}-${String(base.getMonth()+1).padStart(2,'0')}-${String(base.getDate()).padStart(2,'0')}`;}
 function horaPaso(f,h){return `${f} ${h}`<=getFechaHoraAr();}
 function normalizarFH(v){if(!v)return '';return String(v).slice(0,16);}
 function esAdmin(){return usuario&&usuario.email&&usuario.email.toLowerCase()===ADMIN_EMAIL&&usuario.rol==='barbero';}
@@ -261,11 +256,9 @@ btn.type='button';
 if(past){
 btn.className='hour past';
 btn.innerHTML=`${h}<small>PASADO</small>`;
-btn.onclick=()=>alert('Horario pasado.');
 }else if(occupied){
 btn.className='hour busy';
 btn.innerHTML=`${h}<small>OCUPADO</small>`;
-btn.onclick=()=>alert('Turno ocupado.');
 }else{
 btn.className=`hour free${selected?' selected':''}${active?' locked':''}`;
 btn.innerHTML=`${h}<small>${selected?'SELECCIONADO':'LIBRE'}</small>`;
@@ -278,7 +271,7 @@ grid.appendChild(btn);});
 shell.appendChild(grid);
 const legend=document.createElement('div');
 legend.className='legend';
-legend.innerHTML='<b style="color:#2ecc71">● Libre</b><b style="color:#e74c3c">● Ocupado/Pasado</b>';
+legend.innerHTML='<b style="color:#2ecc71">● Libre (Verde)</b><b style="color:#aaa">● Ocupado/Pasado (Gris)</b>';
 shell.appendChild(legend);
 box.appendChild(shell);}
 function actualizarSteps(){
