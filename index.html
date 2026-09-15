@@ -68,11 +68,9 @@ body{background:radial-gradient(circle at top,#1b1b1b 0,#070707 48%,#030303 100%
 .hours{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px}
 .hour{min-height:60px;border-radius:11px;border:2px solid transparent;font-weight:800;font-size:13px;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:3px;transition:0.2s;}
 .hour small{font-size:9px;letter-spacing:1px;font-weight:bold;}
-/* VERDE (Disponible) */
 .free{border-color:#2ecc71;color:#2ecc71;background:rgba(46,204,113,0.07);cursor:pointer}
 .free.locked{cursor:not-allowed;opacity:0.6;}
 .free.selected{background:#d1ae67;border-color:#bfa265;color:#050505;box-shadow:0 0 16px rgba(209,174,103,.5)}
-/* GRIS (Ocupado / Pasado) */
 .busy,.past{border-color:#555;color:#aaa;background:#1e1e1e;cursor:not-allowed;opacity:.8}
 .status-box{margin-top:12px;padding:11px 12px;border-radius:11px;background:linear-gradient(#111,#111) padding-box,linear-gradient(135deg,#0047FF,#f4f4f4,#c9463e,#f4f4f4,#0047FF) border-box;border:1px solid transparent;color:#9f9f9f;font-size:11px;background-size:100% 100%,300% 300%;animation:allBorders 9s ease infinite}
 .reservation-card{margin-top:14px;padding:18px;border-radius:19px;background:linear-gradient(#0d0d0d,#0d0d0d) padding-box,linear-gradient(135deg,#0047FF,#f4f4f4,#c9463e,#f4f4f4,#0047FF) border-box;border:1px solid transparent;background-size:100% 100%,300% 300%;animation:allBorders 9s ease infinite}
@@ -376,7 +374,7 @@ function renderClientesAdmin(){
 const term=document.getElementById('clientSearch').value.trim().toLowerCase();
 const c=document.getElementById('clientsList');
 const rows=clientes.filter(x=>`${x.nombre} ${x.email}`.toLowerCase().includes(term));
-c.innerHTML=rows.map(x=>`<div class="admin-card"><div class="admin-row"><div><div class="admin-main">${escapeHtml(x.nombre)}</div><div class="admin-sub">${escapeHtml(x.email)}</div></div></div></div>`).join('');}
+c.innerHTML=rows.map(x=>`<div class="admin-card"><div class="admin-row"><div><div class="admin-main">${escapeHtml(x.nombre)}</div><div class="admin-sub">${escapeHtml(x.email)}</div></div><button class="icon-btn" onclick="editarCliente(${x.id})">✎</button></div></div>`).join('');}
 function seleccionarDiaAdmin(f){
 fechaAdmin=f;
 renderAdminCalendar();
@@ -394,7 +392,7 @@ const past=horaPaso(f,h);
 const card=document.createElement('div');
 card.className='admin-card';
 if(t){
-card.innerHTML=`<div class="admin-row"><div><div class="admin-main">${h} · ${escapeHtml(t.cliente||'Cliente')}</div><div class="admin-sub">${escapeHtml(t.servicio||'Servicio')}</div></div><button class="icon-btn" onclick="cancelarTurno(${t.id})">X</button></div>`;
+card.innerHTML=`<div class="admin-row"><div><div class="admin-main">${h} · ${escapeHtml(t.cliente||'Cliente')}</div><div class="admin-sub">${escapeHtml(t.servicio||'Servicio')}</div></div><div style="display:flex;gap:6px"><button class="icon-btn" onclick="editarTurno(${t.id})">✎</button><button class="icon-btn" onclick="cancelarTurno(${t.id})">X</button></div></div>`;
 }else{
 card.innerHTML=`<div class="admin-row"><div><div class="admin-main" style="color:${past?'#7d403d':'#54bd80'}">${h} · ${past?'VENCIDO':'LIBRE'}</div></div>${past?'':`<button class="icon-btn" onclick="abrirTurnoModal('${f}','${h}')">＋</button>`}</div>`;}
 c.appendChild(card);});}
@@ -452,6 +450,37 @@ const payload={cliente_id:Number(document.getElementById('turnClient').value),se
 try{
 await api('/api/admin/turnos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
 cerrarModal('turnModal');
+await cargarDatos();
+await cargarAdmin();
+}catch(e){alert(e.message);}}
+async function editarTurno(id){
+const t=turnos.find(x=>x.id===id);
+if(!t)return;
+document.getElementById('editTurnClient').innerHTML=clientes.filter(c=>c.rol==='cliente').map(c=>`<option value="${c.id}">${escapeHtml(c.nombre)}</option>`).join('');
+document.getElementById('editTurnService').innerHTML=servicios.map(s=>`<option value="${s.id}">${escapeHtml(s.nombre)}</option>`).join('');
+document.getElementById('editTurnHour').innerHTML=HORAS.map(h=>`<option value="${h}">${h}</option>`).join('');
+const fh=normalizarFH(t.fecha_hora);
+document.getElementById('editTurnId').value=t.id;
+document.getElementById('editTurnClient').value=t.clientes_id;
+document.getElementById('editTurnService').value=t.servicios_id;
+document.getElementById('editTurnDate').value=fh.slice(0,10);
+document.getElementById('editTurnHour').value=fh.slice(11,16);
+document.getElementById('editTurnModal').classList.remove('hidden');}
+async function guardarEdicionTurno(){
+const id=document.getElementById('editTurnId').value;
+const payload={cliente_id:Number(document.getElementById('editTurnClient').value),servicios_id:Number(document.getElementById('editTurnService').value),fecha_hora:`${document.getElementById('editTurnDate').value} ${document.getElementById('editTurnHour').value}`};
+try{
+await api(`/api/admin/turnos/${id}`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+cerrarModal('editTurnModal');
+await cargarDatos();
+await cargarAdmin();
+}catch(e){alert(e.message);}}
+async function cancelarTurnoDesdeModal(){
+const id=document.getElementById('editTurnId').value;
+if(!confirm('¿Cancelar este turno?'))return;
+try{
+await api(`/api/admin/turnos/${id}`,{method:'DELETE'});
+cerrarModal('editTurnModal');
 await cargarDatos();
 await cargarAdmin();
 }catch(e){alert(e.message);}}
