@@ -12,11 +12,11 @@ app.use(express.urlencoded({ extended: true }));
 const ADMIN_EMAIL = 'gamarramartin1995@gmail.com';
 
 const servicios = [
-  { id: 1, nombre: 'Corte clásico', precio: 14000 },
-  { id: 2, nombre: 'Corte + barba', precio: 18000 },
-  { id: 3, nombre: 'global', precio: 50000 },
-  { id: 4, nombre: 'mechas', precio: 45000 },
-  { id: 5, nombre: 'Corte premium', precio: 20000 }
+  { id: 1, nombre: 'Corte clásico', precio: 2500 },
+  { id: 2, nombre: 'Corte + barba', precio: 3500 },
+  { id: 3, nombre: 'Barba completa', precio: 2200 },
+  { id: 4, nombre: 'Perfilado', precio: 1800 },
+  { id: 5, nombre: 'Corte premium', precio: 4200 }
 ];
 
 const clientes = [
