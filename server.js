@@ -9,14 +9,15 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ESTE ES EL CORREO QUE TIENE PERMISOS DE ADMINISTRADOR ABSOLUTOS
 const ADMIN_EMAIL = 'gamarramartin1995@gmail.com';
 
 const servicios = [
-  { id: 1, nombre: 'Corte clásico/fade', precio: 14000 },
-  { id: 2, nombre: 'Corte + barba', precio: 18000 },
-  { id: 3, nombre: 'global', precio: 60000 },
-  { id: 4, nombre: 'mechas', precio: 55000 },
-  { id: 5, nombre: 'Corte premium', precio: 20000 }
+  { id: 1, nombre: 'Corte clásico', precio: 2500 },
+  { id: 2, nombre: 'Corte + barba', precio: 3500 },
+  { id: 3, nombre: 'Barba completa', precio: 2200 },
+  { id: 4, nombre: 'Perfilado', precio: 1800 },
+  { id: 5, nombre: 'Corte premium', precio: 4200 }
 ];
 
 const clientes = [
@@ -26,6 +27,7 @@ const clientes = [
 const turnos = [];
 const diasBloqueados = [];
 
+// Función estricta para la hora de Argentina
 function getFechaHoraAr() {
   const d = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" }));
   const y = d.getFullYear();
@@ -142,6 +144,7 @@ app.post('/api/login', (req, res) => {
     cliente.nombre = nombre;
   }
 
+  // VALIDACIÓN DE ADMINISTRADOR
   if (email === ADMIN_EMAIL) {
     cliente.rol = 'barbero';
   }
@@ -153,47 +156,29 @@ app.post('/api/logout-admin', (_req, res) => {
   res.json({ ok: true });
 });
 
+// Rutas de cliente
 app.post('/api/turnos', (req, res) => {
   const { cliente_id, servicios_id, fecha_hora } = req.body || {};
   const cliente = getClienteById(cliente_id);
   const servicio = getServicioById(servicios_id);
   const fechaHoraNormalizada = normalizeFechaHora(fecha_hora);
 
-  if (!cliente) {
-    return res.status(400).json({ error: 'Cliente no encontrado o no autorizado.' });
-  }
-
-  if (!servicio) {
-    return res.status(400).json({ error: 'Servicio no encontrado.' });
-  }
-
-  if (!fechaHoraNormalizada || !fechaHoraNormalizada.includes(' ')) {
-    return res.status(400).json({ error: 'Fecha y hora requeridas.' });
-  }
+  if (!cliente) return res.status(400).json({ error: 'Cliente no encontrado.' });
+  if (!servicio) return res.status(400).json({ error: 'Servicio no encontrado.' });
+  if (!fechaHoraNormalizada || !fechaHoraNormalizada.includes(' ')) return res.status(400).json({ error: 'Fecha y hora requeridas.' });
 
   const yaTieneTurno = turnos.some((turno) => {
-    const sameClient = Number(turno.clientes_id) === Number(cliente_id);
-    const notCancelled = turno.estado !== 'cancelado';
-    return sameClient && notCancelled;
+    return Number(turno.clientes_id) === Number(cliente_id) && turno.estado !== 'cancelado';
   });
 
-  if (yaTieneTurno) {
-    return res.status(409).json({ error: 'Ya tenés un turno activo. No podés solicitar otro hasta que finalice.' });
-  }
-
-  if (isPastDateTime(fechaHoraNormalizada)) {
-    return res.status(400).json({ error: 'No se puede reservar un horario pasado.' });
-  }
+  if (yaTieneTurno) return res.status(409).json({ error: 'Ya tenés un turno activo.' });
+  if (isPastDateTime(fechaHoraNormalizada)) return res.status(400).json({ error: 'No se puede reservar un horario pasado.' });
 
   const conflicto = turnos.some((turno) => {
-    const sameDate = getFechaFromFechaHora(turno.fecha_hora) === getFechaFromFechaHora(fechaHoraNormalizada);
-    const sameHour = getHoraFromFechaHora(turno.fecha_hora) === getHoraFromFechaHora(fechaHoraNormalizada);
-    return turno.estado === 'confirmado' && sameDate && sameHour;
+    return turno.estado === 'confirmado' && turno.fecha_hora === fechaHoraNormalizada;
   });
 
-  if (conflicto) {
-    return res.status(409).json({ error: 'Ese horario ya fue tomado por otro usuario.' });
-  }
+  if (conflicto) return res.status(409).json({ error: 'Ese horario ya fue ocupado por otro usuario.' });
 
   const nuevoTurno = {
     id: nextId(turnos),
@@ -207,20 +192,13 @@ app.post('/api/turnos', (req, res) => {
   return res.status(201).json(serializeTurno(nuevoTurno));
 });
 
+// RUTAS DE ADMINISTRADOR (Manejo de la Barbería)
 app.post('/api/admin/servicios', (req, res) => {
   const nombre = String(req.body?.nombre || '').trim();
   const precio = Number(req.body?.precio);
-
-  if (!nombre || !Number.isFinite(precio) || precio < 0) {
-    return res.status(400).json({ error: 'Nombre y precio válidos son requeridos.' });
-  }
-
-  const servicio = {
-    id: nextId(servicios),
-    nombre,
-    precio
-  };
-
+  if (!nombre || !Number.isFinite(precio) || precio < 0) return res.status(400).json({ error: 'Nombre y precio válidos requeridos.' });
+  
+  const servicio = { id: nextId(servicios), nombre, precio };
   servicios.push(servicio);
   return res.status(201).json(servicio);
 });
@@ -228,17 +206,11 @@ app.post('/api/admin/servicios', (req, res) => {
 app.put('/api/admin/servicios/:id', (req, res) => {
   const id = Number(req.params.id);
   const servicio = servicios.find((item) => Number(item.id) === id);
-
-  if (!servicio) {
-    return res.status(404).json({ error: 'Servicio no encontrado.' });
-  }
+  if (!servicio) return res.status(404).json({ error: 'Servicio no encontrado.' });
 
   const nombre = String(req.body?.nombre || '').trim();
   const precio = Number(req.body?.precio);
-
-  if (!nombre || !Number.isFinite(precio) || precio < 0) {
-    return res.status(400).json({ error: 'Datos inválidos.' });
-  }
+  if (!nombre || !Number.isFinite(precio) || precio < 0) return res.status(400).json({ error: 'Datos inválidos.' });
 
   servicio.nombre = nombre;
   servicio.precio = precio;
@@ -248,43 +220,23 @@ app.put('/api/admin/servicios/:id', (req, res) => {
 app.delete('/api/admin/servicios/:id', (req, res) => {
   const id = Number(req.params.id);
   const index = servicios.findIndex((item) => Number(item.id) === id);
-
-  if (index === -1) {
-    return res.status(404).json({ error: 'Servicio no encontrado.' });
-  }
+  if (index === -1) return res.status(404).json({ error: 'Servicio no encontrado.' });
 
   servicios.splice(index, 1);
-  turnos.forEach((turno) => {
-    if (Number(turno.servicios_id) === id) {
-      turno.estado = 'cancelado';
-    }
-  });
-
+  turnos.forEach((turno) => { if (Number(turno.servicios_id) === id) turno.estado = 'cancelado'; });
   return res.json({ ok: true });
 });
 
 app.post('/api/admin/dias-bloqueados', (req, res) => {
   const fecha = String(req.body?.fecha || '').trim();
-  if (!fecha || !/^\d{4}-\d{2}-\d{2}$/.test(fecha)) {
-    return res.status(400).json({ error: 'Fecha inválida.' });
-  }
-
-  if (!diasBloqueados.includes(fecha)) {
-    diasBloqueados.push(fecha);
-  }
-
+  if (!fecha) return res.status(400).json({ error: 'Fecha inválida.' });
+  if (!diasBloqueados.includes(fecha)) diasBloqueados.push(fecha);
   return res.status(201).json({ fecha });
 });
 
 app.delete('/api/admin/dias-bloqueados/:fecha', (req, res) => {
-  const fecha = req.params.fecha;
-  const index = diasBloqueados.indexOf(fecha);
-
-  if (index === -1) {
-    return res.status(404).json({ error: 'Fecha no bloqueada.' });
-  }
-
-  diasBloqueados.splice(index, 1);
+  const index = diasBloqueados.indexOf(req.params.fecha);
+  if (index !== -1) diasBloqueados.splice(index, 1);
   return res.json({ ok: true });
 });
 
@@ -294,23 +246,10 @@ app.post('/api/admin/turnos', (req, res) => {
   const servicio = getServicioById(servicios_id);
   const fechaHoraNormalizada = normalizeFechaHora(fecha_hora);
 
-  if (!cliente || !servicio) {
-    return res.status(400).json({ error: 'Cliente o servicio inválidos.' });
-  }
-
-  if (!fechaHoraNormalizada || !fechaHoraNormalizada.includes(' ')) {
-    return res.status(400).json({ error: 'Fecha y hora requeridas.' });
-  }
-
-  const conflicto = turnos.some((turno) => {
-    const sameDate = getFechaFromFechaHora(turno.fecha_hora) === getFechaFromFechaHora(fechaHoraNormalizada);
-    const sameHour = getHoraFromFechaHora(turno.fecha_hora) === getHoraFromFechaHora(fechaHoraNormalizada);
-    return turno.estado !== 'cancelado' && sameDate && sameHour;
-  });
-
-  if (conflicto) {
-    return res.status(409).json({ error: 'Ese horario ya está ocupado.' });
-  }
+  if (!cliente || !servicio) return res.status(400).json({ error: 'Faltan datos.' });
+  
+  const conflicto = turnos.some((turno) => turno.estado === 'confirmado' && turno.fecha_hora === fechaHoraNormalizada);
+  if (conflicto) return res.status(409).json({ error: 'Horario ocupado.' });
 
   const nuevoTurno = {
     id: nextId(turnos),
@@ -319,7 +258,6 @@ app.post('/api/admin/turnos', (req, res) => {
     fecha_hora: fechaHoraNormalizada,
     estado: 'confirmado'
   };
-
   turnos.push(nuevoTurno);
   return res.status(201).json(serializeTurno(nuevoTurno));
 });
@@ -327,62 +265,26 @@ app.post('/api/admin/turnos', (req, res) => {
 app.put('/api/admin/turnos/:id', (req, res) => {
   const id = Number(req.params.id);
   const turno = turnos.find((item) => Number(item.id) === id);
-
-  if (!turno) {
-    return res.status(404).json({ error: 'Turno no encontrado.' });
-  }
-
-  const cliente = getClienteById(req.body?.cliente_id);
-  const servicio = getServicioById(req.body?.servicios_id);
-  const fechaHoraNormalizada = normalizeFechaHora(req.body?.fecha_hora);
-
-  if (!cliente || !servicio) {
-    return res.status(400).json({ error: 'Cliente o servicio inválidos.' });
-  }
-
-  if (!fechaHoraNormalizada || !fechaHoraNormalizada.includes(' ')) {
-    return res.status(400).json({ error: 'Fecha y hora requeridas.' });
-  }
-
-  const conflicto = turnos.some((item) => {
-    if (Number(item.id) === id || item.estado === 'cancelado') return false;
-    const sameDate = getFechaFromFechaHora(item.fecha_hora) === getFechaFromFechaHora(fechaHoraNormalizada);
-    const sameHour = getHoraFromFechaHora(item.fecha_hora) === getHoraFromFechaHora(fechaHoraNormalizada);
-    return sameDate && sameHour;
-  });
-
-  if (conflicto) {
-    return res.status(409).json({ error: 'Ese horario ya está ocupado.' });
-  }
+  if (!turno) return res.status(404).json({ error: 'Turno no encontrado.' });
 
   turno.clientes_id = Number(req.body.cliente_id);
   turno.servicios_id = Number(req.body.servicios_id);
-  turno.fecha_hora = fechaHoraNormalizada;
-  turno.estado = 'confirmado';
-
+  turno.fecha_hora = normalizeFechaHora(req.body.fecha_hora);
   return res.json(serializeTurno(turno));
 });
 
 app.delete('/api/admin/turnos/:id', (req, res) => {
-  const id = Number(req.params.id);
-  const turno = turnos.find((item) => Number(item.id) === id);
-
-  if (!turno) {
-    return res.status(404).json({ error: 'Turno no encontrado.' });
-  }
-
-  turno.estado = 'cancelado';
+  const turno = turnos.find((item) => Number(item.id) === Number(req.params.id));
+  if (turno) turno.estado = 'cancelado';
   return res.json({ ok: true });
 });
 
 app.use(express.static(path.join(__dirname)));
 app.get('*', (req, res) => {
-  if (req.path.startsWith('/api/')) {
-    return res.status(404).json({ error: 'Endpoint no encontrado.' });
-  }
+  if (req.path.startsWith('/api/')) return res.status(404).json({ error: 'No encontrado.' });
   return res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.listen(PORT, () => {
-  console.log(`Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`Servidor corriendo en el puerto ${PORT}`);
 });
