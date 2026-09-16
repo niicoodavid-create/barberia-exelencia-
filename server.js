@@ -12,11 +12,11 @@ app.use(express.urlencoded({ extended: true }));
 const ADMIN_EMAIL = 'gamarramartin1995@gmail.com';
 
 const servicios = [
-  { id: 1, nombre: 'Corte clásico', precio: 2500 },
-  { id: 2, nombre: 'Corte + barba', precio: 3500 },
-  { id: 3, nombre: 'Barba completa', precio: 2200 },
-  { id: 4, nombre: 'Perfilado', precio: 1800 },
-  { id: 5, nombre: 'Corte premium', precio: 4200 }
+  { id: 1, nombre: 'Corte clásico/fade', precio: 14000 },
+  { id: 2, nombre: 'Corte + barba', precio: 18000 },
+  { id: 3, nombre: 'global', precio: 60000 },
+  { id: 4, nombre: 'mechas', precio: 55000 },
+  { id: 5, nombre: 'Corte premium', precio: 20000 }
 ];
 
 const clientes = [
@@ -25,6 +25,16 @@ const clientes = [
 
 const turnos = [];
 const diasBloqueados = [];
+
+function getFechaHoraAr() {
+  const d = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" }));
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const h = String(d.getHours()).padStart(2, '0');
+  const min = String(d.getMinutes()).padStart(2, '0');
+  return `${y}-${m}-${day} ${h}:${min}`;
+}
 
 function capitalize(value = '') {
   const text = String(value).trim();
@@ -71,13 +81,7 @@ function getFechaFromFechaHora(value) {
 
 function isPastDateTime(fechaHora) {
   if (!fechaHora) return false;
-  const value = String(fechaHora).slice(0, 16);
-  if (!value.includes(' ')) return false;
-
-  const [fecha, hora] = value.split(' ');
-  const fechaHoraDate = new Date(`${fecha}T${hora}:00`);
-  const now = new Date();
-  return fechaHoraDate.getTime() < now.getTime();
+  return String(fechaHora).slice(0, 16) < getFechaHoraAr();
 }
 
 function serializeTurno(turno) {
