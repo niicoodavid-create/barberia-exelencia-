@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // =====================================================================
-// ---> AQUÍ CAMBIAS EL CORREO DEL ADMINISTRADOR (BARBERO) <---
+// CORREO DEL ADMINISTRADOR (BARBERO)
 // =====================================================================
 const ADMIN_EMAIL = 'niicoodavid@gmail.com';
 // =====================================================================
@@ -30,7 +30,7 @@ const clientes = [
 const turnos = [];
 const diasBloqueados = [];
 
-// Función estricta para la hora de Argentina
+// Función para obtener la hora exacta de Argentina
 function getFechaHoraAr() {
   const d = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" }));
   const y = d.getFullYear();
@@ -105,25 +105,11 @@ function serializeTurno(turno) {
   };
 }
 
-app.get('/api/health', (_req, res) => {
-  res.json({ ok: true, message: 'Barberia API funcionando' });
-});
-
-app.get('/api/servicios', (_req, res) => {
-  res.json(servicios);
-});
-
-app.get('/api/clientes', (_req, res) => {
-  res.json(clientes.map(buildClientePublico));
-});
-
-app.get('/api/turnos', (_req, res) => {
-  res.json(turnos.map(serializeTurno));
-});
-
-app.get('/api/dias-bloqueados', (_req, res) => {
-  res.json([...diasBloqueados].sort());
-});
+app.get('/api/health', (_req, res) => res.json({ ok: true, message: 'Barberia API funcionando' }));
+app.get('/api/servicios', (_req, res) => res.json(servicios));
+app.get('/api/clientes', (_req, res) => res.json(clientes.map(buildClientePublico)));
+app.get('/api/turnos', (_req, res) => res.json(turnos.map(serializeTurno)));
+app.get('/api/dias-bloqueados', (_req, res) => res.json([...diasBloqueados].sort()));
 
 app.post('/api/login', (req, res) => {
   const email = String(req.body?.email || '').trim().toLowerCase();
@@ -136,18 +122,13 @@ app.post('/api/login', (req, res) => {
   let cliente = clientes.find((item) => item.email === email);
 
   if (!cliente) {
-    cliente = {
-      id: nextId(clientes),
-      nombre,
-      email,
-      rol: 'cliente'
-    };
+    cliente = { id: nextId(clientes), nombre, email, rol: 'cliente' };
     clientes.push(cliente);
   } else {
     cliente.nombre = nombre;
   }
 
-  // VALIDACIÓN ESTRICTA DE ADMINISTRADOR
+  // AQUÍ ES DONDE EL SERVIDOR DETECTA INTELIGENTEMENTE SI ERES EL ADMIN
   if (email === ADMIN_EMAIL) {
     cliente.rol = 'barbero';
   }
@@ -155,9 +136,7 @@ app.post('/api/login', (req, res) => {
   return res.json(buildClientePublico(cliente));
 });
 
-app.post('/api/logout-admin', (_req, res) => {
-  res.json({ ok: true });
-});
+app.post('/api/logout-admin', (_req, res) => res.json({ ok: true }));
 
 // Rutas de cliente
 app.post('/api/turnos', (req, res) => {
@@ -170,17 +149,11 @@ app.post('/api/turnos', (req, res) => {
   if (!servicio) return res.status(400).json({ error: 'Servicio no encontrado.' });
   if (!fechaHoraNormalizada || !fechaHoraNormalizada.includes(' ')) return res.status(400).json({ error: 'Fecha y hora requeridas.' });
 
-  const yaTieneTurno = turnos.some((turno) => {
-    return Number(turno.clientes_id) === Number(cliente_id) && turno.estado !== 'cancelado';
-  });
-
+  const yaTieneTurno = turnos.some((turno) => Number(turno.clientes_id) === Number(cliente_id) && turno.estado !== 'cancelado');
   if (yaTieneTurno) return res.status(409).json({ error: 'Ya tenés un turno activo.' });
   if (isPastDateTime(fechaHoraNormalizada)) return res.status(400).json({ error: 'No se puede reservar un horario pasado.' });
 
-  const conflicto = turnos.some((turno) => {
-    return turno.estado === 'confirmado' && turno.fecha_hora === fechaHoraNormalizada;
-  });
-
+  const conflicto = turnos.some((turno) => turno.estado === 'confirmado' && turno.fecha_hora === fechaHoraNormalizada);
   if (conflicto) return res.status(409).json({ error: 'Ese horario ya fue ocupado por otro usuario.' });
 
   const nuevoTurno = {
@@ -195,11 +168,11 @@ app.post('/api/turnos', (req, res) => {
   return res.status(201).json(serializeTurno(nuevoTurno));
 });
 
-// RUTAS DE ADMINISTRADOR (Manejo de la Barbería)
+// RUTAS DE ADMINISTRADOR
 app.post('/api/admin/servicios', (req, res) => {
   const nombre = String(req.body?.nombre || '').trim();
   const precio = Number(req.body?.precio);
-  if (!nombre || !Number.isFinite(precio) || precio < 0) return res.status(400).json({ error: 'Nombre y precio válidos requeridos.' });
+  if (!nombre || !Number.isFinite(precio) || precio < 0) return res.status(400).json({ error: 'Datos inválidos.' });
   
   const servicio = { id: nextId(servicios), nombre, precio };
   servicios.push(servicio);
@@ -250,7 +223,6 @@ app.post('/api/admin/turnos', (req, res) => {
   const fechaHoraNormalizada = normalizeFechaHora(fecha_hora);
 
   if (!cliente || !servicio) return res.status(400).json({ error: 'Faltan datos.' });
-  
   const conflicto = turnos.some((turno) => turno.estado === 'confirmado' && turno.fecha_hora === fechaHoraNormalizada);
   if (conflicto) return res.status(409).json({ error: 'Horario ocupado.' });
 

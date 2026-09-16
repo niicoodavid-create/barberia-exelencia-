@@ -16,7 +16,6 @@
 <header class="brand"><h1>Excelencia</h1><div class="by">por martin g</div><div class="address">📍 Paraguay 176</div></header>
 
 <section id="loginView" class="login-box">
-  <!-- BOTÓN GOOGLE -->
   <button type="button" class="btn btn-google" onclick="iniciarConGoogle()">
     <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.74 12.27c0-.85-.07-1.67-.21-2.47H12v4.68h6.58c-.28 1.5-1.12 2.78-2.38 3.62v3h3.86c2.26-2.08 3.68-5.16 3.68-8.83Z"/><path fill="#34A853" d="M12 24c3.3 0 6.08-1.09 8.1-2.96l-3.86-3c-1.1.74-2.51 1.18-4.24 1.18-3.26 0-6.02-2.2-7.01-5.16H1.05v3.1A11.98 11.98 0 0 0 12 24Z"/><path fill="#FBBC05" d="M4.99 14.06c-.25-.75-.4-1.55-.4-2.38s.15-1.63.4-2.38V6.2H1.05a11.97 11.97 0 0 0 0 11.28l3.94-3.42Z"/><path fill="#EA4335" d="M12 4.76c1.79 0 3.4.62 4.67 1.83l3.5-3.5C18.08 1.09 15.3 0 12 0 7.4 0 3.32 2.62 1.05 6.2l3.94 3.1c1-2.96 3.75-5.16 7.01-5.16Z"/></svg>
     Continuar con Google
@@ -71,7 +70,7 @@
 const HORAS=['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
 
 // =====================================================================
-// ---> AQUÍ CAMBIAS EL CORREO DEL ADMINISTRADOR (BARBERO) <---
+// CORREO DEL ADMINISTRADOR (BARBERO)
 // =====================================================================
 const ADMIN_EMAIL = 'niicoodavid@gmail.com';
 // =====================================================================
@@ -95,7 +94,9 @@ function normalizarFH(v){ if(!v) return ''; return String(v).slice(0,16); }
 function capitalizarPrimera(v){v=String(v||'').trim();return v?v.charAt(0).toUpperCase()+v.slice(1):'Cliente'}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 
-// ESTA FUNCIÓN DECIDE SI ERES ADMIN BASADO EN EL CORREO CONFIGURADO ARRIBA
+// =====================================================================
+// FUNCIÓN INTELIGENTE QUE DETECTA SI ERES EL BARBERO
+// =====================================================================
 function esAdmin(){
   return usuario && usuario.email && usuario.email.toLowerCase() === ADMIN_EMAIL && usuario.rol === 'barbero';
 }
@@ -103,7 +104,6 @@ function esAdmin(){
 async function api(url,options={}){const r=await fetch(url,{...options,cache:'no-store'});let d={};try{d=await r.json()}catch{}if(!r.ok)throw new Error(d.error||'No se pudo completar la operación.');return d}
 async function cargarDatos(){const [s,t,d]=await Promise.all([api('/api/servicios?t='+Date.now()),api('/api/turnos?t='+Date.now()),api('/api/dias-bloqueados?t='+Date.now())]);servicios=s;turnos=t.map(x=>({...x,fecha_hora:normalizarFH(x.fecha_hora)}));diasCerrados=d;}
 
-// Lógica para el botón de Google simulado
 async function iniciarConGoogle() {
   const email = prompt("Acceso rápido con Google (Simulación)\nIngresá tu correo de Gmail:");
   if (!email) return;
@@ -122,7 +122,27 @@ async function iniciarConGoogle() {
 }
 
 async function loginTradicional(){const email=document.getElementById('emailInput').value.trim().toLowerCase(),nombre=capitalizarPrimera(document.getElementById('nombreInput').value);if(!email||!nombre)return alert('Completá nombre y correo.');try{usuario=await api('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,nombre})});localStorage.setItem('usuarioActivo',JSON.stringify(usuario));await entrarDashboard()}catch(e){alert(e.message)}}
-async function entrarDashboard(){document.getElementById('loginView').classList.add('hidden');document.getElementById('dashboardView').classList.remove('hidden');const admin=esAdmin();document.getElementById('welcomeUser').textContent=admin?`Panel Barbero: ${capitalizarPrimera(usuario.nombre)}`:`Cliente: ${capitalizarPrimera(usuario.nombre)}`;document.getElementById('roleText').textContent=admin?'Administrador con acceso total a la agenda':'Solicitá un solo turno activo por cuenta';document.getElementById('clientView').classList.toggle('hidden',admin);document.getElementById('adminView').classList.toggle('hidden',!admin);await cargarDatos();if(admin)await cargarAdmin();else await cargarCliente();clearInterval(timer);timer=setInterval(actualizacionTiempoReal,5000)}
+
+// ESTA FUNCIÓN CONDICIONA QUÉ INTERFAZ SE MUESTRA SEGÚN EL ROL
+async function entrarDashboard(){
+  document.getElementById('loginView').classList.add('hidden');
+  document.getElementById('dashboardView').classList.remove('hidden');
+  
+  const admin = esAdmin();
+  document.getElementById('welcomeUser').textContent = admin ? `Panel Barbero: ${capitalizarPrimera(usuario.nombre)}` : `Cliente: ${capitalizarPrimera(usuario.nombre)}`;
+  document.getElementById('roleText').textContent = admin ? 'Administrador con acceso total a la agenda' : 'Solicitá un solo turno activo por cuenta';
+  
+  document.getElementById('clientView').classList.toggle('hidden', admin);
+  document.getElementById('adminView').classList.toggle('hidden', !admin);
+  
+  await cargarDatos();
+  if (admin) await cargarAdmin();
+  else await cargarCliente();
+  
+  clearInterval(timer);
+  timer = setInterval(actualizacionTiempoReal, 5000);
+}
+
 async function actualizacionTiempoReal(){try{await cargarDatos();if(esAdmin())await cargarAdmin(true);else await cargarCliente(true)}catch(e){console.error(e)}}
 function pintarWeekdays(id){const c=document.getElementById(id);c.innerHTML=weekdays.map(x=>`<div class="weekday">${x}</div>`).join('')}
 function renderClientCalendar(){const c=document.getElementById('clientCalendar'),title=document.getElementById('clientCalendarTitle'),base=new Date(new Date().toLocaleString("en-US",{timeZone:"America/Argentina/Buenos_Aires"}));const months=['ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'];title.textContent=months[base.getMonth()]+' '+base.getFullYear();c.innerHTML='';for(let i=0;i<base.getDay();i++)c.innerHTML+='<div class="blank"></div>';for(let i=0;i<15;i++){const d=new Date(base);d.setDate(base.getDate()+i);const f=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,closed=diasCerrados.includes(f),b=document.createElement('button');b.type='button';b.className=`day ${closed?'blocked':'available'} ${fechaCliente===f?'selected':''}`;b.innerHTML=`<span class="day-name">${weekdays[d.getDay()]}</span><span class="day-num">${d.getDate()}</span><span class="day-state">${closed?'CERRADO':'LIBRE'}</span>`;b.onclick=()=>{if(closed)return;seleccionarFechaCliente(f)};c.appendChild(b)}}
