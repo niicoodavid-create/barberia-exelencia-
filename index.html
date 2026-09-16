@@ -59,7 +59,13 @@
 <script>
 // Horarios fijos de la barbería disponibles para asignar
 const HORAS=['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
-const ADMIN_EMAIL='gamarramartin1995@gmail.com';
+
+// =====================================================================
+// ---> AQUÍ CAMBIAS EL CORREO DEL ADMINISTRADOR (BARBERO) <---
+// =====================================================================
+const ADMIN_EMAIL = 'niicoodavid@gmail.com';
+// =====================================================================
+
 let usuario=null,servicios=[],turnos=[],clientes=[],diasCerrados=[],fechaCliente='',horaCliente='',fechaAdmin='',turnoEditando=null,timer=null;
 const weekdays=['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
 
@@ -79,7 +85,7 @@ function normalizarFH(v){ if(!v) return ''; return String(v).slice(0,16); }
 function capitalizarPrimera(v){v=String(v||'').trim();return v?v.charAt(0).toUpperCase()+v.slice(1):'Cliente'}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 
-// ESTA FUNCIÓN DECIDE SI ERES ADMIN BASADO EN TU EMAIL DE ACCESO
+// ESTA FUNCIÓN DECIDE SI ERES ADMIN BASADO EN EL CORREO CONFIGURADO ARRIBA
 function esAdmin(){
   return usuario && usuario.email && usuario.email.toLowerCase() === ADMIN_EMAIL && usuario.rol === 'barbero';
 }

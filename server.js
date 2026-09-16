@@ -9,8 +9,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ESTE ES EL CORREO QUE TIENE PERMISOS DE ADMINISTRADOR ABSOLUTOS
+// =====================================================================
+// ---> AQUÍ CAMBIAS EL CORREO DEL ADMINISTRADOR (BARBERO) <---
+// =====================================================================
 const ADMIN_EMAIL = 'niicoodavid@gmail.com';
+// =====================================================================
 
 const servicios = [
   { id: 1, nombre: 'Corte clásico', precio: 2500 },
@@ -21,7 +24,7 @@ const servicios = [
 ];
 
 const clientes = [
-  { id: 1, nombre: 'Martin', email: ADMIN_EMAIL, rol: 'barbero' }
+  { id: 1, nombre: 'Nico', email: ADMIN_EMAIL, rol: 'barbero' }
 ];
 
 const turnos = [];
@@ -144,7 +147,7 @@ app.post('/api/login', (req, res) => {
     cliente.nombre = nombre;
   }
 
-  // VALIDACIÓN DE ADMINISTRADOR
+  // VALIDACIÓN DE ADMINISTRADOR BASADA EN EL CORREO CONFIGURADO ARRIBA
   if (email === ADMIN_EMAIL) {
     cliente.rol = 'barbero';
   }
