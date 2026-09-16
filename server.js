@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // ESTE ES EL CORREO QUE TIENE PERMISOS DE ADMINISTRADOR ABSOLUTOS
-const ADMIN_EMAIL = 'gamarramartin1995@gmail.com';
+const ADMIN_EMAIL = 'niicoodavid@gmail.com';
 
 const servicios = [
   { id: 1, nombre: 'Corte clásico', precio: 2500 },
