@@ -147,7 +147,7 @@ app.post('/api/login', (req, res) => {
     cliente.nombre = nombre;
   }
 
-  // VALIDACIÓN DE ADMINISTRADOR BASADA EN EL CORREO CONFIGURADO ARRIBA
+  // VALIDACIÓN ESTRICTA DE ADMINISTRADOR
   if (email === ADMIN_EMAIL) {
     cliente.rol = 'barbero';
   }
