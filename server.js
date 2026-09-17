@@ -6,7 +6,12 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-const ADMIN_EMAIL = 'Gamarramartin1995gmail.com';
+// =====================================================================
+// [CONFIGURACIÓN DE ADMINISTRADOR]
+// Modifica la siguiente constante con el correo electrónico exacto 
+// que usará el barbero para obtener permisos de administrador.
+// =====================================================================
+const ADMIN_EMAIL = 'niicoodavid@gmail.com';
 const servicios = [
   { id: 1, nombre: 'Corte clásico', precio: 2500 },
   { id: 2, nombre: 'Corte + barba', precio: 3500 },
@@ -76,6 +81,7 @@ app.post('/api/google-login', async (req, res) => {
     } else {
       cliente.nombre = nombre;
     }
+    // Validación inteligente de rol según el correo configurado arriba
     if (email === ADMIN_EMAIL) {
       cliente.rol = 'barbero';
     }
@@ -95,6 +101,7 @@ app.post('/api/login', (req, res) => {
   } else {
     cliente.nombre = nombre;
   }
+  // Validación inteligente de rol según el correo configurado arriba
   if (email === ADMIN_EMAIL) {
     cliente.rol = 'barbero';
   }
