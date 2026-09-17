@@ -10,7 +10,7 @@ app.use(express.urlencoded({ extended: true }));
 // [CONFIGURACIÓN DE ADMINISTRADOR]
 // Modifica este correo exacto si deseas cambiar la cuenta del barbero.
 // =====================================================================
-const ADMIN_EMAIL = 'niicoodavid@gmail.com';
+const ADMIN_EMAIL = 'Gamarramartin1995@gmail.com';
 const servicios = [
   { id: 1, nombre: 'Corte clásico', precio: 2500 },
   { id: 2, nombre: 'Corte + barba', precio: 3500 },
