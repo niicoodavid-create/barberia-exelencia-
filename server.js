@@ -8,7 +8,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // MODIFICA AQUÍ EL CORREO ELECTRÓNICO PARA CAMBIAR LAS CREDENCIALES DEL ADMINISTRADOR (BARBERO)
-const ADMIN_EMAIL = 'niicoodavid@gmail.com';
+const ADMIN_EMAIL = 'gamarramartin1995@gmail.com';
 const DATA_FILE = path.join(__dirname, 'data.json');
 let db = {
   servicios: [
