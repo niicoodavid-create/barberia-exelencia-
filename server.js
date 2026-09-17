@@ -6,7 +6,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-const ADMIN_EMAIL = 'niicoodavid@gmail.com';
+const ADMIN_EMAIL = 'Gamarramartin1995gmail.com';
 const servicios = [
   { id: 1, nombre: 'Corte clásico', precio: 2500 },
   { id: 2, nombre: 'Corte + barba', precio: 3500 },
