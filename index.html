@@ -44,7 +44,11 @@
 <div class="admin-grid">
 <div class="panel"><h2>Notificaciones</h2><div id="notificationsBox"></div></div>
 <div class="panel"><h2>Clientes</h2><div class="client-list-search"><input id="clientSearch" placeholder="Buscar por nombre o email" oninput="renderClientesAdmin()"></div><div id="clientsList"></div></div>
-<div class="panel"><h2>Servicios</h2><div id="servicesAdminList"></div><button class="btn btn-primary" style="width:100%;margin-top:6px" onclick="abrirServicioModal()">＋ Agregar servicio</button></div>
+<div class="panel">
+  <h2>Gestión de Servicios y Precios</h2>
+  <div id="servicesAdminList" style="margin-top:10px;"></div>
+  <button class="btn btn-primary" style="width:100%;margin-top:8px" onclick="abrirServicioModal()">＋ Agregar servicio</button>
+</div>
 <div class="panel">
   <h2>Control de días (Abrir / Cerrar)</h2>
   <p class="muted" style="margin-bottom:8px">Hacé clic en cualquier día para cambiar su estado (Abierto / Cerrado).</p>
@@ -68,9 +72,9 @@
 const HORAS=['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
 // =====================================================================
 // [CONFIGURACIÓN DE ADMINISTRADOR]
-// Modifica este correo si deseas cambiar la cuenta que maneja la barbería.
+// Modifica este correo exacto si deseas cambiar la cuenta del barbero.
 // =====================================================================
-const ADMIN_EMAIL = 'Gamarramartin1995@gmail.com';
+const ADMIN_EMAIL = 'niicoodavid@gmail.com';
 let usuario=null,servicios=[],turnos=[],clientes=[],diasCerrados=[],fechaCliente='',horaCliente='',fechaAdmin='',turnoEditando=null,timer=null;
 const weekdays=['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
 function getFechaHoraAr(){
@@ -309,7 +313,10 @@ function renderServicesAdmin(){
     <div class="admin-card">
       <div class="admin-row">
         <div><div class="admin-main">${escapeHtml(s.nombre)}</div><div class="admin-sub">$${Number(s.precio).toLocaleString('es-AR')}</div></div>
-        <button class="icon-btn" onclick="editarServicio(${s.id})">✎</button>
+        <div style="display:flex;gap:5px;">
+          <button class="icon-btn" onclick="editarServicio(${s.id})">✎</button>
+          <button class="icon-btn" style="color:#df625b;" onclick="eliminarServicio(${s.id})">✕</button>
+        </div>
       </div>
     </div>`).join('');
 }
@@ -392,6 +399,14 @@ async function guardarServicio(){
       body: JSON.stringify({ nombre, precio })
     });
     cerrarModal('serviceModal');
+    await cargarDatos();
+    await cargarAdmin();
+  } catch(e) { alert(e.message); }
+}
+async function eliminarServicio(id){
+  if(!confirm('¿Estás seguro de eliminar este servicio?')) return;
+  try {
+    await api(`/api/admin/servicios/${id}`, { method: 'DELETE' });
     await cargarDatos();
     await cargarAdmin();
   } catch(e) { alert(e.message); }

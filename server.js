@@ -8,10 +8,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // =====================================================================
 // [CONFIGURACIÓN DE ADMINISTRADOR]
-// Modifica la siguiente constante con el correo electrónico exacto 
-// que usará el barbero para obtener permisos de administrador.
+// Modifica este correo exacto si deseas cambiar la cuenta del barbero.
 // =====================================================================
-const ADMIN_EMAIL = 'Gamarramartin1995@gmail.com';
+const ADMIN_EMAIL = 'niicoodavid@gmail.com';
 const servicios = [
   { id: 1, nombre: 'Corte clásico', precio: 2500 },
   { id: 2, nombre: 'Corte + barba', precio: 3500 },
@@ -81,7 +80,6 @@ app.post('/api/google-login', async (req, res) => {
     } else {
       cliente.nombre = nombre;
     }
-    // Validación inteligente de rol según el correo configurado arriba
     if (email === ADMIN_EMAIL) {
       cliente.rol = 'barbero';
     }
@@ -101,7 +99,6 @@ app.post('/api/login', (req, res) => {
   } else {
     cliente.nombre = nombre;
   }
-  // Validación inteligente de rol según el correo configurado arriba
   if (email === ADMIN_EMAIL) {
     cliente.rol = 'barbero';
   }
