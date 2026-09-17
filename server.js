@@ -6,10 +6,6 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-// =====================================================================
-// [CONFIGURACIÓN DE ADMINISTRADOR]
-// Modifica este correo exacto si deseas cambiar la cuenta del barbero.
-// =====================================================================
 const ADMIN_EMAIL = 'gamarramartin1995@gmail.com';
 const servicios = [
   { id: 1, nombre: 'Corte clásico', precio: 2500 },
@@ -19,7 +15,7 @@ const servicios = [
   { id: 5, nombre: 'Corte premium', precio: 4200 }
 ];
 const clientes = [
-  { id: 1, nombre: 'Nico Admin', email: ADMIN_EMAIL, rol: 'barbero' }
+  { id: 1, nombre: 'Martin Admin', email: ADMIN_EMAIL, rol: 'barbero' }
 ];
 const turnos = [];
 const diasBloqueados = [];

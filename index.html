@@ -58,7 +58,17 @@
     <div class="calendar-grid" id="adminCalendar"></div>
   </div>
 </div>
-<div class="panel" style="grid-column:1/-1"><div class="admin-row"><div><h2 style="margin-bottom:2px">Agenda del día</h2><div id="agendaDayLabel" class="muted"></div></div><button class="btn btn-primary" onclick="abrirTurnoModal()">＋ Dar turno manual</button></div><div style="height:12px"></div><div id="agendaList"></div></div>
+<div class="panel" style="grid-column:1/-1">
+  <div class="admin-row">
+    <div>
+      <h2 style="margin-bottom:2px">Agenda del día</h2>
+      <div id="agendaDayLabel" class="muted"></div>
+    </div>
+    <button class="btn btn-primary" onclick="abrirTurnoModal()">＋ Dar turno manual</button>
+  </div>
+  <div style="height:12px"></div>
+  <div id="agendaList"></div>
+</div>
 </div>
 </div>
 </section>
@@ -70,10 +80,6 @@
 <div id="editTurnModal" class="modal-backdrop hidden"><div class="modal"><h3>Editar turno</h3><input type="hidden" id="editTurnId"><div class="field"><label>Cliente</label><select id="editTurnClient"></select></div><div class="field"><label>Servicio</label><select id="editTurnService"></select></div><div class="field"><label>Fecha</label><input id="editTurnDate" type="date"></div><div class="field"><label>Hora</label><select id="editTurnHour"></select></div><div class="modal-actions"><button class="btn btn-secondary" onclick="cerrarModal('editTurnModal')">Cancelar</button><button class="btn btn-primary" onclick="guardarEdicionTurno()">Guardar</button></div><button class="btn btn-danger" style="width:100%;margin-top:8px" onclick="cancelarTurnoDesdeModal()">Cancelar turno</button></div></div>
 <script>
 const HORAS=['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
-// =====================================================================
-// [CONFIGURACIÓN DE ADMINISTRADOR]
-// Modifica este correo exacto si deseas cambiar la cuenta del barbero.
-// =====================================================================
 const ADMIN_EMAIL = 'gamarramartin1995@gmail.com';
 let usuario=null,servicios=[],turnos=[],clientes=[],diasCerrados=[],fechaCliente='',horaCliente='',fechaAdmin='',turnoEditando=null,timer=null;
 const weekdays=['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
@@ -367,14 +373,17 @@ function renderAgendaAdmin(){
   document.getElementById('agendaDayLabel').textContent = `Fecha: ${f.split('-').reverse().join('/')}`;
   const c = document.getElementById('agendaList');
   c.innerHTML = '';
-  if(diasCerrados.includes(f)){ c.innerHTML = '<div class="notice">Día cerrado por el barbero.</div>'; return; }
+  if(diasCerrados.includes(f)){
+    c.innerHTML = `<div class="notice" style="display:flex;justify-content:space-between;align-items:center;"><span>Este día se encuentra cerrado.</span><button class="btn btn-primary" style="padding:6px 12px;font-size:11px;" onclick="toggleDia('${f}', true)">Abrir día</button></div>`;
+    return;
+  }
   HORAS.forEach(h => {
     const t = turnos.find(x => x.estado === 'confirmado' && normalizarFH(x.fecha_hora) === `${f} ${h}`);
     const past = horaPaso(f, h);
     const card = document.createElement('div');
     card.className = 'admin-card';
     if(t){
-      card.innerHTML = `<div class="admin-row"><div><div class="admin-main">${h} · ${escapeHtml(t.cliente)}</div><div class="admin-sub">${escapeHtml(t.servicio)}</div></div><button class="icon-btn" onclick="editarTurno(${t.id})">✎</button></div>`;
+      card.innerHTML = `<div class="admin-row"><div><div class="admin-main" style="color:#888;">${h} · OCUPADO: ${escapeHtml(t.cliente)}</div><div class="admin-sub">${escapeHtml(t.servicio)}</div></div><button class="icon-btn" onclick="editarTurno(${t.id})">✎</button></div>`;
     } else {
       card.innerHTML = `<div class="admin-row"><div><div class="admin-main" style="color:${past?'#888':'#54bd80'}">${h} · ${past?'VENCIDO':'LIBRE'}</div></div>${past?'':`<button class="icon-btn" onclick="abrirTurnoModal('${f}','${h}')">＋</button>`}</div>`;
     }
