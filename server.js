@@ -58,6 +58,32 @@ app.get('/api/servicios', (_req, res) => res.json(servicios));
 app.get('/api/clientes', (_req, res) => res.json(clientes));
 app.get('/api/turnos', (_req, res) => res.json(turnos.map(serializeTurno)));
 app.get('/api/dias-bloqueados', (_req, res) => res.json([...diasBloqueados].sort()));
+app.post('/api/google-login', async (req, res) => {
+  const { credential } = req.body;
+  if (!credential) return res.status(400).json({ error: 'Falta la credencial de Google.' });
+  try {
+    const googleRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${credential}`);
+    const googleData = await googleRes.json();
+    if (!googleRes.ok || !googleData.email) {
+      return res.status(401).json({ error: 'Token de Google inválido.' });
+    }
+    const email = googleData.email.trim().toLowerCase();
+    const nombre = capitalize(googleData.given_name || googleData.name || 'Cliente');
+    let cliente = clientes.find(item => item.email === email);
+    if (!cliente) {
+      cliente = { id: nextId(clientes), nombre, email, rol: 'cliente' };
+      clientes.push(cliente);
+    } else {
+      cliente.nombre = nombre;
+    }
+    if (email === ADMIN_EMAIL) {
+      cliente.rol = 'barbero';
+    }
+    return res.json(cliente);
+  } catch (e) {
+    return res.status(500).json({ error: 'Error al verificar autenticación con Google.' });
+  }
+});
 app.post('/api/login', (req, res) => {
   const email = String(req.body?.email || '').trim().toLowerCase();
   const nombre = capitalize(req.body?.nombre || '');
