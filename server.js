@@ -11,7 +11,7 @@ app.use(express.urlencoded({ extended: true }));
 // Modifica la siguiente constante con el correo electrónico exacto 
 // que usará el barbero para obtener permisos de administrador.
 // =====================================================================
-const ADMIN_EMAIL = 'niicoodavid@gmail.com';
+const ADMIN_EMAIL = 'Gamarramartin1995@gmail.com';
 const servicios = [
   { id: 1, nombre: 'Corte clásico', precio: 2500 },
   { id: 2, nombre: 'Corte + barba', precio: 3500 },
