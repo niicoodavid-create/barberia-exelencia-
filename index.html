@@ -64,7 +64,10 @@
       <h2 style="margin-bottom:2px">Agenda del día</h2>
       <div id="agendaDayLabel" class="muted"></div>
     </div>
-    <button class="btn btn-primary" onclick="abrirTurnoModal()">＋ Dar turno manual</button>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button id="btnToggleDia" class="btn btn-secondary" style="padding:8px 12px;font-size:11px;" onclick="toggleDiaActual()">Cerrar / Abrir día</button>
+      <button class="btn btn-primary" style="padding:8px 12px;font-size:11px;" onclick="abrirTurnoModal()">＋ Dar turno manual</button>
+    </div>
   </div>
   <div style="height:12px"></div>
   <div id="agendaList"></div>
@@ -80,7 +83,7 @@
 <div id="editTurnModal" class="modal-backdrop hidden"><div class="modal"><h3>Editar turno</h3><input type="hidden" id="editTurnId"><div class="field"><label>Cliente</label><select id="editTurnClient"></select></div><div class="field"><label>Servicio</label><select id="editTurnService"></select></div><div class="field"><label>Fecha</label><input id="editTurnDate" type="date"></div><div class="field"><label>Hora</label><select id="editTurnHour"></select></div><div class="modal-actions"><button class="btn btn-secondary" onclick="cerrarModal('editTurnModal')">Cancelar</button><button class="btn btn-primary" onclick="guardarEdicionTurno()">Guardar</button></div><button class="btn btn-danger" style="width:100%;margin-top:8px" onclick="cancelarTurnoDesdeModal()">Cancelar turno</button></div></div>
 <script>
 const HORAS=['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
-const ADMIN_EMAIL = 'niicoodavid@gmail.com';
+const ADMIN_EMAIL = 'gamarramartin1995@gmail.com';
 let usuario=null,servicios=[],turnos=[],clientes=[],diasCerrados=[],fechaCliente='',horaCliente='',fechaAdmin='',turnoEditando=null,timer=null;
 const weekdays=['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
 function getFechaHoraAr(){
@@ -342,7 +345,7 @@ function renderAdminCalendar(){
     b.type = 'button';
     b.className = `day ${closed?'blocked':'available'} ${fechaAdmin===f?'selected':''}`;
     b.innerHTML = `<span class="day-name">${weekdays[d.getDay()]}</span><span class="day-num">${d.getDate()}</span><span class="day-state">${closed?'CERRADO':'ABIERTO'}</span>`;
-    b.onclick = () => toggleDia(f, closed);
+    b.onclick = () => { fechaAdmin = f; renderAdminCalendar(); renderAgendaAdmin(); };
     c.appendChild(b);
   }
 }
@@ -354,6 +357,11 @@ async function toggleDia(f, closed){
     await cargarDatos();
     await cargarAdmin();
   } catch(e){ alert(e.message); }
+}
+function toggleDiaActual(){
+  const f = fechaAdmin || hoy();
+  const closed = diasCerrados.includes(f);
+  toggleDia(f, closed);
 }
 function renderClientesAdmin(){
   const term = document.getElementById('clientSearch').value.trim().toLowerCase();
@@ -371,12 +379,14 @@ function renderAgendaAdmin(){
   const f = fechaAdmin || hoy();
   fechaAdmin = f;
   document.getElementById('agendaDayLabel').textContent = `Fecha: ${f.split('-').reverse().join('/')}`;
+  const isClosed = diasCerrados.includes(f);
+  const btnToggle = document.getElementById('btnToggleDia');
+  if(btnToggle){
+    btnToggle.textContent = isClosed ? 'Abrir día' : 'Cerrar día';
+    btnToggle.className = isClosed ? 'btn btn-primary' : 'btn btn-secondary';
+  }
   const c = document.getElementById('agendaList');
   c.innerHTML = '';
-  if(diasCerrados.includes(f)){
-    c.innerHTML = `<div class="notice" style="display:flex;justify-content:space-between;align-items:center;"><span>Este día se encuentra cerrado.</span><button class="btn btn-primary" style="padding:6px 12px;font-size:11px;" onclick="toggleDia('${f}', true)">Abrir día</button></div>`;
-    return;
-  }
   HORAS.forEach(h => {
     const t = turnos.find(x => x.estado === 'confirmado' && normalizarFH(x.fecha_hora) === `${f} ${h}`);
     const past = horaPaso(f, h);
@@ -385,7 +395,7 @@ function renderAgendaAdmin(){
     if(t){
       card.innerHTML = `<div class="admin-row"><div><div class="admin-main" style="color:#888;">${h} · OCUPADO: ${escapeHtml(t.cliente)}</div><div class="admin-sub">${escapeHtml(t.servicio)}</div></div><button class="icon-btn" onclick="editarTurno(${t.id})">✎</button></div>`;
     } else {
-      card.innerHTML = `<div class="admin-row"><div><div class="admin-main" style="color:${past?'#888':'#54bd80'}">${h} · ${past?'VENCIDO':'LIBRE'}</div></div>${past?'':`<button class="icon-btn" onclick="abrirTurnoModal('${f}','${h}')">＋</button>`}</div>`;
+      card.innerHTML = `<div class="admin-row"><div><div class="admin-main" style="color:${past?'#888':'#54bd80'}">${h} · ${isClosed ? 'DÍA CERRADO' : past ? 'PASADO' : 'LIBRE'}</div></div>${isClosed || past ? '' : `<button class="icon-btn" onclick="abrirTurnoModal('${f}','${h}')">＋</button>`}</div>`;
     }
     c.appendChild(card);
   });
