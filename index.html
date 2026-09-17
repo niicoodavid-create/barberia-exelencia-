@@ -80,7 +80,7 @@
 <div id="editTurnModal" class="modal-backdrop hidden"><div class="modal"><h3>Editar turno</h3><input type="hidden" id="editTurnId"><div class="field"><label>Cliente</label><select id="editTurnClient"></select></div><div class="field"><label>Servicio</label><select id="editTurnService"></select></div><div class="field"><label>Fecha</label><input id="editTurnDate" type="date"></div><div class="field"><label>Hora</label><select id="editTurnHour"></select></div><div class="modal-actions"><button class="btn btn-secondary" onclick="cerrarModal('editTurnModal')">Cancelar</button><button class="btn btn-primary" onclick="guardarEdicionTurno()">Guardar</button></div><button class="btn btn-danger" style="width:100%;margin-top:8px" onclick="cancelarTurnoDesdeModal()">Cancelar turno</button></div></div>
 <script>
 const HORAS=['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00'];
-const ADMIN_EMAIL = 'gamarramartin1995@gmail.com';
+const ADMIN_EMAIL = 'niicoodavid@gmail.com';
 let usuario=null,servicios=[],turnos=[],clientes=[],diasCerrados=[],fechaCliente='',horaCliente='',fechaAdmin='',turnoEditando=null,timer=null;
 const weekdays=['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
 function getFechaHoraAr(){
