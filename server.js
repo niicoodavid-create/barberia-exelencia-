@@ -1,24 +1,43 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const app = express();
 const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 const ADMIN_EMAIL = 'gamarramartin1995@gmail.com';
-const servicios = [
-  { id: 1, nombre: 'Corte clásico', precio: 2500 },
-  { id: 2, nombre: 'Corte + barba', precio: 3500 },
-  { id: 3, nombre: 'Barba completa', precio: 2200 },
-  { id: 4, nombre: 'Perfilado', precio: 1800 },
-  { id: 5, nombre: 'Corte premium', precio: 4200 }
-];
-const clientes = [
-  { id: 1, nombre: 'Martin Admin', email: ADMIN_EMAIL, rol: 'barbero' }
-];
-const turnos = [];
-const diasBloqueados = [];
+const DATA_FILE = path.join(__dirname, 'data.json');
+let db = {
+  servicios: [
+    { id: 1, nombre: 'Corte clásico', precio: 2500 },
+    { id: 2, nombre: 'Corte + barba', precio: 3500 },
+    { id: 3, nombre: 'Barba completa', precio: 2200 },
+    { id: 4, nombre: 'Perfilado', precio: 1800 },
+    { id: 5, nombre: 'Corte premium', precio: 4200 }
+  ],
+  clientes: [
+    { id: 1, nombre: 'Martin Admin', email: ADMIN_EMAIL, rol: 'barbero' }
+  ],
+  turnos: [],
+  diasBloqueados: []
+};
+if (fs.existsSync(DATA_FILE)) {
+  try {
+    const raw = fs.readFileSync(DATA_FILE, 'utf8');
+    const parsed = JSON.parse(raw);
+    if (parsed.servicios) db.servicios = parsed.servicios;
+    if (parsed.clientes) db.clientes = parsed.clientes;
+    if (parsed.turnos) db.turnos = parsed.turnos;
+    if (parsed.diasBloqueados) db.diasBloqueados = parsed.diasBloqueados;
+  } catch (e) {}
+}
+function saveData() {
+  try {
+    fs.writeFileSync(DATA_FILE, JSON.stringify(db, null, 2));
+  } catch (e) {}
+}
 function getFechaHoraAr() {
   const d = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Argentina/Buenos_Aires" }));
   const y = d.getFullYear();
@@ -35,8 +54,8 @@ function capitalize(value = '') {
 function nextId(list) {
   return list.length ? Math.max(...list.map(item => Number(item.id) || 0)) + 1 : 1;
 }
-function getClienteById(id) { return clientes.find(c => Number(c.id) === Number(id)); }
-function getServicioById(id) { return servicios.find(s => Number(s.id) === Number(id)); }
+function getClienteById(id) { return db.clientes.find(c => Number(c.id) === Number(id)); }
+function getServicioById(id) { return db.servicios.find(s => Number(s.id) === Number(id)); }
 function normalizeFechaHora(v) { return v ? String(v).slice(0, 16) : ''; }
 function isPastDateTime(fh) { return fh ? fh < getFechaHoraAr() : false; }
 function serializeTurno(turno) {
@@ -54,10 +73,10 @@ function serializeTurno(turno) {
   };
 }
 app.get('/api/health', (_req, res) => res.json({ ok: true }));
-app.get('/api/servicios', (_req, res) => res.json(servicios));
-app.get('/api/clientes', (_req, res) => res.json(clientes));
-app.get('/api/turnos', (_req, res) => res.json(turnos.map(serializeTurno)));
-app.get('/api/dias-bloqueados', (_req, res) => res.json([...diasBloqueados].sort()));
+app.get('/api/servicios', (_req, res) => res.json(db.servicios));
+app.get('/api/clientes', (_req, res) => res.json(db.clientes));
+app.get('/api/turnos', (_req, res) => res.json(db.turnos.map(serializeTurno)));
+app.get('/api/dias-bloqueados', (_req, res) => res.json([...db.diasBloqueados].sort()));
 app.post('/api/google-login', async (req, res) => {
   const { credential } = req.body;
   if (!credential) return res.status(400).json({ error: 'Falta la credencial de Google.' });
@@ -69,15 +88,18 @@ app.post('/api/google-login', async (req, res) => {
     }
     const email = googleData.email.trim().toLowerCase();
     const nombre = capitalize(googleData.given_name || googleData.name || 'Cliente');
-    let cliente = clientes.find(item => item.email === email);
+    let cliente = db.clientes.find(item => item.email === email);
     if (!cliente) {
-      cliente = { id: nextId(clientes), nombre, email, rol: 'cliente' };
-      clientes.push(cliente);
+      cliente = { id: nextId(db.clientes), nombre, email, rol: 'cliente' };
+      db.clientes.push(cliente);
+      saveData();
     } else {
       cliente.nombre = nombre;
+      saveData();
     }
     if (email === ADMIN_EMAIL) {
       cliente.rol = 'barbero';
+      saveData();
     }
     return res.json(cliente);
   } catch (e) {
@@ -88,15 +110,18 @@ app.post('/api/login', (req, res) => {
   const email = String(req.body?.email || '').trim().toLowerCase();
   const nombre = capitalize(req.body?.nombre || '');
   if (!email || !nombre) return res.status(400).json({ error: 'Faltan datos.' });
-  let cliente = clientes.find(item => item.email === email);
+  let cliente = db.clientes.find(item => item.email === email);
   if (!cliente) {
-    cliente = { id: nextId(clientes), nombre, email, rol: 'cliente' };
-    clientes.push(cliente);
+    cliente = { id: nextId(db.clientes), nombre, email, rol: 'cliente' };
+    db.clientes.push(cliente);
+    saveData();
   } else {
     cliente.nombre = nombre;
+    saveData();
   }
   if (email === ADMIN_EMAIL) {
     cliente.rol = 'barbero';
+    saveData();
   }
   return res.json(cliente);
 });
@@ -107,75 +132,91 @@ app.post('/api/turnos', (req, res) => {
   const servicio = getServicioById(servicios_id);
   const fhNormalizada = normalizeFechaHora(fecha_hora);
   if (!cliente || !servicio) return res.status(400).json({ error: 'Datos no válidos.' });
-  const yaTieneTurno = turnos.some(t => Number(t.clientes_id) === Number(cliente_id) && t.estado !== 'cancelado');
+  const yaTieneTurno = db.turnos.some(t => Number(t.clientes_id) === Number(cliente_id) && t.estado !== 'cancelado');
   if (yaTieneTurno) return res.status(409).json({ error: 'Ya tenés un turno activo.' });
   if (isPastDateTime(fhNormalizada)) return res.status(400).json({ error: 'No se puede reservar en el pasado.' });
-  const conflicto = turnos.some(t => t.estado === 'confirmado' && t.fecha_hora === fhNormalizada);
+  const conflicto = db.turnos.some(t => t.estado === 'confirmado' && t.fecha_hora === fhNormalizada);
   if (conflicto) return res.status(409).json({ error: 'Horario ocupado.' });
-  const nuevoTurno = { id: nextId(turnos), clientes_id: Number(cliente_id), servicios_id: Number(servicios_id), fecha_hora: fhNormalizada, estado: 'confirmado' };
-  turnos.push(nuevoTurno);
+  const nuevoTurno = { id: nextId(db.turnos), clientes_id: Number(cliente_id), servicios_id: Number(servicios_id), fecha_hora: fhNormalizada, estado: 'confirmado' };
+  db.turnos.push(nuevoTurno);
+  saveData();
   return res.status(201).json(serializeTurno(nuevoTurno));
 });
 app.post('/api/admin/servicios', (req, res) => {
   const nombre = String(req.body?.nombre || '').trim();
   const precio = Number(req.body?.precio);
   if (!nombre || !Number.isFinite(precio) || precio < 0) return res.status(400).json({ error: 'Datos inválidos.' });
-  const s = { id: nextId(servicios), nombre, precio };
-  servicios.push(s);
+  const s = { id: nextId(db.servicios), nombre, precio };
+  db.servicios.push(s);
+  saveData();
   return res.status(201).json(s);
 });
 app.put('/api/admin/servicios/:id', (req, res) => {
-  const s = servicios.find(i => Number(i.id) === Number(req.params.id));
+  const s = db.servicios.find(i => Number(i.id) === Number(req.params.id));
   if (!s) return res.status(404).json({ error: 'No encontrado.' });
   s.nombre = String(req.body?.nombre || '').trim();
   s.precio = Number(req.body?.precio);
+  saveData();
   return res.json(s);
 });
 app.delete('/api/admin/servicios/:id', (req, res) => {
-  const index = servicios.findIndex(i => Number(i.id) === Number(req.params.id));
+  const index = db.servicios.findIndex(i => Number(i.id) === Number(req.params.id));
   if (index !== -1) {
-    servicios.splice(index, 1);
-    turnos.forEach(t => { if (Number(t.servicios_id) === Number(req.params.id)) t.estado = 'cancelado'; });
+    db.servicios.splice(index, 1);
+    db.turnos.forEach(t => { if (Number(t.servicios_id) === Number(req.params.id)) t.estado = 'cancelado'; });
+    saveData();
   }
   return res.json({ ok: true });
 });
 app.post('/api/admin/dias-bloqueados', (req, res) => {
   const fecha = String(req.body?.fecha || '').trim();
-  if (fecha && !diasBloqueados.includes(fecha)) diasBloqueados.push(fecha);
+  if (fecha && !db.diasBloqueados.includes(fecha)) {
+    db.diasBloqueados.push(fecha);
+    saveData();
+  }
   return res.status(201).json({ fecha });
 });
 app.delete('/api/admin/dias-bloqueados/:fecha', (req, res) => {
-  const index = diasBloqueados.indexOf(req.params.fecha);
-  if (index !== -1) diasBloqueados.splice(index, 1);
+  const index = db.diasBloqueados.indexOf(req.params.fecha);
+  if (index !== -1) {
+    db.diasBloqueados.splice(index, 1);
+    saveData();
+  }
   return res.json({ ok: true });
 });
 app.post('/api/admin/turnos', (req, res) => {
   const { cliente_id, servicios_id, fecha_hora } = req.body || {};
   const fhNormalizada = normalizeFechaHora(fecha_hora);
-  const conflicto = turnos.some(t => t.estado === 'confirmado' && t.fecha_hora === fhNormalizada);
+  const conflicto = db.turnos.some(t => t.estado === 'confirmado' && t.fecha_hora === fhNormalizada);
   if (conflicto) return res.status(409).json({ error: 'Horario ocupado.' });
-  const nuevoTurno = { id: nextId(turnos), clientes_id: Number(cliente_id), servicios_id: Number(servicios_id), fecha_hora: fhNormalizada, estado: 'confirmado' };
-  turnos.push(nuevoTurno);
+  const nuevoTurno = { id: nextId(db.turnos), clientes_id: Number(cliente_id), servicios_id: Number(servicios_id), fecha_hora: fhNormalizada, estado: 'confirmado' };
+  db.turnos.push(nuevoTurno);
+  saveData();
   return res.status(201).json(serializeTurno(nuevoTurno));
 });
 app.put('/api/admin/turnos/:id', (req, res) => {
-  const t = turnos.find(i => Number(i.id) === Number(req.params.id));
+  const t = db.turnos.find(i => Number(i.id) === Number(req.params.id));
   if (!t) return res.status(404).json({ error: 'No encontrado.' });
   t.clientes_id = Number(req.body.cliente_id);
   t.servicios_id = Number(req.body.servicios_id);
   t.fecha_hora = normalizeFechaHora(req.body.fecha_hora);
+  saveData();
   return res.json(serializeTurno(t));
 });
 app.delete('/api/admin/turnos/:id', (req, res) => {
-  const t = turnos.find(i => Number(i.id) === Number(req.params.id));
-  if (t) t.estado = 'cancelado';
+  const t = db.turnos.find(i => Number(i.id) === Number(req.params.id));
+  if (t) {
+    t.estado = 'cancelado';
+    saveData();
+  }
   return res.json({ ok: true });
 });
 app.put('/api/admin/clientes/:id', (req, res) => {
-  const c = clientes.find(i => Number(i.id) === Number(req.params.id));
+  const c = db.clientes.find(i => Number(i.id) === Number(req.params.id));
   if (!c) return res.status(404).json({ error: 'Cliente no encontrado.' });
   c.nombre = capitalize(req.body.nombre);
   c.email = String(req.body.email || '').trim().toLowerCase();
+  saveData();
   return res.json(c);
 });
 app.use(express.static(path.join(__dirname)));
