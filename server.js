@@ -12,11 +12,11 @@ const ADMIN_EMAIL = 'gamarramartin1995@gmail.com';
 const DATA_FILE = path.join(__dirname, 'data.json');
 let db = {
   servicios: [
-    { id: 1, nombre: 'Corte clásico/fade', precio: '$14,000' },
-    { id: 2, nombre: 'corte premium(barba/ceja/limpieza facial)', precio: '$18,000' },
-    { id: 3, nombre: 'corte/barba', precio: '$18,000' },
-    { id: 4, nombre: 'color global+corte(4 a 5hs aprox)', precio: '$60,000' },
-    { id: 5, nombre: 'mechas+corte', precio: '$50,000' }
+    { id: 1, nombre: 'Corte clásico/fade', precio: $14,000 },
+    { id: 2, nombre: 'corte premium(barba/ceja/limpieza facial)', precio: $18,000 },
+    { id: 3, nombre: 'corte/barba', precio: $18,000 },
+    { id: 4, nombre: 'color global+corte(4 a 5hs aprox)', precio: $60,000 },
+    { id: 5, nombre: 'mechas+corte', precio: $50,000 }
   ],
   clientes: [
     { id: 1, nombre: 'Martin Admin', email: ADMIN_EMAIL, rol: 'barbero' }
