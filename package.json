@@ -1,7 +1,7 @@
 {
   "name": "excelencia-barberia",
   "version": "1.0.0",
-  "description": "Sistema de turnos para barbería",
+  "description": "Sistema de turnos profesional para barbería de autor",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
